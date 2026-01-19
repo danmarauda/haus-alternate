@@ -1,327 +1,481 @@
-# HAUS Advisory Network - HTML to React Conversion
+# HAUS Platform - Luxury Real Estate Platform
 
-## Overview
+> Modern full-stack luxury real estate platform built with Next.js 16, React 19, and Convex backend
 
-This project is a modern Next.js 16 conversion of the HAUS Advisory Network HTML page, featuring elite real estate agents from the global HAUS network.
+[![Next.js](https://img.shields.io/badge/Next.js-16.1-black)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Convex](https://img.shields.io/badge/Convex-latest-purple)](https://convex.dev/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## Tech Stack
+## 🏠 Overview
 
-- **Next.js 16** - React framework with App Router
-- **React 19** - Latest React with hooks
-- **TypeScript** - Strict typing for type safety
-- **Tailwind CSS** - Utility-first styling
-- **Lucide React** - Modern icon library
+**HAUS Platform** is a comprehensive luxury real estate platform featuring elite property listings, AI-powered market intelligence, agent dashboards, and sophisticated buyer tools. Originally built as static HTML, now fully converted to a modern Next.js application with complete backend infrastructure.
 
-## Project Structure
+### Key Features
+
+- 🏢 **Property Listings** - Prestige property showcase with AI insights
+- 🤖 **AI Market Intelligence** - Predictive analytics and trend analysis
+- 👥 **Agent Directory** - Elite agent network with performance metrics
+- 📊 **Agent Dashboard** - Pipeline management and analytics
+- 🔍 **Smart Search** - Advanced filtering with saved searches
+- 📄 **Document Vault** - Secure contract and document management
+- 📈 **Market Analytics** - Real-time suburb statistics
+- 🏷️ **Lead Management** - Enquiry tracking and conversion
+- 📱 **Mobile Optimized** - Responsive design with mobile assistant
+- 🎨 **Modern UI** - Glassmorphism, animations, dark theme
+
+## 🚀 Tech Stack
+
+### Frontend
+- **Framework**: Next.js 16.1.3 (App Router + Turbopack)
+- **UI Library**: React 19 with TypeScript 5
+- **Styling**: Tailwind CSS with custom design tokens
+- **Icons**: Lucide React
+- **Animations**: GSAP, Framer Motion (in selected pages)
+- **3D**: Spline (3D interactions on landing pages)
+
+### Backend
+- **BaaS**: Convex (Database, Functions, Real-time)
+- **Database**: 10 tables with full relational schema
+- **API**: Type-safe queries and mutations
+- **Real-time**: Automatic subscriptions and updates
+
+### Development
+- **Package Manager**: Bun (ultra-fast)
+- **Type Safety**: Strict TypeScript configuration
+- **Code Quality**: ESLint, Prettier configured
+- **Git**: Version control with GitHub
+
+## 📁 Project Structure
 
 ```
 haus-alternate/
-├── app/
-│   ├── advisory/
-│   │   └── page.tsx          # Main advisory network page
-│   ├── globals.css           # Global styles
-│   ├── layout.tsx            # Root layout with fonts
-│   └── page.tsx              # Home page
-├── components/
-│   └── ui/                   # shadcn/ui components (to be added)
-├── lib/
-│   └── utils.ts              # Utility functions (cn helper)
-├── types/
-│   └── advisory.ts           # TypeScript interfaces
-├── package.json              # Dependencies
-├── tsconfig.json             # TypeScript config
-├── tailwind.config.ts        # Tailwind configuration
-├── next.config.js            # Next.js configuration
-└── postcss.config.js         # PostCSS configuration
+├── app/                                    # Next.js App Router pages
+│   ├── advisory/                           # Agent directory page
+│   ├── agent-dashboard/                    # Agent dashboard
+│   ├── agent-pipeline/                     # Deal pipeline management
+│   ├── market-intelligence/                # Market analytics
+│   ├── residential-intelligence/           # Residential insights
+│   ├── new-home-listing/                   # Property listing form
+│   ├── search-results/                     # Property search
+│   ├── listings/                           # Property detail pages
+│   ├── finance/                            # Finance calculators
+│   ├── mobile-*/                           # Mobile-optimized pages
+│   ├── templates/                          # Page templates (18+)
+│   ├── generated-1/ through generated-10/  # Converted HTML pages
+│   ├── globals.css                         # Global styles
+│   ├── layout.tsx                          # Root layout
+│   └── page.tsx                            # Home page
+│
+├── components/                             # React components
+│   ├── providers/
+│   │   └── ConvexProvider.tsx             # Convex context provider
+│   ├── ui/
+│   │   ├── empty-states/                   # 12 empty state components
+│   │   ├── button.tsx, card.tsx, etc.     # shadcn/ui components
+│   ├── haus-logo.tsx                       # HAUS logo component
+│   └── mobile-*.tsx                        # Mobile-specific components
+│
+├── convex/                                 # Convex backend
+│   ├── schema.ts                           # Database schema (10 tables)
+│   ├── functions.ts                        # Queries & mutations
+│   ├── client.ts                           # Convex client factory
+│   ├── type_utils.ts                       # TypeScript helpers
+│   └── convex.config.json                  # Convex CLI config
+│
+├── types/                                  # TypeScript interfaces
+│   ├── advisory.ts
+│   ├── agent-dashboard.ts
+│   ├── listings.ts
+│   ├── market.ts
+│   └── ... (9 type files)
+│
+├── lib/                                    # Utility functions
+│   └── utils.ts                            # cn() helper
+│
+├── .archive/html-originals/                # Original HTML files (10)
+├── .env.convex.example                     # Environment template
+├── CONVEX_SETUP.md                         # Backend setup guide
+├── CONVERSION_SUMMARY.md                   # HTML→React conversion log
+├── README.md                               # This file
+├── package.json
+├── tsconfig.json
+├── tailwind.config.ts
+└── next.config.js
 ```
 
-## Key Features Implemented
+## 🗄️ Database Schema
 
-### 1. **Responsive Design**
-- Mobile-first approach
-- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
-- Adaptive grid layouts for agent cards
+Complete Convex backend with **10 tables**:
 
-### 2. **Agent Cards**
-- Hover animations (grayscale to color, scale effects)
-- Gradient overlays with smooth transitions
-- Badge system (Top 1%, Trending, New, Online status)
-- Performance metrics display
-- Specialty tags
+### Properties
+- Title, description, type, status
+- Address, suburb, state, postcode, country
+- Price, auction date, council rates
+- Bedrooms, bathrooms, parking, land size
+- Images, floorplan, virtual tour
+- Agent assignment, contact info
+- **AI Insights**: Value range, target price, yield, growth predictions
+- Luxury flags, verification status
 
-### 3. **Interactive Elements**
-- Search input with state management
-- Location, Specialty, and Language dropdowns
-- Grid/Map view toggle
-- Pagination controls
+### Users
+- Authentication (email, phone, avatar)
+- Roles: admin, agent, buyer, seller
+- **Agent Specific**: License, agency, specializations, ratings
+- Preferences: Saved searches, saved properties, notifications
+- **Fair Play**: Verification level, subscription tier
 
-### 4. **Modern React Patterns**
-- Functional components with hooks (useState)
-- TypeScript interfaces for type safety
-- Component composition (AgentCard, StatCard, FooterColumn)
-- Proper prop typing and callbacks
+### Market Data
+- Suburb statistics: median price, clearance rate, days on market
+- Supply & demand metrics
+- Growth predictions (12-month forecast)
+- Demographics and amenities scores
+- AI confidence levels
 
-### 5. **Styling**
-- Tailwind CSS utility classes
-- Custom font variables (Space Grotesk, Inter, Space Mono)
-- Glassmorphism effects (backdrop-blur, bg-opacity)
-- Gradient overlays and noise texture
+### Additional Tables
+- **Agencies** - Agency profiles with stats
+- **Saved Searches** - User search alerts
+- **Documents** - Contract and document vault
+- **Insights** - AI-generated market alerts
+- **Activity Log** - User activity tracking
+- **Notifications** - Email/push notifications
+- **Leads** - Enquiry and lead management
+- **Analytics** - Event tracking
 
-## Conversion Details
+## 🎨 UI Components
 
-### HTML to JSX Transformations
+### Empty State Components (12 variants)
 
-| HTML | JSX |
-|------|-----|
-| `class` | `className` |
-| `style="color: red"` | `style={{ color: 'red' }}` |
-| `<img src="...">` | `<Image src="..." />` (Next.js) |
-| `onclick` | `onClick` |
-| `<!-- comment -->` | `{/* comment */}` |
-| `<input>` | `<input />` |
-| `<br>` | `<br />` |
+```tsx
+import {
+  NoProperties,
+  NoSavedProperties,
+  NoSearchResults,
+  NoDocuments,
+  NoInsights,
+  NoNotifications,
+  NoLeads,
+  NoTeamMembers,
+  NoMarketData,
+  ErrorState,
+  ProcessingState,
+  EmptyStatCard
+} from "@/components/ui/empty-states"
 
-### Key Changes from Original HTML
+// Usage
+<NoProperties onCreateListing={() => navigate('/create')} />
+<NoSearchResults query="waterfront" onClear={() => clearFilters()} />
+<ErrorState title="Failed to load" onRetry={() => refetch()} />
+```
 
-1. **Client-Side Interactivity**
-   - Added `"use client"` directive
-   - Implemented React state management
-   - Replaced vanilla JS event handlers with React handlers
+### shadcn/ui Components
+- Button, Card, Input, Label
+- Select, Checkbox, Slider, Textarea
+- Sheet, ScrollArea, Badge
+- All fully typed and customizable
 
-2. **Type Safety**
-   - Created TypeScript interfaces (Agent, FilterState, ViewMode)
-   - Properly typed all component props
-   - Type-safe event handlers
+## 🛠️ Setup Instructions
 
-3. **Next.js Specific**
-   - Used Next.js Image component for optimization
-   - Implemented App Router structure
-   - Added metadata and font configuration
+### Prerequisites
 
-4. **Component Structure**
-   - Extracted reusable components (AgentCard, StatCard, FooterColumn)
-   - Separated concerns (types, utilities, components)
-   - Followed React best practices
+- Node.js 18+ or Bun
+- GitHub account (for Convex)
+- Modern web browser
 
-## Getting Started
-
-### Installation
+### 1. Clone and Install
 
 ```bash
-# Install dependencies
-npm install
+# Clone repository
+git clone https://github.com/danmarauda/haus-alternate.git
+cd haus-alternate
 
-# or with bun
+# Install dependencies (Bun recommended)
 bun install
 
-# or with pnpm
+# Or with npm/pnpm
+npm install
+# or
 pnpm install
 ```
 
-### Development
+### 2. Initialize Convex Backend
 
 ```bash
-# Start development server
+# Start Convex development (will prompt for project creation)
+npx convex dev
+
+# This will:
+# - Create a new Convex project
+# - Generate types (convex/_generated/)
+# - Start dev dashboard at http://localhost:6789
+```
+
+### 3. Configure Environment
+
+```bash
+# Copy environment template
+cp .env.convex.example .env.local
+
+# Add your Convex deployment URL (from step 2)
+echo "NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud" >> .env.local
+```
+
+### 4. Integrate Convex Provider
+
+Add to `app/layout.tsx`:
+
+```tsx
+import { ConvexContextProvider } from "@/components/providers/ConvexProvider"
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <ConvexContextProvider>
+          {children}
+        </ConvexContextProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+### 5. Start Development Server
+
+```bash
+# Start Next.js dev server
+bun dev
+# or
 npm run dev
 
-# Open browser to http://localhost:3000
-# Navigate to http://localhost:3000/advisory
+# Open http://localhost:3000
 ```
 
-### Build
+## 📚 Usage Examples
+
+### Fetching Properties
+
+```tsx
+import { useQuery } from "convex/react"
+import { api } from "../../convex/_generated"
+
+function PropertyList() {
+  const properties = useQuery(api.properties.list, {
+    status: "active",
+    suburb: "Point Piper",
+    limit: 10
+  })
+
+  if (!properties) return <Loading />
+  if (properties.length === 0) return <NoProperties />
+
+  return (
+    <div>
+      {properties.map(property => (
+        <PropertyCard key={property._id} property={property} />
+      ))}
+    </div>
+  )
+}
+```
+
+### Saving a Property
+
+```tsx
+import { useMutation } from "convex/react"
+import { api } from "../../convex/_generated"
+
+function SaveButton({ propertyId }) {
+  const saveProperty = useMutation(api.properties.toggleSave)
+
+  return (
+    <button onClick={() => saveProperty({ propertyId })}>
+      Save Property
+    </button>
+  )
+}
+```
+
+### Using Empty States
+
+```tsx
+import { NoSearchResults, ErrorState } from "@/components/ui/empty-states"
+
+function SearchResults({ query, results, error }) {
+  if (error) return <ErrorState onRetry={() => refetch()} />
+  if (results.length === 0) return <NoSearchResults query={query} />
+
+  return results.map(r => <ResultCard key={r.id} result={r} />)
+}
+```
+
+## 🚀 Deployment
+
+### Frontend (Vercel)
 
 ```bash
-# Production build
-npm run build
+# Install Vercel CLI
+npm i -g vercel
 
-# Start production server
-npm start
+# Deploy
+vercel
+
+# Or connect GitHub repo for auto-deploy
 ```
 
-## Components
+### Backend (Convex)
 
-### AdvisoryPage (`app/advisory/page.tsx`)
+```bash
+# Deploy Convex functions to production
+npx convex deploy
 
-Main page component featuring:
-- Header with animated titles
-- Filter bar with search and dropdowns
-- Agent grid with cards
-- Pagination controls
-- Join CTA section
-- Footer with links
-
-**State Management:**
-```typescript
-const [filters, setFilters] = useState<FilterState>({
-  search: "",
-  location: "",
-  specialty: "",
-  language: ""
-})
-const [viewMode, setViewMode] = useState<ViewMode>("grid")
-const [currentPage, setCurrentPage] = useState(1)
+# View dashboard
+npx convex dashboard
 ```
 
-### AgentCard
+**Note**: Convex backend URL stays the same across environments!
 
-Reusable agent card component with:
-- Image with hover effects
-- Badge system
-- Performance metrics
-- Specialty tags
-- Contact button
+## 📖 Available Pages
 
-**Props:**
-```typescript
-interface AgentCardProps {
-  agent: Agent
+### Converted HTML Pages (10)
+1. `/advisory` - HAUS Advisory Network
+2. `/agent-dashboard` - Agent Dashboard
+3. `/market-intelligence` - Market Analytics
+4. `/residential-intelligence` - Residential Insights
+5. `/new-home-listing` - Property Listing Form
+6. `/search-results` - Property Search
+7. `/listings/wolseley` - Property Detail
+8. `/listings/prestige-wolseley` - Prestige Listing
+9. `/agent-pipeline` - Deal Pipeline
+10. Plus 11+ template and landing pages
+
+### Template Pages
+- Finance landing pages (crypto, loans)
+- Mobile sales dashboard
+- Travel booking interface
+- Construction management
+- Dark/light theme variants
+- Interactive landing pages (GSAP, Spline, Voice)
+
+## 🎯 Key Features
+
+### Property Listings
+- High-end image galleries
+- AI-powered valuations
+- Inspection scheduler
+- Agent contact forms
+- Save to favorites
+- Share functionality
+
+### Market Intelligence
+- Suburb statistics
+- Growth predictions
+- Clearance rates
+- Days on market
+- Amenities scoring
+- Comparable sales
+
+### Agent Tools
+- Pipeline management
+- Lead tracking
+- Performance analytics
+- Commission tracking
+- Team collaboration
+- Document management
+
+### Buyer Tools
+- Saved searches
+- Price alerts
+- Property comparison
+- Enquiry management
+- Inspection booking
+- Document vault
+
+## 🧪 Development Commands
+
+```bash
+# Development
+bun dev                  # Start dev server (http://localhost:3000)
+npx convex dev           # Start Convex backend (http://localhost:6789)
+
+# Build & Deploy
+bun run build           # Production build
+bun start               # Start production server
+npx convex deploy       # Deploy backend to production
+
+# Code Quality
+bun run lint            # Run ESLint
+npx tsc --noEmit        # Type check
+
+# Convex Management
+npx convex dashboard    # Open Convex dashboard
+npx convex deploy       # Deploy to production
+npx convex logs         # View function logs
+```
+
+## 📦 Package Scripts
+
+```json
+{
+  "dev": "next dev --turbo",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
 }
 ```
 
-### StatCard
+## 🔧 Configuration
 
-Statistic display card for the CTA section.
+### TypeScript
+- Strict mode enabled
+- Path aliases configured (`@/` maps to project root)
+- Full type checking for Convex functions
 
-**Props:**
-```typescript
-interface StatCardProps {
-  icon: React.ElementType
-  value: string
-  label: string
-}
-```
+### Tailwind CSS
+- Custom fonts: Space Grotesk, Inter, Space Mono
+- Custom color palette with zinc/neutral
+- Dark theme default
+- Responsive breakpoints: sm, md, lg, xl, 2xl
 
-### FooterColumn
+### Next.js
+- App Router with Turbopack
+- Static generation where possible
+- Image optimization enabled
+- Internationalized routing ready
 
-Footer link column component.
-
-**Props:**
-```typescript
-interface FooterColumnProps {
-  title: string
-  links: string[]
-}
-```
-
-## TypeScript Interfaces
-
-### Agent
-
-```typescript
-interface Agent {
-  id: string
-  name: string
-  title: string
-  location: string
-  image: string
-  volume: string
-  avgDeal: string
-  specialties: string[]
-  badges?: Array<{
-    icon: string
-    text: string
-    color?: string
-  }>
-  isOnline?: boolean
-}
-```
-
-### FilterState
-
-```typescript
-interface FilterState {
-  search: string
-  location: string
-  specialty: string
-  language: string
-}
-```
-
-### ViewMode
-
-```typescript
-type ViewMode = "grid" | "map"
-```
-
-## Styling Approach
-
-### Tailwind Configuration
-
-Custom fonts defined in `tailwind.config.ts`:
-```typescript
-fontFamily: {
-  display: ["Space Grotesk", "sans-serif"],
-  body: ["Inter", "sans-serif"],
-  mono: ["Space Mono", "monospace"],
-}
-```
-
-### Responsive Classes
-
-Mobile-first pattern:
-```tsx
-<div className="
-  text-sm           // Mobile
-  sm:text-base      // Small screens
-  lg:text-lg        // Large screens
-">
-```
-
-### Color Palette
-
-- Background: `bg-zinc-950`, `bg-[#0A0A0A]`
-- Text: `text-white`, `text-neutral-400`, `text-neutral-500`
-- Accents: `text-indigo-300`, `bg-indigo-600`
-- Borders: `border-white/10`, `border-white/20`
-
-## Future Enhancements
-
-### Potential Improvements
-
-1. **shadcn/ui Integration**
-   - Replace custom buttons with Button component
-   - Use Card component for agent cards
-   - Add Dialog/Sheet for agent details
-   - Implement proper DropdownMenu for filters
-
-2. **Data Fetching**
-   - Connect to real API endpoint
-   - Implement loading states
-   - Add error handling
-   - Infinite scroll pagination
-
-3. **Advanced Features**
-   - Map view integration (Google Maps/Mapbox)
-   - Advanced filtering and sorting
-   - Agent comparison feature
-   - Save favorites functionality
-   - Real-time chat with agents
-
-4. **Performance**
-   - Implement virtual scrolling for large lists
-   - Add image lazy loading
-   - Optimize bundle size
-   - Add service worker for offline support
-
-5. **Accessibility**
-   - Add ARIA labels
-   - Keyboard navigation
-   - Screen reader optimization
-   - Focus management
-
-## Browser Support
+## 🌐 Browser Support
 
 - Chrome/Edge (latest)
 - Firefox (latest)
 - Safari (latest)
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
-## License
+## 📄 License
 
-This is a demonstration project for HAUS real estate platform.
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📞 Support
+
+For questions or support:
+- Open an issue on GitHub
+- Check [CONVEX_SETUP.md](./CONVEX_SETUP.md) for backend setup
+- Review [CONVERSION_SUMMARY.md](./CONVERSION_SUMMARY.md) for conversion details
+
+## 🙏 Acknowledgments
+
+- **Original HTML Design**: HAUS Real Estate Platform
+- **Converted by**: Claude Code AI Assistant
+- **Conversion Date**: January 19, 2025
+- **Backend**: Convex (concierge.backend)
 
 ---
 
-**Conversion completed:** January 19, 2025
-**Original HTML:** `/Users/alias/Downloads/_ACTIVE/haus/HAUS_HTML/haus-advisory-network.html`
-**Converted by:** Claude Code AI Assistant
+**Built with ❤️ for luxury real estate**
+
+**Repository**: https://github.com/danmarauda/haus-alternate
+**Live Demo**: Coming soon
