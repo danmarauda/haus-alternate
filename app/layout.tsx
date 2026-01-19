@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter, Space_Grotesk, Space_Mono } from "next/font/google"
 import "./globals.css"
 import { ShowcaseSidebar } from "@/components/showcase-sidebar"
+import { ConvexContextProvider } from "@/components/providers/ConvexProvider"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,8 +24,8 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "HAUS | Advisory Network",
-  description: "Elite advisory network of top 1% real estate agents worldwide",
+  title: "HAUS | Luxury Real Estate Platform",
+  description: "AI-native luxury real estate platform with transparent pricing, fair play guarantee, and elite advisory network",
 }
 
 export default function RootLayout({
@@ -35,10 +36,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${spaceMono.variable}`}>
       <body className="flex min-h-screen">
-        <ShowcaseSidebar />
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
+        <ConvexContextProvider>
+          <ShowcaseSidebar />
+          <main className="flex-1 overflow-auto">
+            {children}
+          </main>
+        </ConvexContextProvider>
       </body>
     </html>
   )
