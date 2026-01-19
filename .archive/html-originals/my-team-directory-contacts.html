@@ -1,0 +1,555 @@
+<html lang="en" class="antialiased"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAUS | My Team</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@300;400;500;600&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- GSAP / Lenis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+
+    <style>
+      /* --- CORE VARS --- */
+      :root {
+          --c-bg: #050505;
+          --c-card: #0A0A0A;
+          --c-border: rgba(255,255,255,0.08);
+          --font-display: 'Space Grotesk', sans-serif;
+          --font-body: 'Inter', sans-serif;
+          --font-mono: 'Space Mono', monospace;
+      }
+      body {
+          background-color: var(--c-bg);
+          color: #e5e5e5;
+          font-family: var(--font-body);
+          margin: 0;
+          overflow-x: hidden;
+          cursor: default;
+          opacity: 0; /* JS Fade in */
+      }
+      ::selection { background: rgba(255, 255, 255, 0.2); color: #fff; }
+
+      /* --- UTILS --- */
+      .wrapper { position: relative; z-index: 10; background-color: var(--c-bg); min-height: 100vh; }
+      .display-font { font-family: var(--font-display); }
+      .font-mono { font-family: var(--font-mono); }
+
+      /* --- CUSTOM UI ELEMENTS --- */
+
+      /* Custom Slider */
+      input[type=range] {
+        -webkit-appearance: none;
+        width: 100%;
+        background: transparent;
+      }
+      input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+        margin-top: -6px;
+        box-shadow: 0 0 0 4px rgba(0,0,0,0.5);
+      }
+      input[type=range]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 4px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.1);
+        border-radius: 2px;
+      }
+
+      /* Custom Checkbox */
+      .custom-checkbox input:checked + div {
+        background-color: #fff;
+        border-color: #fff;
+      }
+      .custom-checkbox input:checked + div svg {
+        display: block;
+        color: #000;
+      }
+      .custom-checkbox input:checked + div .text-white {
+        color: #000;
+      }
+      .custom-checkbox input:checked + div .text-neutral-400 {
+        color: #555;
+      }
+
+      /* Grid Pattern Overlay */
+      .grid-bg {
+        background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 30px 30px;
+      }
+
+      /* Online Indicator Pulse */
+      .status-dot {
+        position: relative;
+        width: 8px; height: 8px;
+        background-color: #10b981;
+        border-radius: 50%;
+      }
+      .status-dot::after {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 100%; height: 100%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 1px solid #10b981;
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      }
+      @keyframes pulse-ring {
+        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+        50% { opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+      }
+
+      /* Glass Panel */
+      .glass-panel {
+        background: rgba(10, 10, 10, 0.6);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+    </style>
+  </head>
+  <body class="text-sm leading-relaxed text-neutral-300">
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 w-full px-6 h-16 flex justify-between items-center z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5">
+      <div class="flex items-center gap-6">
+        <a href="#" class="display-font text-lg font-bold tracking-tight text-white flex items-center gap-2">
+          <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-bold tracking-tighter rounded-sm">
+            HA
+          </div>
+          HAUS
+          <span class="text-neutral-600 font-normal">.CONTACTS</span>
+        </a>
+        <div class="h-4 w-px bg-white/10"></div>
+        <div class="flex items-center gap-2 text-xs text-neutral-400">
+          <span class="hover:text-white cursor-pointer transition-colors">
+            Dashboard
+          </span>
+          <span class="text-neutral-700">/</span>
+          <span class="text-white">Team Directory</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 bg-white/5 px-2 py-1 rounded-md border border-white/5">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span class="text-[10px] font-mono text-emerald-500 uppercase">System Online</span>
+        </div>
+        <button class="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors border border-transparent hover:border-white/10 rounded-md">
+          <i data-lucide="bell" class="w-4 h-4"></i>
+        </button>
+        <button class="bg-white text-black px-4 py-1.5 rounded text-xs font-semibold hover:bg-neutral-200 transition-colors flex items-center gap-2">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Add Contact</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="wrapper pt-20 pb-12 px-6 max-w-[1600px] mx-auto">
+      <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 relative items-start">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="hidden lg:flex flex-col sticky top-24 h-[calc(100vh-8rem)] shrink-0 w-[60px] hover:w-[240px] transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] bg-[#050505] z-40 group border-r border-white/5 overflow-hidden rounded-r-xl shadow-2xl shadow-black/50">
+          <nav class="flex flex-col gap-2 h-full p-3">
+            <a href="#" class="flex items-center px-2 py-2.5 text-neutral-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors whitespace-nowrap group/link">
+              <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0 transition-transform group-hover/link:scale-110"></i>
+              <span class="ml-3 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                Dashboard
+              </span>
+            </a>
+            <a href="#" class="flex items-center px-2 py-2.5 text-neutral-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors whitespace-nowrap group/link">
+              <i data-lucide="search" class="w-5 h-5 shrink-0 transition-transform group-hover/link:scale-110"></i>
+              <span class="ml-3 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                Property Search
+              </span>
+            </a>
+            <a href="#" class="flex items-center px-2 py-2.5 text-white bg-white/5 rounded-lg border border-white/5 relative overflow-hidden whitespace-nowrap group/link">
+              <i data-lucide="users" class="w-5 h-5 shrink-0 text-white transition-transform group-hover/link:scale-110"></i>
+              <span class="ml-3 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                My Team
+              </span>
+            </a>
+            <a href="#" class="flex items-center px-2 py-2.5 text-neutral-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors whitespace-nowrap group/link">
+              <i data-lucide="dollar-sign" class="w-5 h-5 shrink-0 transition-transform group-hover/link:scale-110"></i>
+              <span class="ml-3 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                Finance
+              </span>
+            </a>
+            <a href="#" class="flex items-center px-2 py-2.5 text-neutral-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors whitespace-nowrap group/link">
+              <i data-lucide="file-text" class="w-5 h-5 shrink-0 transition-transform group-hover/link:scale-110"></i>
+              <span class="ml-3 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                Documents
+              </span>
+            </a>
+
+            <div class="mt-auto pt-4 border-t border-white/5">
+              <div class="flex items-center gap-3 px-1 py-2 overflow-hidden whitespace-nowrap">
+                <div class="w-8 h-8 shrink-0 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-medium text-white border border-white/10">
+                  ME
+                </div>
+                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                  <div class="text-xs text-white">First Home Buyer</div>
+                  <div class="text-[10px] text-neutral-500">Personal Account</div>
+                </div>
+              </div>
+            </div>
+          </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 min-w-0 space-y-6 animate-in">
+          <!-- HERO SECTION -->
+          <section class="relative rounded-2xl overflow-hidden border border-white/10 h-[280px] group">
+            <div class="absolute inset-0 z-0">
+               <!-- Abstract/Mood Image -->
+              <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&amp;w=2600&amp;auto=format&amp;fit=crop" class="w-full h-full object-cover opacity-40 transition-transform duration-700 group-hover:scale-105" alt="Office">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/70 to-[#050505]/20"></div>
+            </div>
+
+            <div class="absolute bottom-0 w-full p-8 z-10 flex flex-col md:flex-row items-end justify-between gap-6">
+              <div>
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="px-2 py-0.5 rounded bg-white/10 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <i data-lucide="briefcase" class="w-3 h-3"></i>
+                    Professional Network
+                  </span>
+                </div>
+                <h1 class="display-font text-3xl md:text-4xl font-semibold text-white tracking-tight mb-2">
+                  My Deal Team
+                </h1>
+                <p class="text-sm text-neutral-300 font-light max-w-lg">
+                  The professionals currently helping you secure <span class="text-white font-medium">128 Crown Street</span>.
+                </p>
+              </div>
+
+              <div class="glass-panel p-4 rounded-xl min-w-[240px] flex items-center justify-between gap-4">
+                 <div>
+                    <div class="text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-1">
+                        Active Parties
+                    </div>
+                    <div class="text-2xl font-medium text-white tracking-tight">
+                        5 Pro's
+                    </div>
+                 </div>
+                 <div class="flex -space-x-2">
+                    <img src="https://i.pravatar.cc/150?u=a" class="w-8 h-8 rounded-full border border-black" alt="Pro">
+                    <img src="https://i.pravatar.cc/150?u=b" class="w-8 h-8 rounded-full border border-black" alt="Pro">
+                    <div class="w-8 h-8 rounded-full bg-neutral-800 border border-black flex items-center justify-center text-[10px] text-white font-medium">+3</div>
+                 </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- COLUMN 1: PRIMARY BROKER (Hero Card) -->
+            <div class="space-y-6">
+              <div class="flex items-center justify-between px-1">
+                <h3 class="text-xs font-medium text-neutral-400 uppercase tracking-widest font-mono">
+                  Primary Contact
+                </h3>
+                <span class="text-[10px] text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Active</span>
+              </div>
+              
+              <!-- Broker Card -->
+              <div class="p-0 rounded-xl border border-white/5 bg-[#0A0A0A] overflow-hidden group hover:border-white/10 transition-colors">
+                <div class="relative h-24 bg-gradient-to-r from-neutral-800 to-neutral-900">
+                    <div class="absolute inset-0 grid-bg opacity-20"></div>
+                </div>
+                <div class="px-5 pb-5">
+                    <div class="relative -mt-10 mb-3 flex justify-between items-end">
+                        <div class="relative">
+                            <img src="https://i.pravatar.cc/150?u=mike" class="w-20 h-20 rounded-xl border-4 border-[#0A0A0A] shadow-lg" alt="Broker">
+                            <div class="absolute -bottom-1 -right-1 status-dot border-4 border-[#0A0A0A]"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="p-2 bg-white/5 hover:bg-white text-white hover:text-black rounded-lg transition-colors border border-white/10">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                            </button>
+                            <button class="p-2 bg-white/5 hover:bg-white text-white hover:text-black rounded-lg transition-colors border border-white/10">
+                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-lg font-medium text-white">Mike Ross</h2>
+                    <p class="text-xs text-neutral-400 mb-4">Senior Mortgage Broker • Spectra Finance</p>
+                    
+                    <div class="space-y-3 bg-white/5 rounded-lg p-3 border border-white/5">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-neutral-500">Email</span>
+                            <span class="text-white select-all">mike@spectrafinance.com.au</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-neutral-500">Mobile</span>
+                            <span class="text-white select-all">0400 123 456</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-neutral-500">Last Contact</span>
+                            <span class="text-emerald-400">Today, 9:41 AM</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex items-center gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                        <i data-lucide="file-check" class="w-4 h-4 text-blue-400"></i>
+                        <div class="flex-1">
+                            <div class="text-[10px] font-bold text-blue-400 uppercase">Latest Action</div>
+                            <div class="text-xs text-blue-100">Pre-approval updated for 128 Crown St.</div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+
+              <!-- Quick Stats -->
+              <div class="grid grid-cols-2 gap-3">
+                 <div class="p-3 rounded-xl border border-white/5 bg-[#0A0A0A] hover:bg-white/5 transition-colors cursor-pointer group">
+                    <i data-lucide="mail" class="w-4 h-4 text-neutral-500 mb-2 group-hover:text-white transition-colors"></i>
+                    <div class="text-xs font-medium text-white">Emails</div>
+                    <div class="text-[10px] text-neutral-500">12 Threads</div>
+                 </div>
+                 <div class="p-3 rounded-xl border border-white/5 bg-[#0A0A0A] hover:bg-white/5 transition-colors cursor-pointer group">
+                    <i data-lucide="calendar" class="w-4 h-4 text-neutral-500 mb-2 group-hover:text-white transition-colors"></i>
+                    <div class="text-xs font-medium text-white">Meetings</div>
+                    <div class="text-[10px] text-neutral-500">2 Scheduled</div>
+                 </div>
+              </div>
+            </div>
+
+            <!-- COLUMN 2 & 3: OTHER CONTACTS -->
+            <div class="col-span-1 md:col-span-2 space-y-6">
+              
+               <!-- Legal & Conveyancing -->
+               <div>
+                  <h3 class="text-xs font-medium text-neutral-400 uppercase tracking-widest font-mono mb-4 px-1">
+                    Legal &amp; Conveyancing
+                  </h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Solicitor -->
+                    <div class="group p-4 rounded-xl border border-white/5 bg-[#0A0A0A] hover:border-white/20 transition-all">
+                        <div class="flex items-start gap-4">
+                            <img src="https://i.pravatar.cc/150?u=jessica" class="w-12 h-12 rounded-lg object-cover grayscale group-hover:grayscale-0 transition-all" alt="Solicitor">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-medium text-white">Jessica Pearson</h4>
+                                <div class="text-xs text-neutral-500 truncate">Principal Solicitor • Pearson Law</div>
+                                <div class="mt-2 flex items-center gap-2">
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-white/10 text-neutral-300">
+                                        Reviewing Contract
+                                    </span>
+                                </div>
+                            </div>
+                            <button class="text-neutral-500 hover:text-white transition-colors">
+                                <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center">
+                            <div class="flex gap-3">
+                                <button class="text-xs text-neutral-400 hover:text-white flex items-center gap-1 transition-colors">
+                                    <i data-lucide="mail" class="w-3 h-3"></i> Email
+                                </button>
+                                <button class="text-xs text-neutral-400 hover:text-white flex items-center gap-1 transition-colors">
+                                    <i data-lucide="phone" class="w-3 h-3"></i> Call
+                                </button>
+                            </div>
+                            <span class="text-[10px] text-neutral-600">Response time: ~2hrs</span>
+                        </div>
+                    </div>
+
+                    <!-- Add New Placeholder -->
+                    <div class="group p-4 rounded-xl border border-dashed border-white/10 bg-transparent hover:bg-white/5 transition-all flex flex-col items-center justify-center text-center cursor-pointer h-full min-h-[140px]">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-neutral-400 group-hover:scale-110 transition-transform mb-3">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-xs font-medium text-neutral-300">Add Legal Support</div>
+                        <div class="text-[10px] text-neutral-500 mt-1">Connect another solicitor</div>
+                    </div>
+                  </div>
+               </div>
+
+               <!-- Property & Agents -->
+               <div>
+                  <h3 class="text-xs font-medium text-neutral-400 uppercase tracking-widest font-mono mb-4 px-1">
+                    Property (128 Crown St)
+                  </h3>
+                  <div class="p-4 rounded-xl border border-white/5 bg-[#0A0A0A]">
+                    <div class="flex flex-col sm:flex-row gap-4 sm:items-center justify-between border-b border-white/5 pb-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-bold text-xs border border-indigo-500/20">
+                                BH
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-white">BresicWhitney</h4>
+                                <div class="text-xs text-neutral-500">Selling Agency</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                             <a href="#" class="px-3 py-1.5 rounded-md bg-white/5 text-[11px] font-medium text-neutral-300 hover:text-white hover:bg-white/10 transition-colors border border-white/5">
+                                View Listing
+                             </a>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                         <!-- Agent 1 -->
+                         <div class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors cursor-pointer">
+                            <img src="https://i.pravatar.cc/150?u=agent1" class="w-10 h-10 rounded-full object-cover" alt="Agent">
+                            <div class="flex-1">
+                                <div class="text-sm text-white font-medium">Darren Davis</div>
+                                <div class="text-[10px] text-neutral-400">Lead Agent</div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="w-7 h-7 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-white hover:text-black transition-colors">
+                                    <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                         </div>
+                         <!-- Agent 2 -->
+                         <div class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors cursor-pointer">
+                            <img src="https://i.pravatar.cc/150?u=agent2" class="w-10 h-10 rounded-full object-cover" alt="Agent">
+                            <div class="flex-1">
+                                <div class="text-sm text-white font-medium">Sarah Miller</div>
+                                <div class="text-[10px] text-neutral-400">Associate</div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="w-7 h-7 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-white hover:text-black transition-colors">
+                                    <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                         </div>
+                    </div>
+                  </div>
+               </div>
+
+               <!-- Service Directory / Recommendations -->
+               <div>
+                  <div class="flex items-center justify-between mb-4 px-1">
+                     <h3 class="text-xs font-medium text-neutral-400 uppercase tracking-widest font-mono">
+                        Service Directory
+                     </h3>
+                     <button class="text-[10px] text-neutral-500 hover:text-white transition-colors">Find Professionals</button>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                     <!-- Inspector -->
+                     <div class="p-3 rounded-xl border border-white/5 bg-[#0A0A0A] group hover:border-white/20 transition-all cursor-pointer">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="p-2 bg-orange-500/10 text-orange-400 rounded-lg border border-orange-500/20">
+                                <i data-lucide="search-check" class="w-4 h-4"></i>
+                            </div>
+                            <div class="h-2 w-2 rounded-full bg-neutral-800"></div>
+                        </div>
+                        <h4 class="text-xs font-medium text-white mb-1">Building &amp; Pest</h4>
+                        <p class="text-[10px] text-neutral-500 mb-3">Inspection required before auction.</p>
+                        <button class="w-full py-1.5 rounded bg-white/5 text-[10px] text-neutral-300 hover:bg-white/10 hover:text-white transition-colors">Find Inspector</button>
+                     </div>
+
+                     <!-- Insurance -->
+                     <div class="p-3 rounded-xl border border-white/5 bg-[#0A0A0A] group hover:border-white/20 transition-all cursor-pointer">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="p-2 bg-blue-500/10 text-blue-400 rounded-lg border border-blue-500/20">
+                                <i data-lucide="shield" class="w-4 h-4"></i>
+                            </div>
+                            <div class="h-2 w-2 rounded-full bg-green-500"></div>
+                        </div>
+                        <h4 class="text-xs font-medium text-white mb-1">Home Insurance</h4>
+                        <p class="text-[10px] text-neutral-500 mb-3">Cover note issued by NRMA.</p>
+                        <button class="w-full py-1.5 rounded bg-white/5 text-[10px] text-neutral-300 hover:bg-white/10 hover:text-white transition-colors">View Policy</button>
+                     </div>
+
+                     <!-- Removalist -->
+                     <div class="p-3 rounded-xl border border-white/5 bg-[#0A0A0A] group hover:border-white/20 transition-all cursor-pointer">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="p-2 bg-purple-500/10 text-purple-400 rounded-lg border border-purple-500/20">
+                                <i data-lucide="truck" class="w-4 h-4"></i>
+                            </div>
+                            <div class="h-2 w-2 rounded-full bg-neutral-800"></div>
+                        </div>
+                        <h4 class="text-xs font-medium text-white mb-1">Removalist</h4>
+                        <p class="text-[10px] text-neutral-500 mb-3">Not yet booked.</p>
+                        <button class="w-full py-1.5 rounded bg-white/5 text-[10px] text-neutral-300 hover:bg-white/10 hover:text-white transition-colors">Get Quotes</button>
+                     </div>
+                  </div>
+               </div>
+
+            </div>
+          </div>
+          
+          <!-- Recent Activity Log -->
+          <section class="mt-8 pt-8 border-t border-white/5">
+            <h3 class="text-sm font-medium text-white mb-4">Recent Communications</h3>
+            <div class="bg-[#0A0A0A] border border-white/5 rounded-xl overflow-hidden">
+                <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-white/5 border-b border-white/5 text-[10px] font-mono text-neutral-500 uppercase tracking-wider">
+                    <div class="col-span-6 md:col-span-5">Contact</div>
+                    <div class="col-span-4 md:col-span-5">Subject</div>
+                    <div class="col-span-2 text-right">Time</div>
+                </div>
+                
+                <div class="grid grid-cols-12 gap-4 px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors items-center group cursor-pointer">
+                    <div class="col-span-6 md:col-span-5 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] text-white">MR</div>
+                        <span class="text-xs text-white">Mike Ross</span>
+                    </div>
+                    <div class="col-span-4 md:col-span-5 text-xs text-neutral-400 group-hover:text-white transition-colors">Re: Updated borrowing capacity calculation</div>
+                    <div class="col-span-2 text-right text-[11px] text-neutral-500">10:42 AM</div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-4 px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors items-center group cursor-pointer">
+                    <div class="col-span-6 md:col-span-5 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] text-white">JP</div>
+                        <span class="text-xs text-white">Jessica Pearson</span>
+                    </div>
+                    <div class="col-span-4 md:col-span-5 text-xs text-neutral-400 group-hover:text-white transition-colors">Contract review completed - 128 Crown St</div>
+                    <div class="col-span-2 text-right text-[11px] text-neutral-500">Yesterday</div>
+                </div>
+                
+                <div class="grid grid-cols-12 gap-4 px-4 py-3 hover:bg-white/5 transition-colors items-center group cursor-pointer">
+                    <div class="col-span-6 md:col-span-5 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] text-white">DD</div>
+                        <span class="text-xs text-white">Darren Davis</span>
+                    </div>
+                    <div class="col-span-4 md:col-span-5 text-xs text-neutral-400 group-hover:text-white transition-colors">Auction registration details</div>
+                    <div class="col-span-2 text-right text-[11px] text-neutral-500">Oct 24</div>
+                </div>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      lucide.createIcons();
+
+      // Smooth Scroll
+      const lenis = new Lenis({
+          duration: 1.2,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          direction: 'vertical',
+          smooth: true,
+      });
+      function raf(time) {
+          lenis.raf(time);
+          requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+
+      // Animation
+      window.addEventListener('load', () => {
+          gsap.to('body', { opacity: 1, duration: 0.5 });
+          gsap.from('.animate-in', { opacity: 0, y: 20, stagger: 0.1, duration: 0.8, ease: 'power2.out', delay: 0.2 });
+      });
+    </script>
+  
+</body></html>

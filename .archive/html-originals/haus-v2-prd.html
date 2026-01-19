@@ -1,0 +1,1323 @@
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <title>HAUS v2 — The Property Access OS • PRD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HAUS v2 PRD — The Property Access Operating System. A structured, navigable PRD with roadmap, features, KPIs, and strategy.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Manrope:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/iconify/2.0.0/iconify.min.js"></script>
+    <style>
+      body { background-color: #050505 !important; color: #e5e5e5; } .font-display, h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif !important; letter-spacing: -0.02em; } .font-mono, .text-xs, .text-\[10px\], .uppercase, button { font-family: 'Space Mono', monospace !important; } ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0a0a0a; } ::-webkit-scrollbar-thumb { background: #262626; border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: #404040; } .rounded-3xl, .rounded-2xl { border-radius: 0.75rem !important; } .bg-neutral-900\/40, .bg-neutral-900\/50, .bg-white\/5 { background-color: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.1) !important; box-shadow: none !important; backdrop-filter: none !important; } .ring-1 { box-shadow: none !important; border: 1px solid rgba(255,255,255,0.1) !important; } .grid-bg { background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 50px 50px; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); } header { background: rgba(0,0,0,0.8) !important; border-bottom: 1px solid rgba(255,255,255,0.1) !important; } .text-neutral-200 { color: #e5e5e5 !important; } .text-neutral-400 { color: #a3a3a3 !important; } nav a { font-family: 'Space Mono', monospace; text-transform: uppercase; }
+    </style>
+  </head>
+  <body class="overflow-x-hidden w-full min-h-screen relative selection:bg-indigo-500/30 selection:text-indigo-200" style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;">
+    <!-- Ambient Background Effects -->
+    <div class="fixed inset-0 z-0 w-full h-full pointer-events-none grid-bg"></div>
+
+    <!-- Animated Orbs -->
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+      <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center">
+        <div class="w-full flex items-center justify-between">
+          <a href="#" class="flex items-center gap-3 group">
+            <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-bold tracking-tighter rounded-sm font-display">
+              H.
+            </div>
+          </a>
+          <nav class="hidden md:flex items-center gap-1 gap-6">
+            <a href="#overview" class="text-xs font-mono text-neutral-400 hover:text-white uppercase transition">
+              Overview
+            </a>
+            <a href="#personas" class="px-3 py-1.5 text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/5 rounded-full transition">
+              Personas
+            </a>
+            <a href="#roadmap" class="px-3 py-1.5 text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/5 rounded-full transition">
+              Roadmap
+            </a>
+            <a href="#features" class="px-3 py-1.5 text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/5 rounded-full transition">
+              Features
+            </a>
+            <a href="#metrics" class="px-3 py-1.5 text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/5 rounded-full transition">
+              Metrics
+            </a>
+            <a href="#risks" class="px-3 py-1.5 text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/5 rounded-full transition">
+              Risks
+            </a>
+          </nav>
+          <div class="hidden md:flex items-center gap-2">
+            <button id="shareBtn" class="text-xs font-mono text-neutral-400 hover:text-white uppercase transition">
+              <i data-lucide="share-2" class="h-3.5 w-3.5"></i>
+              Share
+            </button>
+            <button id="exportBtn" class="bg-white text-black text-xs font-medium px-4 py-2 rounded hover:bg-neutral-200 transition font-mono uppercase">
+              <i data-lucide="download" class="h-3.5 w-3.5"></i>
+              Export
+            </button>
+          </div>
+          <button id="menuBtn" class="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md bg-white/5 ring-1 ring-white/10 hover:bg-white/10">
+            <i data-lucide="menu" class="h-5 w-5 text-white"></i>
+          </button>
+        </div>
+        <div id="mobileNav" class="md:hidden hidden pb-4">
+          <div class="rounded-xl bg-neutral-900/90 ring-1 ring-white/10 backdrop-blur p-2 space-y-1">
+            <a href="#overview" class="block px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition">
+              Overview
+            </a>
+            <a href="#personas" class="block px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition">
+              Personas
+            </a>
+            <a href="#roadmap" class="block px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition">
+              Roadmap
+            </a>
+            <a href="#features" class="block px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition">
+              Features
+            </a>
+            <a href="#metrics" class="block px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition">
+              Metrics
+            </a>
+            <a href="#risks" class="block px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition">
+              Risks
+            </a>
+            <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-white/5">
+              <button class="flex items-center justify-center gap-2 rounded-lg bg-white/5 hover:bg-white/10 px-3 py-2 text-xs font-medium">
+                <i data-lucide="share-2" class="h-3.5 w-3.5"></i>
+                Share
+              </button>
+              <button class="flex items-center justify-center gap-2 rounded-lg bg-white text-neutral-900 px-3 py-2 text-xs font-medium">
+                <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="relative pt-28 pb-12 z-10">
+      <div class="mx-auto px-6 md:px-8 max-w-[1440px]">
+        <div class="mx-auto text-center" data-sr="">
+          <div class="inline-flex items-center justify-center">
+            <div class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20 px-3 py-1">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+              </span>
+              <span class="text-xs font-medium text-emerald-300 tracking-wide">
+                PRD APPROVED
+              </span>
+            </div>
+          </div>
+          <h1 class="text-white font-semibold tracking-tighter text-4xl md:text-6xl lg:text-7xl mt-6" style="font-family: Manrope, Inter, sans-serif;">
+            HAUS v2
+            <span class="block mt-2">The Property Access OS</span>
+          </h1>
+          <p class="text-neutral-400 mt-6 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+            A demand-triggered roadmap and AI-native platform that unlocks
+            off‑market supply, guides first‑time buyers, and empowers agents.
+          </p>
+
+          <!-- Meta row -->
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs md:text-sm">
+            <div class="inline-flex items-center gap-2 rounded-full bg-white/5 ring-1 ring-white/10 px-4 py-1.5 text-neutral-300 hover:bg-white/10 transition cursor-default">
+              <i data-lucide="hash" class="h-3.5 w-3.5 text-neutral-400"></i>
+              Version 2.0
+            </div>
+            <div class="inline-flex items-center gap-2 rounded-full bg-white/5 ring-1 ring-white/10 px-4 py-1.5 text-neutral-300 hover:bg-white/10 transition cursor-default">
+              <i data-lucide="user" class="h-3.5 w-3.5 text-neutral-400"></i>
+              Owner: ALIAS
+            </div>
+            <div class="inline-flex items-center gap-2 rounded-full bg-white/5 ring-1 ring-white/10 px-4 py-1.5 text-neutral-300 hover:bg-white/10 transition cursor-default">
+              <i data-lucide="calendar" class="h-3.5 w-3.5 text-neutral-400"></i>
+              Sept 2025
+            </div>
+          </div>
+        </div>
+
+        <!-- Highlight stats -->
+        <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto" data-sr="">
+          <div class="group rounded-2xl bg-neutral-900/40 hover:bg-neutral-900/60 ring-1 ring-white/10 p-5 backdrop-blur-sm transition">
+            <div class="text-xs font-medium tracking-wider text-neutral-500 uppercase">
+              North Star
+            </div>
+            <div class="mt-2 flex items-center gap-3">
+              <div class="p-2 rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                <i data-lucide="activity" class="h-4 w-4 text-emerald-400"></i>
+              </div>
+              <span class="text-neutral-200 text-sm font-medium">
+                Weekly Active Engaged Users
+              </span>
+            </div>
+          </div>
+          <div class="group rounded-2xl bg-neutral-900/40 hover:bg-neutral-900/60 ring-1 ring-white/10 p-5 backdrop-blur-sm transition">
+            <div class="text-xs font-medium tracking-wider text-neutral-500 uppercase">
+              Wedge Strategy
+            </div>
+            <div class="mt-2 flex items-center gap-3">
+              <div class="p-2 rounded-lg bg-sky-500/10 ring-1 ring-sky-500/20">
+                <i data-lucide="flag" class="h-4 w-4 text-sky-400"></i>
+              </div>
+              <span class="text-neutral-200 text-sm font-medium">
+                First‑Time Home Buyers
+              </span>
+            </div>
+          </div>
+          <div class="group rounded-2xl bg-neutral-900/40 hover:bg-neutral-900/60 ring-1 ring-white/10 p-5 backdrop-blur-sm transition">
+            <div class="text-xs font-medium tracking-wider text-neutral-500 uppercase">
+              Defensive Moat
+            </div>
+            <div class="mt-2 flex items-center gap-3">
+              <div class="p-2 rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
+                <i data-lucide="lock" class="h-4 w-4 text-purple-400"></i>
+              </div>
+              <span class="text-neutral-200 text-sm font-medium">
+                “Open to Offers” Network
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky page outline -->
+        <div class="mt-12 sticky top-[65px] z-40 bg-black/80 backdrop-blur-xl border-y border-white/10 py-3 -mx-6 px-6 md:-mx-8 md:px-8">
+          <div class="w-full overflow-x-auto no-scrollbar">
+            <div class="inline-flex gap-2 min-w-max">
+              <a href="#overview" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="book-open" class="h-3.5 w-3.5"></i>
+                Overview
+              </a>
+              <a href="#problem" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="alert-circle" class="h-3.5 w-3.5"></i>
+                Problem
+              </a>
+              <a href="#vision" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="brain" class="h-3.5 w-3.5"></i>
+                Vision
+              </a>
+              <a href="#personas" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="users" class="h-3.5 w-3.5"></i>
+                Personas
+              </a>
+              <a href="#roadmap" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="map" class="h-3.5 w-3.5"></i>
+                Roadmap
+              </a>
+              <a href="#features" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="layers" class="h-3.5 w-3.5"></i>
+                Features
+              </a>
+              <a href="#nfr" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
+                NFRs
+              </a>
+              <a href="#tech" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="server-cog" class="h-3.5 w-3.5"></i>
+                Tech
+              </a>
+              <a href="#metrics" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="chart-line" class="h-3.5 w-3.5"></i>
+                Metrics
+              </a>
+              <a href="#gtm" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="megaphone" class="h-3.5 w-3.5"></i>
+                GTM
+              </a>
+              <a href="#risks" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-1.5 text-xs text-neutral-300 transition">
+                <i data-lucide="triangle-alert" class="h-3.5 w-3.5"></i>
+                Risks
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main layout -->
+    <main class="relative z-10 mx-auto px-6 md:px-8 pb-24 grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-[1440px]">
+      <!-- Content Column -->
+      <div class="lg:col-span-8 space-y-8">
+        <!-- Overview -->
+        <section id="overview" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+                Executive Summary
+              </h2>
+              <p class="text-neutral-400 mt-4 leading-relaxed text-sm md:text-base">
+                HAUS v2 pivots from simple search to a Property Access OS. It
+                focuses on first‑time buyers, discreet off‑market supply, and an
+                AI‑powered agent suite. AI assists; humans decide. Partner with
+                agents, default to trust, ship and learn.
+              </p>
+            </div>
+            <div class="h-10 w-10 shrink-0 rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-900 ring-1 ring-white/10 flex items-center justify-center">
+              <i data-lucide="file-text" class="h-5 w-5 text-neutral-400"></i>
+            </div>
+          </div>
+          <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="rounded-2xl bg-white/5 ring-1 ring-white/5 p-4 hover:bg-white/10 transition">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Mission
+              </div>
+              <div class="mt-1 text-sm text-neutral-200">
+                Make access &amp; ownership attainable
+              </div>
+            </div>
+            <div class="rounded-2xl bg-white/5 ring-1 ring-white/5 p-4 hover:bg-white/10 transition">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Flywheel
+              </div>
+              <div class="mt-1 text-sm text-neutral-200">
+                FTHB demand → Off‑market supply → HAUS Pro agents
+              </div>
+            </div>
+            <div class="rounded-2xl bg-white/5 ring-1 ring-white/5 p-4 hover:bg-white/10 transition">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                North Star
+              </div>
+              <div class="mt-1 text-sm text-neutral-200">
+                Weekly Active Engaged Users
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Problem -->
+        <section id="problem" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              The Problem
+            </h2>
+            <i data-lucide="alert-octagon" class="h-5 w-5 text-rose-400/80"></i>
+          </div>
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-5">
+              <div class="text-sm font-medium text-white">
+                First‑Time Buyers
+              </div>
+              <p class="text-neutral-400 text-xs mt-2 leading-relaxed">
+                Black‑box process, hidden costs, 124+ hrs searching; anxiety and
+                low confidence.
+              </p>
+            </div>
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-5">
+              <div class="text-sm font-medium text-white">Sellers</div>
+              <p class="text-neutral-400 text-xs mt-2 leading-relaxed">
+                No discreet way to test demand; “shadow inventory” remains
+                locked.
+              </p>
+            </div>
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-5">
+              <div class="text-sm font-medium text-white">Agents</div>
+              <p class="text-neutral-400 text-xs mt-2 leading-relaxed">
+                Low‑value prospecting, missed calls, admin overhead; poor CX,
+                burnout.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Vision -->
+        <section id="vision" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              Vision &amp; Solution
+            </h2>
+            <i data-lucide="sparkles" class="h-5 w-5 text-amber-300"></i>
+          </div>
+          <p class="text-neutral-400 mt-4 leading-relaxed text-sm md:text-base">
+            An integrated OS for property access. AI predicts and advises;
+            community turns transactions into relationships; accessibility
+            unlocks pathways to ownership.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 ring-1 ring-indigo-500/20 px-3 py-1 text-xs font-medium text-indigo-300">
+              <i data-lucide="bot" class="h-3.5 w-3.5"></i>
+              Intelligence
+            </span>
+            <span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20 px-3 py-1 text-xs font-medium text-emerald-300">
+              <i data-lucide="handshake" class="h-3.5 w-3.5"></i>
+              Community
+            </span>
+            <span class="inline-flex items-center gap-2 rounded-full bg-rose-500/10 ring-1 ring-rose-500/20 px-3 py-1 text-xs font-medium text-rose-300">
+              <i data-lucide="key" class="h-3.5 w-3.5"></i>
+              Accessibility
+            </span>
+          </div>
+        </section>
+
+        <!-- Personas -->
+        <section id="personas" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              Personas
+            </h2>
+            <i data-lucide="users-round" class="h-5 w-5 text-sky-400/80"></i>
+          </div>
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Priya -->
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="text-sm font-medium text-white">Priya — FTHB</div>
+                <span class="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
+                  Primary
+                </span>
+              </div>
+              <p class="text-neutral-400 text-xs leading-relaxed">
+                28–35, DINK, anxious but optimistic; wants a step‑by‑step plan
+                to buy with confidence.
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="px-2 py-1 text-[10px] font-medium text-neutral-300 rounded-md bg-white/5 ring-1 ring-white/10">
+                  Guided journey
+                </span>
+                <span class="px-2 py-1 text-[10px] font-medium text-neutral-300 rounded-md bg-white/5 ring-1 ring-white/10">
+                  True affordability
+                </span>
+              </div>
+            </div>
+            <!-- Mark -->
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="text-sm font-medium text-white">
+                  Mark — Homeowner
+                </div>
+                <span class="inline-flex items-center gap-1 text-[10px] font-medium text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full">
+                  Supply
+                </span>
+              </div>
+              <p class="text-neutral-400 text-xs leading-relaxed">
+                45–55, curious to sell privately; wants a discreet
+                “would‑sell‑for” signal.
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="px-2 py-1 text-[10px] font-medium text-neutral-300 rounded-md bg-white/5 ring-1 ring-white/10">
+                  Anonymous
+                </span>
+                <span class="px-2 py-1 text-[10px] font-medium text-neutral-300 rounded-md bg-white/5 ring-1 ring-white/10">
+                  Verification
+                </span>
+              </div>
+            </div>
+            <!-- Chloe -->
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="text-sm font-medium text-white">Chloe — Agent</div>
+                <span class="inline-flex items-center gap-1 text-[10px] font-medium text-violet-400 bg-violet-400/10 px-2 py-0.5 rounded-full">
+                  Pro
+                </span>
+              </div>
+              <p class="text-neutral-400 text-xs leading-relaxed">
+                30–40, time‑poor; wants qualified, transaction‑ready leads and
+                AI comms assistant.
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="px-2 py-1 text-[10px] font-medium text-neutral-300 rounded-md bg-white/5 ring-1 ring-white/10">
+                  Lead routing
+                </span>
+                <span class="px-2 py-1 text-[10px] font-medium text-neutral-300 rounded-md bg-white/5 ring-1 ring-white/10">
+                  Compliance logs
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section id="roadmap" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              Demand‑Triggered Roadmap
+            </h2>
+            <i data-lucide="route" class="h-5 w-5 text-teal-300"></i>
+          </div>
+          <p class="text-neutral-400 mt-4 leading-relaxed text-sm md:text-base">
+            Progress via market signals, not dates. Each phase unlocks the next
+            upon meeting explicit demand criteria.
+          </p>
+
+          <div class="mt-8 space-y-4">
+            <!-- Phase 0 -->
+            <div class="rounded-2xl ring-1 ring-white/5 bg-neutral-900/50 p-5">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-800 ring-1 ring-white/10 text-xs font-mono text-neutral-400">
+                    0
+                  </span>
+                  <div>
+                    <h3 class="text-white text-base font-medium">Foundation</h3>
+                    <p class="text-neutral-400 text-xs mt-0.5">
+                      Core multi‑tenant infra, data model, compliance rails.
+                    </p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full ring-1 ring-emerald-500/20">
+                  <i data-lucide="check-circle" class="h-3 w-3"></i>
+                  Stable
+                </span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    Core Platform
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    Next.js/Expo, Convex, Clerk
+                  </div>
+                </div>
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    Data Model
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    Users, Orgs, Properties
+                  </div>
+                </div>
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    Compliance
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    APP 8/11 gates, retention
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Phase 1 -->
+            <div class="rounded-2xl ring-1 ring-white/5 bg-neutral-900/50 p-5 relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-sky-400 to-indigo-500"></div>
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-sky-500/10 ring-1 ring-sky-500/20 text-xs font-mono text-sky-400">
+                    1
+                  </span>
+                  <div>
+                    <h3 class="text-white text-base font-medium">
+                      Wedge — FTHB Academy &amp; Open
+                    </h3>
+                    <p class="text-neutral-400 text-xs mt-0.5">
+                      Engage FTHBs; unlock off‑market supply via price signals.
+                    </p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-medium text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-full ring-1 ring-sky-500/20">
+                  <i data-lucide="zap" class="h-3 w-3"></i>
+                  Active
+                </span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    HAUS Academy
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    Gamified journey to readiness
+                  </div>
+                </div>
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    HAUS Open
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    Anonymous “would‑sell‑for”
+                  </div>
+                </div>
+                <div class="rounded-xl bg-sky-500/5 ring-1 ring-sky-500/10 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-sky-400/80 font-semibold">
+                    Trigger for P2
+                  </div>
+                  <div class="text-xs mt-1 text-sky-200">
+                    1k Academy &amp; 500 Open homes
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="rounded-2xl ring-1 ring-white/5 bg-neutral-900/50 p-5 opacity-80 hover:opacity-100 transition">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-800 ring-1 ring-white/10 text-xs font-mono text-neutral-400">
+                    2
+                  </span>
+                  <div>
+                    <h3 class="text-white text-base font-medium">
+                      Flywheel — HAUS Pro &amp; Marketplace v1
+                    </h3>
+                    <p class="text-neutral-400 text-xs mt-0.5">
+                      Agent SaaS + secure messaging &amp; offer management.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    HAUS Pro
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    AI CRM, HITL comms
+                  </div>
+                </div>
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    Marketplace v1
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    Qualified buyers ↔ Homeowners
+                  </div>
+                </div>
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    Trigger for P3
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    200+ agents waitlist
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="rounded-2xl ring-1 ring-white/5 bg-neutral-900/50 p-5 opacity-60 hover:opacity-100 transition">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-800 ring-1 ring-white/10 text-xs font-mono text-neutral-400">
+                    3
+                  </span>
+                  <div>
+                    <h3 class="text-white text-base font-medium">
+                      Ecosystem — Finance &amp; Services
+                    </h3>
+                    <p class="text-neutral-400 text-xs mt-0.5">
+                      Integrated pre‑approval, partner lenders, curated
+                      services.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 border-t border-white/5 pt-4 mt-4">
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    Embedded Finance
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    In-app mortgage &amp; bridging
+                  </div>
+                </div>
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    Vendor Market
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    Vetted service ecosystem
+                  </div>
+                </div>
+                <div class="rounded-xl bg-black/20 p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    Scale
+                  </div>
+                  <div class="text-xs mt-1 text-neutral-300">
+                    National rollout
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Features -->
+        <section id="features" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              Feature Breakdown
+            </h2>
+            <i data-lucide="layout-grid" class="h-5 w-5 text-indigo-300"></i>
+          </div>
+
+          <div class="mt-8 space-y-4">
+            <!-- Academy -->
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 overflow-hidden">
+              <button class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition">
+                <div class="flex items-center gap-4">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 ring-1 ring-emerald-500/30">
+                    <i data-lucide="graduation-cap" class="h-5 w-5 text-emerald-400"></i>
+                  </span>
+                  <div class="text-left">
+                    <div class="text-sm font-medium text-white">
+                      HAUS Academy (FTHB)
+                    </div>
+                    <div class="text-xs text-neutral-400 mt-0.5">
+                      Guided journey, affordability, document vault
+                    </div>
+                  </div>
+                </div>
+                <i data-lucide="chevron-down" class="h-5 w-5 text-neutral-500 transition-transform duration-200"></i>
+              </button>
+              <div class="px-5 pb-5 pt-0 hidden border-t border-white/5 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div class="rounded-xl bg-black/20 p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-3">
+                      Key Capabilities
+                    </div>
+                    <ul class="space-y-2.5">
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        Gamified modules end‑to‑end
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        True affordability incl. fees
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        Document vault + readiness checklist
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="rounded-xl bg-black/20 p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-3">
+                      Success Criteria
+                    </div>
+                    <ul class="space-y-2.5">
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="circle" class="h-3.5 w-3.5 text-neutral-500 mt-0.5"></i>
+                        Complete journey
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="circle" class="h-3.5 w-3.5 text-neutral-500 mt-0.5"></i>
+                        Realistic budget generated
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="circle" class="h-3.5 w-3.5 text-neutral-500 mt-0.5"></i>
+                        Pre‑approval steps clear
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Open -->
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 overflow-hidden">
+              <button class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition">
+                <div class="flex items-center gap-4">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 ring-1 ring-amber-500/30">
+                    <i data-lucide="unlock" class="h-5 w-5 text-amber-400"></i>
+                  </span>
+                  <div class="text-left">
+                    <div class="text-sm font-medium text-white">
+                      HAUS Open (Homeowners)
+                    </div>
+                    <div class="text-xs text-neutral-400 mt-0.5">
+                      Anonymous “would‑sell‑for” price + verification
+                    </div>
+                  </div>
+                </div>
+                <i data-lucide="chevron-down" class="h-5 w-5 text-neutral-500 transition-transform duration-200"></i>
+              </button>
+              <div class="px-5 pb-5 pt-0 hidden border-t border-white/5 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div class="rounded-xl bg-black/20 p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-3">
+                      Key Capabilities
+                    </div>
+                    <ul class="space-y-2.5">
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        Anonymous price signal in &lt;2 min
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        Ownership verification
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        Alerts on qualified interest
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="rounded-xl bg-black/20 p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-3">
+                      Success Criteria
+                    </div>
+                    <ul class="space-y-2.5">
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="circle" class="h-3.5 w-3.5 text-neutral-500 mt-0.5"></i>
+                        Identity remains private
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="circle" class="h-3.5 w-3.5 text-neutral-500 mt-0.5"></i>
+                        Actionable notifications
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pro -->
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 overflow-hidden">
+              <button class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition">
+                <div class="flex items-center gap-4">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 ring-1 ring-violet-500/30">
+                    <i data-lucide="briefcase" class="h-5 w-5 text-violet-400"></i>
+                  </span>
+                  <div class="text-left">
+                    <div class="text-sm font-medium text-white">
+                      HAUS Pro (Agent SaaS)
+                    </div>
+                    <div class="text-xs text-neutral-400 mt-0.5">
+                      AI CRM, HITL assistant, compliance dashboards
+                    </div>
+                  </div>
+                </div>
+                <i data-lucide="chevron-down" class="h-5 w-5 text-neutral-500 transition-transform duration-200"></i>
+              </button>
+              <div class="px-5 pb-5 pt-0 hidden border-t border-white/5 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div class="rounded-xl bg-black/20 p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-3">
+                      Key Capabilities
+                    </div>
+                    <ul class="space-y-2.5">
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        Lead dashboard + routing
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        AI comms drafts (human approval)
+                      </li>
+                      <li class="flex items-start gap-2 text-xs text-neutral-300">
+                        <i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 mt-0.5"></i>
+                        Compliant logs &amp; reports
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="nfr" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              Non-Functional Requirements
+            </h2>
+            <i data-lucide="shield-check" class="h-5 w-5 text-emerald-300"></i>
+          </div>
+          <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <i data-lucide="lock" class="h-3.5 w-3.5 text-neutral-400"></i>
+                <span class="text-sm font-medium text-white">
+                  Security &amp; Privacy
+                </span>
+              </div>
+              <ul class="space-y-1.5">
+                <li class="flex items-start gap-2 text-xs text-neutral-400">
+                  <span class="h-1 w-1 rounded-full bg-emerald-500 mt-1.5"></span>
+                  SOC2 Type II ready infra
+                </li>
+                <li class="flex items-start gap-2 text-xs text-neutral-400">
+                  <span class="h-1 w-1 rounded-full bg-emerald-500 mt-1.5"></span>
+                  PII encryption at rest
+                </li>
+                <li class="flex items-start gap-2 text-xs text-neutral-400">
+                  <span class="h-1 w-1 rounded-full bg-emerald-500 mt-1.5"></span>
+                  Role-based access (RBAC)
+                </li>
+              </ul>
+            </div>
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <i data-lucide="zap" class="h-3.5 w-3.5 text-neutral-400"></i>
+                <span class="text-sm font-medium text-white">Performance</span>
+              </div>
+              <ul class="space-y-1.5">
+                <li class="flex items-start gap-2 text-xs text-neutral-400">
+                  <span class="h-1 w-1 rounded-full bg-emerald-500 mt-1.5"></span>
+                  &lt;100ms API response p95
+                </li>
+                <li class="flex items-start gap-2 text-xs text-neutral-400">
+                  <span class="h-1 w-1 rounded-full bg-emerald-500 mt-1.5"></span>
+                  Core Web Vitals green
+                </li>
+                <li class="flex items-start gap-2 text-xs text-neutral-400">
+                  <span class="h-1 w-1 rounded-full bg-emerald-500 mt-1.5"></span>
+                  Offline-first mobile capability
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Metrics -->
+        <section id="metrics" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              Success Metrics (KPIs)
+            </h2>
+            <i data-lucide="bar-chart-3" class="h-5 w-5 text-emerald-300"></i>
+          </div>
+          <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-4 text-center md:text-left">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                North Star
+              </div>
+              <div class="text-sm text-neutral-200 mt-2 font-medium">
+                Weekly Active Engaged Users
+              </div>
+            </div>
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-4 text-center md:text-left">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Acquisition
+              </div>
+              <div class="text-sm text-neutral-200 mt-2 font-medium">
+                Cost per FTHB / Open property
+              </div>
+            </div>
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-4 text-center md:text-left">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Retention
+              </div>
+              <div class="text-sm text-neutral-200 mt-2 font-medium">
+                30/90‑day retention • Agent churn
+              </div>
+            </div>
+            <div class="rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-4 text-center md:text-left">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Revenue
+              </div>
+              <div class="text-sm text-neutral-200 mt-2 font-medium">
+                MRR (Pro), Take rate, LTV
+              </div>
+            </div>
+          </div>
+          <!-- Chart -->
+          <div class="mt-6 rounded-2xl bg-neutral-900/50 ring-1 ring-white/5 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-sm font-medium text-white">
+                WAEU Growth Projection
+              </div>
+              <div class="text-xs text-emerald-400 inline-flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-full ring-1 ring-emerald-500/20">
+                <i data-lucide="trending-up" class="h-3 w-3"></i>
+                +18% MoM
+              </div>
+            </div>
+            <div class="w-full h-56">
+              <canvas id="wauChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tech -->
+        <section id="tech" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              Tech Stack
+            </h2>
+            <i data-lucide="box" class="h-5 w-5 text-cyan-300"></i>
+          </div>
+          <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Frontend
+              </div>
+              <div class="text-sm text-neutral-200 mt-1">Next.js, Expo</div>
+            </div>
+            <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Backend
+              </div>
+              <div class="text-sm text-neutral-200 mt-1">Convex</div>
+            </div>
+            <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Auth
+              </div>
+              <div class="text-sm text-neutral-200 mt-1">Clerk</div>
+            </div>
+            <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                AI Agents
+              </div>
+              <div class="text-sm text-neutral-200 mt-1">Mastra + LLMs</div>
+            </div>
+            <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Notifications
+              </div>
+              <div class="text-sm text-neutral-200 mt-1">Novu</div>
+            </div>
+            <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                Infrastructure
+              </div>
+              <div class="text-sm text-neutral-200 mt-1">Vercel</div>
+            </div>
+          </div>
+        </section>
+        <section id="gtm" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 md:p-8 backdrop-blur-md" data-sr="">
+          <div class="flex items-start justify-between">
+            <h2 class="text-2xl text-white tracking-tight font-semibold" style="font-family: Manrope, Inter, sans-serif;">
+              Go-To-Market (GTM)
+            </h2>
+            <i data-lucide="megaphone" class="h-5 w-5 text-rose-300"></i>
+          </div>
+          <div class="mt-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+                <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                  Phase 1: Supply
+                </div>
+                <div class="mt-2 text-sm text-white font-medium">
+                  Claim Your Home
+                </div>
+                <p class="text-xs text-neutral-400 mt-1 leading-relaxed">
+                  Direct mail &amp; social to homeowners inviting them to set a
+                  silent price.
+                </p>
+              </div>
+              <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+                <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                  Phase 2: Demand
+                </div>
+                <div class="mt-2 text-sm text-white font-medium">
+                  FTHB Academy
+                </div>
+                <p class="text-xs text-neutral-400 mt-1 leading-relaxed">
+                  Free course on purchasing. Graduates unlock off-market
+                  inventory.
+                </p>
+              </div>
+              <div class="rounded-xl bg-neutral-900/50 ring-1 ring-white/5 p-4">
+                <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                  Phase 3: Density
+                </div>
+                <div class="mt-2 text-sm text-white font-medium">
+                  City Launch
+                </div>
+                <p class="text-xs text-neutral-400 mt-1 leading-relaxed">
+                  Focus liquidity on 3 core suburbs. 20% penetration target.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Risks & Open Questions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <section id="risks" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 backdrop-blur-md" data-sr="">
+            <div class="flex items-center gap-3 mb-4">
+              <i data-lucide="shield-alert" class="h-5 w-5 text-red-400/80"></i>
+              <h3 class="text-lg font-medium text-white">Top Risks</h3>
+            </div>
+            <ul class="space-y-3">
+              <li class="text-xs text-neutral-400">
+                <strong class="block text-neutral-200 mb-0.5">
+                  Cold Start Problem
+                </strong>
+                Mitigation: Demand before supply via Academy wedge.
+              </li>
+              <li class="text-xs text-neutral-400">
+                <strong class="block text-neutral-200 mb-0.5">
+                  Competitive Response
+                </strong>
+                Mitigation: Proprietary “Open to Offers” data moat.
+              </li>
+            </ul>
+          </section>
+
+          <section id="questions" class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 backdrop-blur-md" data-sr="">
+            <div class="flex items-center gap-3 mb-4">
+              <i data-lucide="help-circle" class="h-5 w-5 text-neutral-400"></i>
+              <h3 class="text-lg font-medium text-white">Open Questions</h3>
+            </div>
+            <ul class="space-y-3 list-disc list-inside text-xs text-neutral-400">
+              <li>Optimal pricing for HAUS Pro tiers?</li>
+              <li>Which partner lenders to approach first?</li>
+              <li>Acquisition channel for first 1,000 Open homes?</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="lg:col-span-4 space-y-4">
+        <div class="sticky top-32 space-y-4">
+          <div class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 backdrop-blur-md" data-sr="">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-sm font-medium text-white">Doc Status</div>
+              <span class="inline-flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                Approved
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-xl bg-white/5 p-3">
+                <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                  Segment
+                </div>
+                <div class="text-sm text-neutral-200 mt-1">FTHB</div>
+              </div>
+              <div class="rounded-xl bg-white/5 p-3">
+                <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                  Priority
+                </div>
+                <div class="text-sm text-neutral-200 mt-1">High</div>
+              </div>
+            </div>
+            <div class="mt-6 pt-6 border-t border-white/5">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-3">
+                Quick Actions
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button class="flex items-center justify-center gap-2 rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-2 text-xs text-neutral-300 transition">
+                  <i data-lucide="link" class="h-3.5 w-3.5"></i>
+                  Copy
+                </button>
+                <button class="flex items-center justify-center gap-2 rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10 px-3 py-2 text-xs text-neutral-300 transition">
+                  <i data-lucide="printer" class="h-3.5 w-3.5"></i>
+                  PDF
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-3xl bg-neutral-900/40 ring-1 ring-white/5 p-6 backdrop-blur-md hidden lg:block" data-sr="">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-sm font-medium text-white">
+                Guiding Principles
+              </div>
+              <i data-lucide="compass" class="h-4 w-4 text-neutral-500"></i>
+            </div>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-2.5">
+                <div class="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5"></div>
+                <span class="text-xs text-neutral-300 leading-relaxed">
+                  AI amplifies; humans decide.
+                </span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <div class="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5"></div>
+                <span class="text-xs text-neutral-300 leading-relaxed">
+                  Partner with agents, don't replace.
+                </span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <div class="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5"></div>
+                <span class="text-xs text-neutral-300 leading-relaxed">
+                  Solve FTHB first.
+                </span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <div class="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5"></div>
+                <span class="text-xs text-neutral-300 leading-relaxed">
+                  Ship → Observe → Improve.
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-black border-t border-white/10 pt-12 pb-8 px-6 relative z-10">
+      <div class="mx-auto px-6 md:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1440px]">
+        <div class="flex items-center gap-3">
+          <div class="w-6 h-6 bg-white text-black flex items-center justify-center font-bold text-xs rounded-sm font-display">
+            H.
+          </div>
+          <span class="text-sm font-medium text-white tracking-tight">
+            HAUS
+          </span>
+        </div>
+        <p class="text-xs text-neutral-500">
+          ©
+          <span id="year">2025</span>
+          HAUS. All rights reserved.
+        </p>
+        <div class="flex items-center gap-4">
+          <a href="#" class="text-xs text-neutral-400 hover:text-white transition">
+            Privacy
+          </a>
+          <a href="#" class="text-xs text-neutral-400 hover:text-white transition">
+            Terms
+          </a>
+          <a href="#" class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-xs text-neutral-300 ring-1 ring-white/10 hover:bg-white/10 transition">
+            <i data-lucide="mail" class="h-3 w-3"></i>
+            hello@haus.app
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Initialize Icons
+        lucide.createIcons({ attrs: { 'stroke-width': 1.5 } });
+
+        // Footer Year
+        const y = document.getElementById('year');
+        if (y) y.textContent = new Date().getFullYear();
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        menuBtn?.addEventListener('click', () => {
+          mobileNav?.classList.toggle('hidden');
+          const isHidden = mobileNav?.classList.contains('hidden');
+          menuBtn.innerHTML = isHidden
+            ? '<i data-lucide="menu" class="h-5 w-5 text-white"></i>'
+            : '<i data-lucide="x" class="h-5 w-5 text-white"></i>';
+          lucide.createIcons({ attrs: { 'stroke-width': 1.5 } });
+        });
+
+        // Feature Accordions
+        document.querySelectorAll('#features .rounded-2xl > button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const parent = btn.parentElement;
+            const content = parent.querySelector('div.px-5.pb-5');
+            const icon = btn.querySelector('[data-lucide="chevron-down"]');
+
+            // Close others
+            document.querySelectorAll('#features .rounded-2xl').forEach(item => {
+              if (item !== parent) {
+                item.querySelector('div.px-5.pb-5')?.classList.add('hidden');
+                item.querySelector('[data-lucide="chevron-down"]')?.classList.remove('rotate-180');
+              }
+            });
+
+            if (content) {
+              content.classList.toggle('hidden');
+              icon?.classList.toggle('rotate-180');
+            }
+          });
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+          a.addEventListener('click', (e) => {
+            const id = a.getAttribute('href') || '';
+            if (id.length > 1) {
+              e.preventDefault();
+              const el = document.querySelector(id);
+              if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 140, behavior: 'smooth' });
+            }
+          });
+        });
+
+        // Scroll Reveal
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('opacity-100', 'translate-y-0');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-sr]').forEach(el => {
+          el.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-700', 'ease-out');
+          observer.observe(el);
+        });
+
+        // Animated Orbs
+        const orbs = document.querySelectorAll('[data-orb]');
+        let start = performance.now();
+        function frame(now) {
+          const t = (now - start) / 1000;
+          orbs.forEach((el, i) => {
+            const amp = parseFloat(el.dataset.amp || '30');
+            const speed = parseFloat(el.dataset.speed || '0.2');
+            const x = Math.sin(t * speed + i) * amp;
+            const y = Math.cos(t * (speed * 1.2) + i) * amp;
+            el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+          });
+          requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+
+        // Chart.js Configuration
+        const ctx = document.getElementById('wauChart');
+        if (ctx) {
+          const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 200);
+          gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+          gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'],
+              datasets: [{
+                label: 'WAEU',
+                data: [420, 460, 480, 520, 590, 610, 680, 720],
+                borderColor: '#34d399',
+                backgroundColor: gradient,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                borderWidth: 2
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  backgroundColor: 'rgba(23,23,23,0.9)',
+                  titleColor: '#fff',
+                  bodyColor: '#e5e5e5',
+                  padding: 10,
+                  borderColor: 'rgba(255,255,255,0.1)',
+                  borderWidth: 1,
+                  displayColors: false,
+                  callbacks: {
+                    title: () => null // Hide title in tooltip
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: { color: '#525252', font: { size: 10 } }
+                },
+                y: {
+                  grid: { color: 'rgba(255,255,255,0.03)' },
+                  ticks: { color: '#525252', font: { size: 10 } },
+                  border: { display: false }
+                }
+              },
+              interaction: {
+                intersect: false,
+                mode: 'index',
+              },
+            }
+          });
+        }
+      });
+    </script>
+    <style>
+      /* Hide scrollbar for chrome/safari/opera */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+    </style>
+  
+</body></html>

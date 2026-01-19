@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --c-bg: #050505;
+  --c-card: #0A0A0A;
+}
+
+body {
+  background-color: var(--c-bg);
+  color: #e5e5e5;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: #e0e7ff;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #262626;
+  border-radius: 3px;
+}
+
+/* Chart Animations */
+@keyframes drawChart {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+.animate-draw {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+}
+
+.animate-fadeIn {
+  opacity: 0;
+}
+
+.animate-pop {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}

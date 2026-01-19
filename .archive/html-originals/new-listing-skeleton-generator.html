@@ -1,0 +1,735 @@
+<html lang="en" class="scroll-smooth"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Listing | HAUS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/iconify/2.0.0/iconify.min.js">
+      const btn = document.getElementById('generateBtn');
+      const input = document.getElementById('aiInput');
+      // Target Elements
+      const targets = {
+      title: document.querySelector('h1') || document.querySelector('.border-b .h-10'),
+      address: document.querySelector('.border-b .flex .h-4'),
+      specs: document.querySelectorAll('.flex-wrap .space-y-1'),
+      desc: document.querySelector('.space-y-6 .space-y-3'),
+      price: document.querySelector('.sticky .text-3xl') || document.querySelector('.sticky .h-10'),
+      agentName: document.querySelector('.sticky .space-y-2 .h-4'),
+      agentRole: document.querySelector('.sticky .space-y-2 .h-3'),
+      media: document.getElementById('media-gallery')
+      };
+      const finalData = {
+      title: "The Wolseley Residence",
+      address: "12 Wolseley Road, Point Piper NSW 2027",
+      price: "$35,000,000",
+      agentName: "Alexander Phillips",
+      agentRole: "Lead Agent • HAUS Prestige",
+      desc: `<p class="text-neutral-300 leading-relaxed font-light text-lg">Commanding an iconic position on Australia's most prestigious street, The Wolseley Residence represents a masterpiece of contemporary architecture and waterfront luxury. Designed by award-winning architects, this north-facing sanctuary captures uninterrupted panoramic views.</p>`
+      };
+      btn.addEventListener('click', () => {
+      if(!input.value) {
+      input.placeholder = "Please type 'generate' or paste a URL...";
+      return;
+      }
+      // UI Feedback
+      btn.innerHTML = `<span class="iconify animate-spin" data-icon="lucide:loader-2" data-width="14"></span> Processing`;
+      btn.classList.add('opacity-80');
+      setTimeout(() => {
+      // 1. Fill Header
+      replaceSkeleton(targets.title, `<h1 class="text-3xl md:text-5xl font-display font-medium text-white tracking-tight fade-in">${finalData.title}</h1>`);
+      replaceSkeleton(targets.address, `<span class="text-neutral-400 font-mono text-sm fade-in">${finalData.address}</span>`);
+      // 2. Fill Specs
+      const specValues = ["5", "6", "4", "892m²"];
+      const specLabels = ["Bedrooms", "Bathrooms", "Garage", "Land Size"];
+      targets.specs.forEach((el, index) => {
+      el.innerHTML = `
+      <div class="text-lg font-display text-white fade-in">${specValues[index]}</div>
+      <div class="text-[10px] font-mono text-neutral-500 uppercase fade-in">${specLabels[index]}</div>
+      `;
+      el.parentElement.classList.remove('opacity-50');
+      });
+      // 3. Fill Description
+      targets.desc.innerHTML = finalData.desc;
+      targets.desc.classList.add('fade-in');
+      // 4. Fill Sidebar
+      replaceSkeleton(targets.price, `<div class="text-3xl font-display text-white tracking-tight fade-in">${finalData.price}</div>`);
+      if(targets.agentName) targets.agentName.parentElement.innerHTML = `
+      <div class="text-white font-medium fade-in">${finalData.agentName}</div>
+      <div class="text-xs text-neutral-500 fade-in">${finalData.agentRole}</div>
+      `;
+      // 5. Fill Images
+      const images = [
+      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1600&q=90",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800",
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800",
+      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800"
+      ];
+      const slots = targets.media.querySelectorAll('.relative');
+      slots.forEach((slot, i) => {
+      if(images[i]) {
+      slot.innerHTML = `<img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/917d6f93-fb36-439a-8c48-884b67b35381_1600w.jpg" class="w-full h-full object-cover fade-in duration-700">`;
+      slot.classList.remove('bg-neutral-900');
+      }
+      });
+      // 6. Fill Socials
+      const socialSlots = document.querySelectorAll('.social-slot');
+      const socialImages = [
+      images[1], // Story
+      images[0], // Post
+      images[2]  // Landscape
+      ];
+      socialSlots.forEach((slot, i) => {
+      if(socialImages[i]) {
+      slot.innerHTML = `<img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg" class="w-full h-full object-cover fade-in">
+      <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition"></div>
+      <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0">
+      <div class="bg-white text-black p-1.5 rounded-full shadow-lg"><span class="iconify" data-icon="lucide:download" data-width="12"></span></div>
+      </div>`;
+      slot.classList.remove('bg-neutral-900');
+      }
+      });
+      // Reset Button
+      btn.innerHTML = `Complete <span class="iconify" data-icon="lucide:check" data-width="12"></span>`;
+      btn.classList.remove('bg-indigo-600');
+      btn.classList.add('bg-emerald-600');
+      input.value = "Listing Generated Successfully";
+      }, 1500);
+      });
+      function replaceSkeleton(element, newHTML) {
+      if(element) {
+      element.classList.remove('skeleton-shimmer', 'bg-neutral-900', 'h-10', 'h-12', 'h-4', 'w-3/4', 'w-1/2');
+      element.style.background = 'transparent';
+      element.innerHTML = newHTML;
+      }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400&amp;display=swap" rel="stylesheet">
+    <style>
+      body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e5e5e5; }
+      .font-display { font-family: 'Space Grotesk', sans-serif; }
+      .font-mono { font-family: 'Space Mono', monospace; }
+      /* Grid Background */
+      .grid-bg {
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+      }
+      /* Skeleton Animation Shimmer */
+      @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+      }
+      .skeleton-shimmer {
+      animation: shimmer 2s infinite linear;
+      background: linear-gradient(to right, #171717 4%, #262626 25%, #171717 36%);
+      background-size: 1000px 100%;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #0a0a0a; }
+      ::-webkit-scrollbar-thumb { background: #262626; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #404040; }
+      /* Transitions */
+      .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+  </head>
+  <body class="overflow-x-hidden w-full min-h-screen relative selection:bg-indigo-500/30 selection:text-indigo-200 flex flex-col">
+    <!-- Background Grid -->
+    <div class="fixed inset-0 z-0 w-full h-full pointer-events-none grid-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+      <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+        <a href="#" class="flex items-center gap-2 group">
+          <div class="w-8 h-8 bg-white text-black flex items-center justify-center tracking-tighter rounded-sm group-hover:scale-95 transition font-semibold">
+            H.
+          </div>
+        </a>
+
+        <!-- Search -->
+        <div class="hidden md:flex items-center bg-neutral-900/50 border border-white/10 rounded-full px-4 py-2 w-96 gap-3">
+          <span class="iconify text-neutral-600" data-icon="lucide:search" data-width="16"></span>
+          <input type="text" disabled="" placeholder="Waiting for property data..." class="bg-transparent border-none text-xs text-neutral-500 w-full font-mono focus:outline-none cursor-not-allowed">
+          <div class="text-[10px] bg-white/5 border border-white/5 px-1.5 py-0.5 rounded text-neutral-600 font-mono">
+            ⌘K
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <div class="h-8 w-8 rounded-full bg-neutral-900 border border-white/10"></div>
+          <button class="bg-white/10 text-neutral-500 text-xs font-medium px-4 py-2 rounded cursor-not-allowed">
+            Save Draft
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-16 flex-1">
+      <!-- Skeleton Media Gallery -->
+      <section class="h-[60vh] md:h-[75vh] w-full grid grid-cols-1 md:grid-cols-4 gap-1 p-1 bg-black" id="media-gallery">
+        <!-- Main Image Slot -->
+        <div class="md:col-span-2 md:row-span-2 relative bg-neutral-900 overflow-hidden group border border-white/5">
+          <div class="absolute inset-0 skeleton-shimmer opacity-50"></div>
+          <div class="absolute inset-0 flex items-center justify-center flex-col gap-3 opacity-30">
+            <span class="iconify text-neutral-500" data-icon="lucide:image" data-width="32"></span>
+          </div>
+        </div>
+
+        <!-- Secondary Slots -->
+        <div class="relative bg-neutral-900 overflow-hidden border border-white/5">
+          <div class="absolute inset-0 skeleton-shimmer opacity-40"></div>
+        </div>
+        <div class="relative bg-neutral-900 overflow-hidden border border-white/5">
+          <div class="absolute inset-0 skeleton-shimmer opacity-30"></div>
+        </div>
+        <div class="relative bg-neutral-900 overflow-hidden border border-white/5">
+          <div class="absolute inset-0 skeleton-shimmer opacity-40"></div>
+        </div>
+        <div class="relative bg-neutral-900 overflow-hidden border border-white/5 flex items-center justify-center">
+          <div class="absolute inset-0 skeleton-shimmer opacity-30"></div>
+          <div class="relative z-10 bg-black/20 backdrop-blur-md border border-white/10 px-4 py-2 rounded-lg flex items-center gap-2">
+            <div class="w-3 h-3 bg-white/20 rounded-sm"></div>
+            <div class="w-20 h-2 bg-white/20 rounded-sm"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Listing Details Container -->
+      <div class="max-w-[1440px] mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <!-- LEFT COLUMN -->
+          <div class="lg:col-span-8 space-y-12">
+            <!-- Skeleton Header -->
+            <div class="border-b border-white/10 pb-8 space-y-4">
+              <div class="flex justify-between items-start">
+                <div class="space-y-3 w-3/4">
+                  <div class="text-xs font-mono text-neutral-500 uppercase mb-2 tracking-tight">
+                    Property Details
+                  </div>
+                  <!-- Title Skeleton -->
+                  <div class="h-10 md:h-12 w-3/4 bg-neutral-900 rounded-lg skeleton-shimmer border border-white/5"></div>
+                  <!-- Address Skeleton -->
+                  <div class="flex items-center gap-2">
+                    <span class="iconify text-neutral-800" data-icon="lucide:map-pin" data-width="14"></span>
+                    <div class="h-4 w-1/2 bg-neutral-900 rounded skeleton-shimmer"></div>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <div class="w-10 h-10 rounded-full bg-neutral-900 border border-white/10"></div>
+                  <div class="w-10 h-10 rounded-full bg-neutral-900 border border-white/10"></div>
+                </div>
+              </div>
+
+              <!-- Key Specs Skeleton -->
+              <div class="flex flex-wrap gap-6 md:gap-12 py-4">
+                <!-- Spec Item -->
+                <div class="flex items-center gap-3 opacity-50">
+                  <span class="iconify text-neutral-700" data-icon="lucide:bed" data-width="20"></span>
+                  <div class="space-y-1">
+                    <div class="h-5 w-8 bg-neutral-900 rounded"></div>
+                    <div class="h-2 w-12 bg-neutral-900 rounded"></div>
+                  </div>
+                </div>
+                <!-- Spec Item -->
+                <div class="flex items-center gap-3 opacity-50">
+                  <span class="iconify text-neutral-700" data-icon="lucide:bath" data-width="20"></span>
+                  <div class="space-y-1">
+                    <div class="h-5 w-8 bg-neutral-900 rounded"></div>
+                    <div class="h-2 w-12 bg-neutral-900 rounded"></div>
+                  </div>
+                </div>
+                <!-- Spec Item -->
+                <div class="flex items-center gap-3 opacity-50">
+                  <span class="iconify text-neutral-700" data-icon="lucide:car" data-width="20"></span>
+                  <div class="space-y-1">
+                    <div class="h-5 w-8 bg-neutral-900 rounded"></div>
+                    <div class="h-2 w-12 bg-neutral-900 rounded"></div>
+                  </div>
+                </div>
+                <!-- Spec Item -->
+                <div class="flex items-center gap-3 opacity-50">
+                  <span class="iconify text-neutral-700" data-icon="lucide:ruler" data-width="20"></span>
+                  <div class="space-y-1">
+                    <div class="h-5 w-12 bg-neutral-900 rounded"></div>
+                    <div class="h-2 w-14 bg-neutral-900 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Description Skeleton -->
+            <div class="space-y-6">
+              <h3 class="text-sm font-medium text-white mb-6 flex items-center gap-2">
+                <span class="iconify text-neutral-600" data-icon="lucide:align-left" data-width="16"></span>
+                Property Description
+              </h3>
+              <div class="space-y-3">
+                <div class="h-4 w-full bg-neutral-900 rounded skeleton-shimmer"></div>
+                <div class="h-4 w-[98%] bg-neutral-900 rounded skeleton-shimmer"></div>
+                <div class="h-4 w-[95%] bg-neutral-900 rounded skeleton-shimmer"></div>
+                <div class="h-4 w-[60%] bg-neutral-900 rounded skeleton-shimmer"></div>
+              </div>
+              <div class="space-y-3 pt-4">
+                <div class="h-4 w-full bg-neutral-900 rounded skeleton-shimmer"></div>
+                <div class="h-4 w-[92%] bg-neutral-900 rounded skeleton-shimmer"></div>
+                <div class="h-4 w-[40%] bg-neutral-900 rounded skeleton-shimmer"></div>
+              </div>
+            </div>
+
+            <!-- HAUS Intelligence Skeleton -->
+            <div class="bg-neutral-900/30 border border-white/5 rounded-xl p-8 relative overflow-hidden">
+              <div class="flex items-center gap-2 mb-8">
+                <div class="w-2 h-2 rounded-full bg-neutral-700"></div>
+                <h3 class="text-sm font-medium text-white flex items-center gap-2">
+                  <span class="iconify text-neutral-600" data-icon="lucide:bar-chart-2" data-width="16"></span>
+                  Market Intelligence
+                </h3>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="space-y-3">
+                  <div class="h-3 w-24 bg-neutral-800 rounded"></div>
+                  <div class="h-8 w-32 bg-neutral-800 rounded skeleton-shimmer"></div>
+                  <div class="h-3 w-20 bg-neutral-800/50 rounded"></div>
+                </div>
+                <div class="space-y-3">
+                  <div class="h-3 w-24 bg-neutral-800 rounded"></div>
+                  <div class="h-8 w-16 bg-neutral-800 rounded skeleton-shimmer"></div>
+                  <div class="h-3 w-20 bg-neutral-800/50 rounded"></div>
+                </div>
+                <div class="space-y-3">
+                  <div class="h-3 w-24 bg-neutral-800 rounded"></div>
+                  <div class="flex gap-1 h-8 items-end opacity-30">
+                    <div class="w-2 bg-neutral-700 h-[30%]"></div>
+                    <div class="w-2 bg-neutral-700 h-[50%]"></div>
+                    <div class="w-2 bg-neutral-700 h-[80%]"></div>
+                    <div class="w-2 bg-neutral-700 h-[40%]"></div>
+                  </div>
+                  <div class="h-3 w-24 bg-neutral-800/50 rounded"></div>
+                </div>
+              </div>
+              <div class="mt-8 pt-8 border-t border-white/5">
+                <div class="h-3 w-32 bg-neutral-800 rounded mb-4"></div>
+                <div class="flex items-end gap-1 h-32 w-full pb-2">
+                  <div class="flex-1 bg-neutral-800/20 h-[40%] rounded-t-sm skeleton-shimmer"></div>
+                  <div class="flex-1 bg-neutral-800/20 h-[60%] rounded-t-sm skeleton-shimmer" style="animation-delay: 100ms"></div>
+                  <div class="flex-1 bg-neutral-800/20 h-[30%] rounded-t-sm skeleton-shimmer" style="animation-delay: 200ms"></div>
+                  <div class="flex-1 bg-neutral-800/20 h-[80%] rounded-t-sm skeleton-shimmer" style="animation-delay: 300ms"></div>
+                  <div class="flex-1 bg-neutral-800/20 h-[50%] rounded-t-sm skeleton-shimmer" style="animation-delay: 400ms"></div>
+                  <div class="flex-1 bg-neutral-800/20 h-[70%] rounded-t-sm skeleton-shimmer" style="animation-delay: 500ms"></div>
+                  <div class="flex-1 bg-neutral-800/20 h-[90%] rounded-t-sm skeleton-shimmer" style="animation-delay: 600ms"></div>
+                  <div class="flex-1 bg-neutral-800/20 h-[40%] rounded-t-sm skeleton-shimmer" style="animation-delay: 700ms"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Features Grid Skeleton -->
+            <div>
+              <h3 class="text-sm font-medium text-white mb-6 flex items-center gap-2">
+                <span class="iconify text-neutral-600" data-icon="lucide:list-checks" data-width="16"></span>
+                Amenities &amp; Features
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="p-4 rounded bg-neutral-900/50 border border-white/5 h-12 flex items-center gap-2 opacity-40">
+                  <div class="w-1 h-1 bg-white rounded-full"></div>
+                  <span class="text-[10px] uppercase tracking-wider font-mono">
+                    Heating
+                  </span>
+                </div>
+                <div class="p-4 rounded bg-neutral-900/50 border border-white/5 h-12 flex items-center gap-2 opacity-40">
+                  <div class="w-1 h-1 bg-white rounded-full"></div>
+                  <span class="text-[10px] uppercase tracking-wider font-mono">
+                    Cooling
+                  </span>
+                </div>
+                <div class="p-4 rounded bg-neutral-900/50 border border-white/5 h-12 flex items-center gap-2 opacity-40">
+                  <div class="w-1 h-1 bg-white rounded-full"></div>
+                  <span class="text-[10px] uppercase tracking-wider font-mono">
+                    Parking
+                  </span>
+                </div>
+                <div class="p-4 rounded bg-neutral-900/50 border border-white/5 h-12 flex items-center gap-2 opacity-40">
+                  <div class="w-1 h-1 bg-white rounded-full"></div>
+                  <span class="text-[10px] uppercase tracking-wider font-mono">
+                    Garden
+                  </span>
+                </div>
+                <div class="p-4 rounded bg-neutral-900/50 border border-white/5 h-12 flex items-center gap-2 opacity-40">
+                  <div class="w-1 h-1 bg-white rounded-full"></div>
+                  <span class="text-[10px] uppercase tracking-wider font-mono">
+                    Pool
+                  </span>
+                </div>
+                <div class="p-4 rounded bg-neutral-900/50 border border-white/5 h-12 flex items-center gap-2 opacity-40">
+                  <div class="w-1 h-1 bg-white rounded-full"></div>
+                  <span class="text-[10px] uppercase tracking-wider font-mono">
+                    Security
+                  </span>
+                </div>
+                <div class="p-4 rounded bg-neutral-900/50 border border-white/5 h-12 flex items-center gap-2 opacity-40">
+                  <div class="w-1 h-1 bg-white rounded-full"></div>
+                  <span class="text-[10px] uppercase tracking-wider font-mono">
+                    Views
+                  </span>
+                </div>
+                <div class="p-4 rounded bg-neutral-900/50 border border-white/5 h-12 flex items-center gap-2 opacity-40">
+                  <div class="w-1 h-1 bg-white rounded-full"></div>
+                  <span class="text-[10px] uppercase tracking-wider font-mono">
+                    Storage
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-12 border-t border-white/10 space-y-6">
+              <h3 class="text-sm font-medium text-white mb-6 flex items-center gap-2">
+                <span class="iconify text-neutral-600" data-icon="lucide:file-digit" data-width="16"></span>
+                Floor Plan
+              </h3>
+              <div class="aspect-video w-full bg-neutral-900/30 border border-white/5 rounded-xl p-4 flex items-center justify-center relative overflow-hidden group">
+                <div class="absolute inset-0 skeleton-shimmer opacity-20"></div>
+                <div class="relative z-10 flex flex-col items-center gap-3 opacity-30">
+                  <span class="iconify text-neutral-500" data-icon="lucide:file-image" data-width="32"></span>
+                </div>
+              </div>
+            </div>
+            <div class="pt-12 border-t border-white/10 space-y-6">
+              <h3 class="text-sm font-medium text-white mb-6 flex items-center gap-2">
+                <span class="iconify text-neutral-600" data-icon="lucide:map" data-width="16"></span>
+                Location &amp; Context
+              </h3>
+              <div class="h-[400px] w-full bg-neutral-900/30 border border-white/5 rounded-xl relative overflow-hidden">
+                <div class="absolute inset-0 skeleton-shimmer opacity-20"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <div class="w-16 h-16 rounded-full bg-neutral-800/50 flex items-center justify-center animate-pulse">
+                    <div class="w-4 h-4 bg-neutral-600 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN (Sticky Sidebar) -->
+          <div class="lg:col-span-4 relative border-l border-white/10 pl-8">
+            <div class="sticky top-24 space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto pr-4 pb-12">
+              <!-- Price Card Skeleton -->
+              <div class="bg-neutral-900/50 border border-white/5 rounded-xl p-6">
+                <div class="text-xs font-mono text-neutral-500 uppercase mb-4 border-b border-white/5 pb-2">
+                  Listing Price
+                </div>
+                <div class="mb-6 space-y-4">
+                  <div class="flex justify-between">
+                    <div class="h-3 w-20 bg-neutral-800 rounded"></div>
+                    <div class="h-3 w-8 bg-neutral-800 rounded"></div>
+                  </div>
+                  <div class="h-10 w-3/4 bg-neutral-800 rounded skeleton-shimmer"></div>
+                  <div class="h-3 w-1/2 bg-neutral-800/50 rounded"></div>
+                </div>
+                <div class="h-12 w-full bg-neutral-800 rounded mb-3"></div>
+                <div class="h-12 w-full bg-transparent border border-white/10 rounded"></div>
+              </div>
+
+              <!-- Agent Card Skeleton -->
+              <div class="bg-neutral-900/50 border border-white/5 rounded-xl p-6">
+                <div class="text-xs font-mono text-neutral-500 uppercase mb-4 border-b border-white/5 pb-2">
+                  Listing Agent
+                </div>
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-12 h-12 rounded-full bg-neutral-800 border border-white/5"></div>
+                  <div class="space-y-2">
+                    <div class="h-4 w-32 bg-neutral-800 rounded"></div>
+                    <div class="h-3 w-24 bg-neutral-800/50 rounded"></div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="h-9 bg-neutral-800 rounded"></div>
+                  <div class="h-9 bg-neutral-800 rounded"></div>
+                </div>
+              </div>
+
+              <!-- Data Skeleton -->
+              <div class="bg-neutral-900/50 border border-white/5 rounded-xl p-6" id="social-assets-card">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-sm font-medium text-white">
+                    Generated Socials
+                  </h3>
+                  <span class="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-1.5 py-0.5 rounded">
+                    AI Ready
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <!-- Story -->
+                  <div class="social-slot relative aspect-[9/16] bg-neutral-900 rounded-lg border border-white/10 overflow-hidden group">
+                    <div class="absolute inset-0 skeleton-shimmer opacity-40"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-neutral-600">
+                      <span class="iconify" data-icon="lucide:instagram" data-width="16"></span>
+                    </div>
+                  </div>
+                  <!-- Post -->
+                  <div class="social-slot relative aspect-square bg-neutral-900 rounded-lg border border-white/10 overflow-hidden group">
+                    <div class="absolute inset-0 skeleton-shimmer opacity-30"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-neutral-600">
+                      <span class="iconify" data-icon="lucide:image" data-width="16"></span>
+                    </div>
+                  </div>
+                  <!-- Landscape -->
+                  <div class="social-slot col-span-2 relative aspect-[1.91/1] bg-neutral-900 rounded-lg border border-white/10 overflow-hidden group">
+                    <div class="absolute inset-0 skeleton-shimmer opacity-30"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-neutral-600">
+                      <span class="iconify" data-icon="lucide:linkedin" data-width="16"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-2">
+                  <button class="w-full flex items-center justify-center gap-2 bg-white text-black text-xs font-medium py-2 rounded-lg hover:bg-neutral-200 transition">
+                    Download All
+                    <span class="iconify" data-icon="lucide:download" data-width="12"></span>
+                  </button>
+                  <button class="w-full flex items-center justify-center gap-2 bg-transparent text-neutral-500 text-xs py-2 rounded-lg border border-white/5 hover:bg-white/5 transition">
+                    Regenerate Captions
+                  </button>
+                </div>
+              </div>
+
+              <div class="bg-neutral-900/50 border border-white/5 rounded-xl p-6 mt-4">
+                <h3 class="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                  <span class="iconify text-neutral-600" data-icon="lucide:file-text" data-width="16"></span>
+                  Legal Documents
+                </h3>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3 p-3 bg-neutral-900/50 rounded border border-white/5">
+                    <span class="iconify text-neutral-700" data-icon="lucide:file-text" data-width="16"></span>
+                    <div class="h-2 w-24 bg-neutral-800 rounded"></div>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 bg-neutral-900/50 rounded border border-white/5">
+                    <span class="iconify text-neutral-700" data-icon="lucide:file-text" data-width="16"></span>
+                    <div class="h-2 w-20 bg-neutral-800 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <section class="max-w-[1440px] mx-auto px-6 py-12 border-t border-white/10 mt-4">
+        <div class="flex items-center justify-between mb-8">
+          <div class="h-4 w-48 bg-neutral-900 rounded"></div>
+          <div class="flex gap-2">
+            <div class="w-8 h-8 rounded-full bg-neutral-900 border border-white/5"></div>
+            <div class="w-8 h-8 rounded-full bg-neutral-900 border border-white/5"></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="group cursor-not-allowed">
+            <div class="aspect-[4/3] bg-neutral-900 rounded-xl border border-white/5 overflow-hidden relative mb-4">
+              <div class="absolute inset-0 skeleton-shimmer opacity-40"></div>
+            </div>
+            <div class="space-y-2 px-1">
+              <div class="h-4 w-3/4 bg-neutral-900 rounded"></div>
+              <div class="h-3 w-1/2 bg-neutral-900 rounded"></div>
+            </div>
+          </div>
+          <div class="group cursor-not-allowed hidden md:block">
+            <div class="aspect-[4/3] bg-neutral-900 rounded-xl border border-white/5 overflow-hidden relative mb-4">
+              <div class="absolute inset-0 skeleton-shimmer opacity-30"></div>
+            </div>
+            <div class="space-y-2 px-1">
+              <div class="h-4 w-3/4 bg-neutral-900 rounded"></div>
+              <div class="h-3 w-1/2 bg-neutral-900 rounded"></div>
+            </div>
+          </div>
+          <div class="group cursor-not-allowed hidden md:block">
+            <div class="aspect-[4/3] bg-neutral-900 rounded-xl border border-white/5 overflow-hidden relative mb-4">
+              <div class="absolute inset-0 skeleton-shimmer opacity-50"></div>
+            </div>
+            <div class="space-y-2 px-1">
+              <div class="h-4 w-3/4 bg-neutral-900 rounded"></div>
+              <div class="h-3 w-1/2 bg-neutral-900 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-black border-t border-white/10 pt-12 pb-8 px-6 mt-12">
+      <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 opacity-50">
+        <div>
+          <div class="w-6 h-6 bg-white text-black flex items-center justify-center text-xs mb-4 font-semibold">
+            H.
+          </div>
+          <div class="h-3 w-32 bg-neutral-900 rounded"></div>
+        </div>
+        <div></div>
+        <div></div>
+        <div class="text-right space-y-2">
+          <div class="h-3 w-24 bg-neutral-900 rounded ml-auto"></div>
+          <div class="h-3 w-32 bg-neutral-900 rounded ml-auto"></div>
+        </div>
+      </div>
+      <div class="max-w-[1440px] mx-auto border-t border-white/10 pt-8 flex justify-between items-center text-[10px] text-neutral-600 font-mono">
+        <span>© 2025 HAUS.</span>
+        <div class="flex gap-4">
+          <span>Privacy</span>
+          <span>Terms</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Floating AI Input -->
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-[600px] z-50">
+      <div class="bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl flex flex-col gap-2 ring-1 ring-white/5">
+        <div class="flex items-center gap-2 px-2">
+          <button class="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition">
+            <span class="iconify" data-icon="lucide:paperclip" data-width="16"></span>
+          </button>
+          <input id="aiInput" type="text" placeholder="Paste listing URL or upload documents to generate..." class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-white placeholder:text-neutral-500 h-10 px-2 font-display">
+          <button id="generateBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg px-4 py-2 text-xs font-medium transition flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+            Generate Listing
+            <span class="iconify" data-icon="lucide:sparkles" data-width="12"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simulation Script to "Fill" the Page -->
+    <script>
+      const btn = document.getElementById('generateBtn');
+      const input = document.getElementById('aiInput');
+
+      // Target Elements
+      const targets = {
+          title: document.querySelector('h1') || document.querySelector('.border-b .h-10'),
+          address: document.querySelector('.border-b .flex .h-4'),
+          specs: document.querySelectorAll('.flex-wrap .space-y-1'),
+          desc: document.querySelector('.space-y-6 .space-y-3'),
+          price: document.querySelector('.sticky .text-3xl') || document.querySelector('.sticky .h-10'),
+          agentName: document.querySelector('.sticky .space-y-2 .h-4'),
+          agentRole: document.querySelector('.sticky .space-y-2 .h-3'),
+          media: document.getElementById('media-gallery')
+      };
+
+      const finalData = {
+          title: "The Wolseley Residence",
+          address: "12 Wolseley Road, Point Piper NSW 2027",
+          price: "$35,000,000",
+          agentName: "Alexander Phillips",
+          agentRole: "Lead Agent • HAUS Prestige",
+          desc: `<p class="text-neutral-300 leading-relaxed font-light text-lg">Commanding an iconic position on Australia's most prestigious street, The Wolseley Residence represents a masterpiece of contemporary architecture and waterfront luxury. Designed by award-winning architects, this north-facing sanctuary captures uninterrupted panoramic views.</p>`
+      };
+
+      btn.addEventListener('click', () => {
+          if(!input.value) {
+              input.placeholder = "Please type 'generate' or paste a URL...";
+              return;
+          }
+
+          // UI Feedback
+          btn.innerHTML = `<span class="iconify animate-spin" data-icon="lucide:loader-2" data-width="14"></span> Processing`;
+          btn.classList.add('opacity-80');
+
+          setTimeout(() => {
+              // 1. Fill Header
+              replaceSkeleton(targets.title, `<h1 class="text-3xl md:text-5xl font-display font-medium text-white tracking-tight fade-in">${finalData.title}</h1>`);
+
+              replaceSkeleton(targets.address, `<span class="text-neutral-400 font-mono text-sm fade-in">${finalData.address}</span>`);
+
+              // 2. Fill Specs
+              const specValues = ["5", "6", "4", "892m²"];
+              const specLabels = ["Bedrooms", "Bathrooms", "Garage", "Land Size"];
+
+              targets.specs.forEach((el, index) => {
+                   el.innerHTML = `
+                      <div class="text-lg font-display text-white fade-in">${specValues[index]}</div>
+                      <div class="text-[10px] font-mono text-neutral-500 uppercase fade-in">${specLabels[index]}</div>
+                   `;
+                   el.parentElement.classList.remove('opacity-50');
+              });
+
+              // 3. Fill Description
+              targets.desc.innerHTML = finalData.desc;
+              targets.desc.classList.add('fade-in');
+
+              // 4. Fill Sidebar
+              replaceSkeleton(targets.price, `<div class="text-3xl font-display text-white tracking-tight fade-in">${finalData.price}</div>`);
+
+              if(targets.agentName) targets.agentName.parentElement.innerHTML = `
+                  <div class="text-white font-medium fade-in">${finalData.agentName}</div>
+                  <div class="text-xs text-neutral-500 fade-in">${finalData.agentRole}</div>
+              `;
+
+              // 5. Fill Images
+              const images = [
+                  "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1600&q=90",
+                  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800",
+                  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800",
+                  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800",
+                  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800"
+              ];
+
+              const slots = targets.media.querySelectorAll('.relative');
+              slots.forEach((slot, i) => {
+                  if(images[i]) {
+                      slot.innerHTML = `<img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/917d6f93-fb36-439a-8c48-884b67b35381_1600w.jpg" class="w-full h-full object-cover fade-in duration-700">`;
+                      slot.classList.remove('bg-neutral-900');
+                  }
+              });
+
+              // 6. Fill Socials
+              const socialSlots = document.querySelectorAll('.social-slot');
+              const socialImages = [
+                  images[1], // Story
+                  images[0], // Post
+                  images[2]  // Landscape
+              ];
+              socialSlots.forEach((slot, i) => {
+                  if(socialImages[i]) {
+                      slot.innerHTML = `<img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg" class="w-full h-full object-cover fade-in">
+                      <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition"></div>
+                      <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0">
+                          <div class="bg-white text-black p-1.5 rounded-full shadow-lg"><span class="iconify" data-icon="lucide:download" data-width="12"></span></div>
+                      </div>`;
+                      slot.classList.remove('bg-neutral-900');
+                  }
+              });
+
+              // Reset Button
+              btn.innerHTML = `Complete <span class="iconify" data-icon="lucide:check" data-width="12"></span>`;
+              btn.classList.remove('bg-indigo-600');
+              btn.classList.add('bg-emerald-600');
+              input.value = "Listing Generated Successfully";
+
+          }, 1500);
+      });
+
+      function replaceSkeleton(element, newHTML) {
+          if(element) {
+              element.classList.remove('skeleton-shimmer', 'bg-neutral-900', 'h-10', 'h-12', 'h-4', 'w-3/4', 'w-1/2');
+              element.style.background = 'transparent';
+              element.innerHTML = newHTML;
+          }
+      }
+    </script>
+
+    <div class="fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col gap-1 p-1.5 bg-neutral-900/90 backdrop-blur-md border-y border-l border-white/10 rounded-l-xl shadow-2xl ring-1 ring-white/5">
+      <button class="w-10 h-10 flex items-center justify-center text-white bg-white/5 rounded-lg hover:bg-white/10 transition group relative">
+        <span class="iconify" data-icon="lucide:share-2" data-width="18"></span>
+      </button>
+      <div class="h-px w-full bg-white/5 my-1"></div>
+      <button class="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-[#1877F2] hover:bg-white/5 rounded-lg transition">
+        <span class="iconify" data-icon="lucide:facebook" data-width="18"></span>
+      </button>
+      <button class="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-[#1DA1F2] hover:bg-white/5 rounded-lg transition">
+        <span class="iconify" data-icon="lucide:twitter" data-width="18"></span>
+      </button>
+      <button class="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-[#0A66C2] hover:bg-white/5 rounded-lg transition">
+        <span class="iconify" data-icon="lucide:linkedin" data-width="18"></span>
+      </button>
+      <button class="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/5 rounded-lg transition">
+        <span class="iconify" data-icon="lucide:link" data-width="18"></span>
+      </button>
+    </div>
+  
+</body></html>

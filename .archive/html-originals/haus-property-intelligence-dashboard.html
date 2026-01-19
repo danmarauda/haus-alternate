@@ -1,0 +1,422 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAUS - Property Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        [style*="--border-gradient"]::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 1px;
+            border-radius: var(--border-radius-before, inherit);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            background: var(--border-gradient);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center antialiased lg:p-8 text-slate-800 bg-slate-400 px-4 py-4">
+
+    <!-- Dashboard Container -->
+    <div class="overflow-hidden grid grid-cols-12 lg:p-8 bg-slate-50 w-full max-w-screen-2xl rounded-[2.5rem] pt-6 pr-6 pb-6 pl-6 relative shadow-2xl gap-x-8 gap-y-8">
+        
+        <!-- Background Texture -->
+        <div class="absolute inset-0 bg-white/40 pointer-events-none"></div>
+
+        <!-- Main Content Area -->
+        <div class="col-span-12 lg:col-span-9 flex flex-col gap-8 z-10">
+            
+            <!-- Header -->
+            <header class="flex flex-wrap items-center justify-between gap-4">
+                <!-- Logo -->
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="solar:buildings-linear" width="30" stroke-width="1.5" class="text-slate-900"></iconify-icon>
+                    <span class="text-2xl text-slate-900 font-medium tracking-tight">HAUS</span>
+                </div>
+
+                <!-- Nav Pills -->
+                <nav class="hidden md:flex items-center bg-white shadow-sm border border-slate-100 rounded-full p-1.5 gap-1">
+                    <button class="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-full transition-colors shadow-sm">
+                        <iconify-icon icon="solar:home-smile-linear" width="20" stroke-width="1.5"></iconify-icon>
+                        <span class="text-sm font-normal">Dashboard</span>
+                    </button>
+                    <button class="flex items-center gap-2 px-5 py-2.5 text-slate-500 hover:bg-slate-50 rounded-full transition-colors">
+                        <iconify-icon icon="solar:map-point-linear" width="20" stroke-width="1.5"></iconify-icon>
+                        <span class="text-sm font-normal">Suburbs</span>
+                    </button>
+                    <button class="flex items-center gap-2 px-5 py-2.5 text-slate-500 hover:bg-slate-50 rounded-full transition-colors">
+                        <iconify-icon icon="solar:graph-up-linear" width="20" stroke-width="1.5"></iconify-icon>
+                        <span class="text-sm font-normal">Market</span>
+                    </button>
+                </nav>
+
+                <!-- Profile & Actions -->
+                <div class="flex items-center gap-4">
+                    <button class="w-12 h-12 flex items-center justify-center bg-white border border-slate-100 rounded-full text-slate-500 hover:text-slate-800 transition">
+                        <iconify-icon icon="solar:chat-line-linear" width="24" stroke-width="1.5"></iconify-icon>
+                    </button>
+                    <button class="w-12 h-12 flex items-center justify-center bg-white border border-slate-100 rounded-full text-slate-500 hover:text-slate-800 transition relative">
+                        <iconify-icon icon="solar:bell-linear" width="24" stroke-width="1.5"></iconify-icon>
+                        <span class="absolute top-3 right-3.5 w-2 h-2 bg-emerald-500 rounded-full border border-white"></span>
+                    </button>
+                    <div class="flex gap-3 pl-2 items-center">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&amp;w=200&amp;auto=format&amp;fit=crop" alt="User" class="w-11 h-11 object-cover ring-white ring-2 rounded-full shadow-sm grayscale-[20%]">
+                        <div class="hidden xl:block leading-tight">
+                            <div class="text-sm font-medium text-slate-900">Lachlan Reid</div>
+                            <div class="text-xs text-slate-400 font-normal">lachlan@haus.au</div>
+                        </div>
+                        <iconify-icon icon="solar:alt-arrow-down-linear" class="text-slate-400 hidden xl:block" width="16" stroke-width="1.5"></iconify-icon>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Controls Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-6">
+                    <div class="text-slate-400 text-sm font-normal">Thursday, 2 Nov, 2024</div>
+                    <div class="h-4 w-px bg-slate-200 hidden sm:block"></div>
+                    <button class="hidden sm:flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-sm text-slate-500 border border-slate-100 hover:bg-slate-50">
+                        <iconify-icon icon="solar:tuning-linear" width="20" stroke-width="1.5"></iconify-icon>
+                    </button>
+                    
+                    <div class="relative group">
+                        <iconify-icon icon="solar:magnifer-linear" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-800 transition-colors" width="18" stroke-width="1.5"></iconify-icon>
+                        <input type="text" placeholder="Surry Hills, NSW" class="pl-11 pr-4 py-3 bg-white rounded-full text-sm font-normal text-slate-700 placeholder-slate-400 shadow-sm border border-slate-100 focus:ring-1 focus:ring-slate-300 outline-none w-64 transition-all">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-100 rounded-full">
+                            <iconify-icon icon="solar:microphone-linear" class="text-slate-400 block" width="14" stroke-width="1.5"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex bg-white p-1.5 rounded-full shadow-sm border border-slate-100">
+                    <button class="px-6 py-2 bg-slate-900 text-white text-sm font-normal rounded-full shadow-sm">Buy</button>
+                    <button class="px-6 py-2 text-slate-400 text-sm font-normal rounded-full hover:bg-slate-50 transition">Rent</button>
+                </div>
+            </div>
+
+            <!-- Hero Section -->
+            <div class="min-h-[420px] flex flex-col overflow-hidden group bg-center bg-[url('https://images.unsplash.com/photo-1623298317883-6b70254edf31?q=80&amp;w=2670&amp;auto=format&amp;fit=crop')] bg-cover rounded-[2rem] pt-10 pr-10 pb-10 pl-10 relative justify-between">
+                <!-- Overlay for readability -->
+                <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent pointer-events-none"></div>
+
+                <!-- Headline Top Left -->
+                <div class="z-10 flex flex-col gap-4 mt-2 relative max-w-xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full w-fit border border-white/10">
+                        <iconify-icon icon="solar:stars-minimalistic-linear" class="text-white" width="16"></iconify-icon>
+                        <span class="text-xs font-medium text-white tracking-wide">AI-POWERED INSIGHTS</span>
+                    </div>
+                    <h1 class="text-5xl text-white font-medium tracking-tight leading-[1.1]">Property Intelligence,<br>Reimagined</h1>
+                    <p class="text-slate-200 text-lg font-normal leading-relaxed max-w-md">Voice-first search. Fair Play transparency.<br>Australian real estate, decoded.</p>
+                </div>
+
+                <!-- Floating Cards Bottom Left -->
+                <div class="flex flex-wrap max-w-3xl z-10 mt-auto relative gap-x-5 gap-y-5">
+                    <!-- Glass Card 1 -->
+                    <div class="bg-gradient-to-br from-white/95 to-white/40 w-64 rounded-3xl p-5 shadow-2xl backdrop-blur-md border border-white/50">
+                        <div class="flex items-center gap-2 mb-6 text-slate-800">
+                            <iconify-icon icon="solar:shield-check-linear" width="22" stroke-width="1.5"></iconify-icon>
+                            <span class="text-sm font-medium">Fair Play Protocol</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <div class="text-3xl text-slate-900 font-medium tracking-tight">9.8<span class="text-lg text-slate-500 font-normal ml-0.5">/10</span></div>
+                            <div class="text-emerald-600 text-xs font-medium mb-1.5 bg-emerald-50 px-2 py-1 rounded-md">Trusted</div>
+                        </div>
+                        <div class="mt-3 h-1 w-full bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-slate-900 rounded-full w-[98%]"></div>
+                        </div>
+                    </div>
+
+                    <!-- Glass Card 2 -->
+                    <div class="bg-gradient-to-br from-white/95 to-white/40 w-64 rounded-3xl p-5 shadow-2xl backdrop-blur-md border border-white/50">
+                        <div class="flex items-center gap-2 mb-6 text-slate-800">
+                            <iconify-icon icon="solar:chart-square-linear" width="22" stroke-width="1.5"></iconify-icon>
+                            <span class="text-sm font-medium">Market Value</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <div class="text-3xl text-slate-900 font-medium tracking-tight">$1.2<span class="text-lg font-normal">M</span></div>
+                            <div class="flex items-center gap-1 text-emerald-600 text-xs font-medium mb-1.5">
+                                <iconify-icon icon="solar:arrow-right-up-linear" width="12"></iconify-icon> 5.4%
+                            </div>
+                        </div>
+                         <div class="mt-3 h-1 w-full bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-500 rounded-full w-[54%]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                <!-- Voice Search Card -->
+                <div class="md:col-span-3 bg-white rounded-[2rem] p-6 flex flex-col justify-between shadow-sm border border-slate-100 group hover:border-slate-200 transition-colors">
+                    <div class="flex items-center gap-2 mb-4">
+                        <iconify-icon icon="solar:microphone-large-linear" width="20" stroke-width="1.5" class="text-slate-900"></iconify-icon>
+                        <span class="font-medium text-slate-900 text-sm">Voice Search</span>
+                    </div>
+                    <div class="flex items-center justify-center h-24 mt-2 relative">
+                        <div class="absolute inset-0 flex items-center justify-center gap-1">
+                            <div class="w-1 h-4 bg-slate-200 rounded-full animate-pulse"></div>
+                            <div class="w-1 h-8 bg-slate-300 rounded-full animate-pulse delay-75"></div>
+                            <div class="w-1 h-12 bg-slate-800 rounded-full animate-pulse delay-150"></div>
+                            <div class="w-1 h-6 bg-slate-300 rounded-full animate-pulse delay-100"></div>
+                            <div class="w-1 h-3 bg-slate-200 rounded-full animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                         <h3 class="font-medium text-slate-900 leading-tight">Find properties naturally</h3>
+                         <p class="text-xs text-slate-400 mt-2 leading-relaxed font-normal">"Show me 3-bed terraces in Paddington under $2.5M"</p>
+                    </div>
+                </div>
+
+                <!-- Market Intelligence -->
+                <div class="md:col-span-5 flex flex-col bg-white border-slate-100 border rounded-[2rem] p-6 shadow-sm justify-between">
+                    <div class="flex justify-between items-start mb-6">
+                        <h3 class="text-lg font-medium text-slate-900 tracking-tight">Market Intelligence</h3>
+                        <button class="text-slate-400 hover:text-slate-900 transition">
+                            <iconify-icon icon="solar:menu-dots-linear" width="20" stroke-width="1.5"></iconify-icon>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center gap-6 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-900 border border-slate-100">
+                                <iconify-icon icon="solar:home-2-linear" width="20" stroke-width="1.5"></iconify-icon>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400 font-normal">Median Price</div>
+                                <div class="text-xl font-medium text-slate-900">$1.4M</div>
+                            </div>
+                        </div>
+                        <div class="h-8 w-px bg-slate-100"></div>
+                        <div>
+                            <div class="text-xs text-slate-400 mb-0.5 font-normal">Clearance</div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-sm font-medium text-slate-900">76%</span>
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 flex-1 min-h-0">
+                        <!-- Simulated Chart Bars -->
+                        <div class="flex-1 flex flex-col justify-end gap-2 pb-2">
+                             <div class="flex justify-between items-end h-[100px] w-full px-2 gap-2">
+                                <div class="w-full bg-slate-100 rounded-t-sm h-[40%]"></div>
+                                <div class="w-full bg-slate-100 rounded-t-sm h-[65%]"></div>
+                                <div class="w-full bg-slate-100 rounded-t-sm h-[45%]"></div>
+                                <div class="w-full bg-slate-900 rounded-t-sm h-[85%] relative group cursor-pointer">
+                                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Aug: 82%</div>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-t-sm h-[60%]"></div>
+                                <div class="w-full bg-slate-100 rounded-t-sm h-[75%]"></div>
+                             </div>
+                             <div class="flex justify-between px-2 text-[10px] text-slate-400 font-normal uppercase tracking-wider">
+                                <span>May</span>
+                                <span>Jun</span>
+                                <span>Jul</span>
+                                <span>Aug</span>
+                                <span>Sep</span>
+                                <span>Oct</span>
+                             </div>
+                        </div>
+                        
+                        <!-- Mini Stat Card -->
+                        <div class="bg-slate-50 rounded-2xl p-3 w-28 flex flex-col justify-between relative overflow-hidden shrink-0 border border-slate-100">
+                            <div class="flex justify-between items-start z-10">
+                                <span class="text-xs text-slate-600 font-medium">Growth</span>
+                                <iconify-icon icon="solar:info-circle-linear" class="text-slate-400" width="14"></iconify-icon>
+                            </div>
+                            <div class="relative z-10 mt-auto">
+                                <div class="text-lg font-medium text-slate-900 mb-0.5">+12.4%</div>
+                                <div class="text-[10px] text-slate-500 font-normal leading-tight">Year on Year</div>
+                            </div>
+                             <div class="absolute -bottom-4 -right-4 text-slate-200">
+                                <iconify-icon icon="solar:graph-new-linear" width="64"></iconify-icon>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights / Messages -->
+                <div class="md:col-span-4 bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 flex flex-col">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg font-medium text-slate-900 tracking-tight">AI Insights</h3>
+                        <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-50 transition text-slate-400">
+                            <iconify-icon icon="solar:settings-linear" width="18" stroke-width="1.5"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col gap-5">
+                        <!-- Insight 1 -->
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                                <iconify-icon icon="solar:magic-stick-3-linear" width="20"></iconify-icon>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-baseline">
+                                    <div class="text-sm font-medium text-slate-900 truncate">Auction Alert</div>
+                                    <span class="text-[10px] text-slate-400 font-normal">2m ago</span>
+                                </div>
+                                <div class="text-xs text-slate-500 font-normal leading-relaxed mt-0.5">Clearance rates in Mosman dropped 5% this week.</div>
+                            </div>
+                        </div>
+                         <!-- Insight 2 -->
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                                <iconify-icon icon="solar:tag-price-linear" width="20"></iconify-icon>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-baseline">
+                                    <div class="text-sm font-medium text-slate-900 truncate">Valuation Update</div>
+                                    <span class="text-[10px] text-slate-400 font-normal">1h ago</span>
+                                </div>
+                                <div class="text-xs text-slate-500 font-normal leading-relaxed mt-0.5">Bondi property prices up 2.3% QoQ.</div>
+                            </div>
+                        </div>
+                         <!-- Msg 3 -->
+                        <div class="flex items-start gap-3">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&amp;w=200&amp;auto=format&amp;fit=crop" class="w-10 h-10 rounded-full object-cover ring-2 ring-slate-50 grayscale-[20%]" alt="">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-baseline">
+                                    <div class="text-sm font-medium text-slate-900 truncate">Sarah Jenkins</div>
+                                    <span class="text-[10px] text-slate-400 font-normal">Agent</span>
+                                </div>
+                                <div class="text-xs text-slate-500 font-normal truncate mt-0.5">Off-market opportunity in Bronte...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Links -->
+            <div class="flex gap-6 text-xs text-slate-400 px-2">
+                <a href="#" class="hover:text-slate-600">Privacy Policy (AU)</a>
+                <a href="#" class="hover:text-slate-600">Terms of Service</a>
+                <a href="#" class="hover:text-slate-600">Contact HAUS</a>
+            </div>
+        </div>
+
+        <!-- Right Sidebar (Listing Board) -->
+        <div class="col-span-12 lg:col-span-3 z-10 flex flex-col gap-6 border-t lg:border-t-0 lg:border-l border-slate-200 lg:pl-8 pt-8 lg:pt-0">
+            
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-medium text-slate-900 tracking-tight">Fair Play Listings</h2>
+                <button class="flex items-center gap-1 text-xs font-medium text-slate-500 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100 hover:bg-slate-50 transition">
+                    Recent
+                    <iconify-icon icon="solar:alt-arrow-down-linear" width="12"></iconify-icon>
+                </button>
+            </div>
+
+            <!-- Listing Card 1 -->
+            <div class="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white border-slate-100 border rounded-[2rem] p-3 shadow-sm">
+                <div class="relative aspect-[4/3] overflow-hidden rounded-3xl mb-4">
+                    <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?q=80&amp;w=800&amp;auto=format&amp;fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Property">
+                    <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-full uppercase tracking-wider">Auction</div>
+                    <button class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur text-slate-400 flex items-center justify-center rounded-full hover:text-rose-500 transition">
+                        <iconify-icon icon="solar:heart-linear" width="18" stroke-width="1.5"></iconify-icon>
+                    </button>
+                </div>
+                <div class="px-2 pb-2">
+                    <div class="flex justify-between items-start mb-1">
+                        <div class="text-slate-900 text-lg font-semibold tracking-tight">$4.25M <span class="text-slate-400 font-normal text-xs">Guide</span></div>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-0.5">Coastal Villa</h3>
+                    <div class="text-xs text-slate-500 mb-4 font-normal">Bondi Beach, NSW 2026</div>
+                    
+                    <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+                        <div class="flex items-center gap-1.5 text-slate-500" title="Bedrooms">
+                            <iconify-icon icon="solar:bed-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">4</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-slate-500" title="Bathrooms">
+                            <iconify-icon icon="solar:bath-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">3</span>
+                        </div>
+                         <div class="flex items-center gap-1.5 text-slate-500" title="Area">
+                            <iconify-icon icon="solar:ruler-pen-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">450sqm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listing Card 2 -->
+            <div class="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white border-slate-100 border rounded-[2rem] p-3 shadow-sm">
+                <div class="relative aspect-[4/3] overflow-hidden rounded-3xl mb-4">
+                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/917d6f93-fb36-439a-8c48-884b67b35381_1600w.jpg" class="group-hover:scale-105 transition-transform duration-500 w-full h-full object-cover" alt="Property">
+                    <div class="absolute top-3 left-3 bg-emerald-500/90 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-full uppercase tracking-wider">New</div>
+                    <button class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur text-slate-400 flex items-center justify-center rounded-full hover:text-rose-500 transition">
+                         <iconify-icon icon="solar:heart-linear" width="18" stroke-width="1.5"></iconify-icon>
+                    </button>
+                </div>
+                <div class="px-2 pb-2">
+                     <div class="flex justify-between items-start mb-1">
+                        <div class="text-slate-900 text-lg font-semibold tracking-tight">$1.85M</div>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-0.5">Warehouse Loft</h3>
+                    <div class="text-xs text-slate-500 mb-4 font-normal">Surry Hills, NSW 2010</div>
+                    
+                    <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                            <iconify-icon icon="solar:bed-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">2</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                            <iconify-icon icon="solar:bath-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">2</span>
+                        </div>
+                         <div class="flex items-center gap-1.5 text-slate-500">
+                            <iconify-icon icon="solar:ruler-pen-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">110sqm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listing Card 3 -->
+            <div class="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white border-slate-100 border rounded-[2rem] p-3 shadow-sm">
+                <div class="relative aspect-[4/3] overflow-hidden rounded-3xl mb-4">
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&amp;w=800&amp;auto=format&amp;fit=crop" class="group-hover:scale-105 transition-transform duration-500 w-full h-full object-cover" alt="Property">
+                    <button class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur text-slate-400 flex items-center justify-center rounded-full hover:text-rose-500 transition">
+                         <iconify-icon icon="solar:heart-linear" width="18" stroke-width="1.5"></iconify-icon>
+                    </button>
+                </div>
+                <div class="px-2 pb-2">
+                     <div class="flex justify-between items-start mb-1">
+                        <div class="text-slate-900 text-lg font-semibold tracking-tight">$3.1M</div>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-0.5">Family Terrace</h3>
+                    <div class="text-xs text-slate-500 mb-4 font-normal">Paddington, NSW 2021</div>
+                    
+                    <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                            <iconify-icon icon="solar:bed-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">3</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                            <iconify-icon icon="solar:bath-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">2</span>
+                        </div>
+                         <div class="flex items-center gap-1.5 text-slate-500">
+                            <iconify-icon icon="solar:ruler-pen-linear" width="16"></iconify-icon>
+                            <span class="text-xs font-medium">185sqm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body></html>

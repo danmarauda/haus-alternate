@@ -1,0 +1,862 @@
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ALIAS AEOS - System Architecture</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700&display=swap');
+body {
+font-family: 'Afacad', sans-serif;
+overflow: hidden;
+background-color: #050505;
+color: #e5e5e5;
+touch-action: none;
+}
+input[type=range] {
+-webkit-appearance: none;
+width: 100%;
+background: transparent;
+}
+input[type=range]::-webkit-slider-runnable-track {
+width: 100%;
+height: 2px;
+cursor: pointer;
+background: rgba(255,255,255,0.15);
+border-radius: 1px;
+}
+input[type=range]::-webkit-slider-thumb {
+-webkit-appearance: none;
+height: 20px;
+width: 20px;
+border-radius: 50%;
+background: #ffffff;
+cursor: pointer;
+margin-top: -9px;
+box-shadow: 0 0 15px rgba(255,255,255,0.3);
+border: 1px solid rgba(0,0,0,0.1);
+transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+input[type=range]::-webkit-slider-thumb:hover {
+transform: scale(1.15);
+background: #ffffff;
+box-shadow: 0 0 20px rgba(255,255,255,0.5);
+}
+input[type=range]:focus { outline: none; }
+.xy-grid-pattern {
+background-image:
+linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+background-size: 33.33% 9.09%;
+}
+.glass-panel {
+background: rgba(10, 10, 10, 0.6);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.text-glow {
+    text-shadow: 0 0 30px rgba(255,255,255,0.4);
+}
+/* Scroll Progress Line */
+.scroll-line {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background: rgba(255,255,255,0.1);
+}
+.scroll-indicator {
+    position: absolute;
+    left: -1px;
+    top: 0;
+    width: 3px;
+    height: 40px;
+    background: white;
+    box-shadow: 0 0 10px white;
+    transition: top 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+</style>
+<script type="importmap">
+{
+"imports": {
+"three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+"three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}
+}
+</script></head>
+<body class="w-full h-screen relative bg-[#050505]">
+
+    <!-- 1. The Canvas -->
+    <canvas class="fixed outline-none w-full h-full z-[1] top-0 left-0" id="gl"></canvas>
+
+    <!-- 2. Overlay Layer for Darkening -->
+    <div id="concept-overlay" class="fixed inset-0 bg-black/85 z-[5] pointer-events-none opacity-0 transition-opacity duration-1000"></div>
+
+    <!-- 3. Insights Container (The Pillars) -->
+    <div id="concept-container" class="fixed inset-0 z-[20] pointer-events-none hidden flex flex-col justify-center items-center p-8 md:p-20">
+        <div class="relative w-full max-w-4xl h-[400px]">
+            
+            <!-- Pillar 1: UCE -->
+            <div class="concept-section absolute inset-0 flex flex-col justify-center items-center md:items-start text-center md:text-left transition-all duration-700 opacity-0 translate-y-8" id="c-sect-0">
+                <div class="flex items-center gap-3 mb-6">
+                    <h2 class="text-4xl md:text-6xl font-semibold text-white tracking-tight text-glow">UCE</h2>
+                    <div class="px-3 py-1 rounded-full border border-white/30 text-xs tracking-widest uppercase text-white font-mono">Unified Context</div>
+                </div>
+                <p class="text-xl md:text-2xl text-white/90 leading-relaxed font-normal max-w-2xl drop-shadow-lg">
+                    The bedrock of intelligence. <strong class="text-white">Unified Context Engine</strong> ingests and normalizes enterprise data into a shared semantic reality. It ensures every agent and human operates from the exact same source of truth.
+                </p>
+                <div class="mt-8 flex gap-4 text-xs font-mono text-white/50">
+                    <span class="border border-white/20 px-2 py-1 rounded">Vector Memory</span>
+                    <span class="border border-white/20 px-2 py-1 rounded">Entity Resolution</span>
+                </div>
+            </div>
+
+            <!-- Pillar 2: MOSAIC -->
+            <div class="concept-section absolute inset-0 flex flex-col justify-center items-center md:items-start text-center md:text-left transition-all duration-700 opacity-0 translate-y-8" id="c-sect-1">
+                <div class="flex items-center gap-3 mb-6">
+                    <h2 class="text-4xl md:text-6xl font-semibold text-white tracking-tight text-glow">MOSAIC</h2>
+                    <div class="px-3 py-1 rounded-full border border-white/30 text-xs tracking-widest uppercase text-white font-mono">Orchestration</div>
+                </div>
+                <p class="text-xl md:text-2xl text-white/90 leading-relaxed font-normal max-w-2xl drop-shadow-lg">
+                     Dynamic multi-agent synthesis. <strong class="text-white">MOSAIC</strong> decomposes complex objectives into executable workflows, handling the handoffs between specialized agents and human operators to get work done.
+                </p>
+                <div class="mt-8 flex gap-4 text-xs font-mono text-white/50">
+                    <span class="border border-white/20 px-2 py-1 rounded">Task Routing</span>
+                    <span class="border border-white/20 px-2 py-1 rounded">Collab Protocol</span>
+                </div>
+            </div>
+
+            <!-- Pillar 3: AWE -->
+            <div class="concept-section absolute inset-0 flex flex-col justify-center items-center md:items-start text-center md:text-left transition-all duration-700 opacity-0 translate-y-8" id="c-sect-2">
+                <div class="flex items-center gap-3 mb-6">
+                    <h2 class="text-4xl md:text-6xl font-semibold text-white tracking-tight text-glow">AWE</h2>
+                    <div class="px-3 py-1 rounded-full border border-white/30 text-xs tracking-widest uppercase text-white font-mono">Safety Layer</div>
+                </div>
+                <p class="text-xl md:text-2xl text-white/90 leading-relaxed font-normal max-w-2xl drop-shadow-lg">
+                    Trust is architectural. <strong class="text-white">Agentic Work Environments</strong> provide the deterministic guardrails required for enterprise. Verifiable actions, deep audit trails, and human-in-the-loop governance.
+                </p>
+                <div class="mt-8 flex gap-4 text-xs font-mono text-white/50">
+                    <span class="border border-white/20 px-2 py-1 rounded">Permissioning</span>
+                    <span class="border border-white/20 px-2 py-1 rounded">Audit Log</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 4. Deployment Container -->
+    <div id="contact-container" class="fixed inset-0 z-[25] pointer-events-none hidden flex flex-col items-center justify-center px-[40px] md:px-20 transition-all duration-700 opacity-0 translate-y-4">
+        
+        <div class="glass-panel w-full md:w-[480px] p-8 md:p-12 rounded-2xl shadow-2xl pointer-events-auto flex flex-col space-y-10">
+            
+            <div class="space-y-2">
+                <h2 class="text-3xl font-semibold text-white tracking-tight">System Ready</h2>
+                <p class="text-white/50 text-sm leading-relaxed max-w-xs">
+                    The AEOS kernel is configured. UCE, MOSAIC, and AWE are aligned for deployment.
+                </p>
+            </div>
+
+            <div class="flex flex-col space-y-4">
+                <a href="#" class="group block p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-all border border-white/5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white font-medium">Initialize Workspace</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-white/50 group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="text-xs text-white/40 mt-1">Bootstrapping UCE Instance...</div>
+                </a>
+                
+                <a href="#" class="group block p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-all border border-white/5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white font-medium">Read Architecture Spec</span>
+                        <i data-lucide="file-text" class="w-4 h-4 text-white/50 group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="text-xs text-white/40 mt-1">Technical Whitepaper • v2.1</div>
+                </a>
+            </div>
+
+            <div class="pt-8 border-t border-white/10 flex justify-between items-center text-xs text-white/40">
+                <div class="flex gap-4">
+                    <span>ALIAS AEOS</span>
+                    <span class="text-emerald-500">• Stable</span>
+                </div>
+                <div class="font-mono">build.8902</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 5. Main UI Layer -->
+    <div class="relative z-[30] w-full h-full pointer-events-none flex flex-col md:flex-row justify-between p-[40px] md:p-16">
+        
+        <!-- Left: Nav -->
+        <div class="flex flex-col md:w-auto pointer-events-auto w-full h-auto md:h-full justify-between z-[40]">
+            <div class="flex flex-col mb-8 md:mb-0 space-y-3 order-1">
+                <div class="select-none text-4xl md:text-6xl font-bold text-white tracking-widest uppercase flex items-center gap-1 cursor-pointer" onclick="window.location.reload()">
+                    <span class="origin-left scale-x-110">AEOS</span>
+                </div>
+                <p class="leading-relaxed text-xs md:text-sm font-normal text-white/40 max-w-[300px] hidden md:block backdrop-blur-sm">
+                    Unified Data. Multi-Agent Orchestration. Safe Environments.
+                </p>
+            </div>
+
+            <nav class="flex flex-row md:flex-col space-x-6 md:space-x-0 md:space-y-4 order-2 relative pl-6 md:pl-8">
+                <!-- Scroll Progress Line -->
+                <div class="hidden md:block scroll-line">
+                    <div id="scroll-bar" class="scroll-indicator"></div>
+                </div>
+
+                <button id="nav-0" class="text-left text-white hover:text-white transition-all duration-500 font-normal text-lg md:text-2xl leading-tight tracking-tight">
+                    Architect
+                </button>
+                <button id="nav-1" class="text-left text-white/30 hover:text-white transition-all duration-500 font-normal text-lg md:text-2xl leading-tight tracking-tight">
+                    Pillars
+                </button>
+                <button id="nav-4" class="text-left text-white/30 hover:text-white transition-all duration-500 font-normal text-lg md:text-2xl leading-tight tracking-tight">
+                    Initialize
+                </button>
+            </nav>
+        </div>
+
+        <!-- Right: Builder UI -->
+        <div id="builder-ui" class="absolute inset-0 w-full h-full pointer-events-none flex flex-col md:flex-row justify-end p-[40px] md:p-16 transition-all duration-700 ease-in-out transform">
+            
+            <div class="hidden md:flex flex-col h-full pointer-events-auto items-center justify-center">
+                <div class="bg-zinc-900/60 w-80 border border-white/5 rounded-2xl p-8 shadow-2xl backdrop-blur-xl space-y-8">
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-sm text-white/50 font-medium tracking-wide">
+                            <span>Context Resolution</span>
+                            <span id="val-floors" class="text-white font-mono">High</span>
+                        </div>
+                        <input type="range" id="input-floors" min="1" max="12" value="8" step="1">
+                        <div class="flex justify-between text-[10px] text-white/20 uppercase tracking-widest">
+                            <span>Low</span>
+                            <span>Mid</span>
+                            <span>Ultra</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-sm text-white/50 font-medium tracking-wide">
+                            <span>Swarm Density</span>
+                            <span id="val-size" class="text-white font-mono">Squad</span>
+                        </div>
+                        <input type="range" id="input-size" min="0" max="3" value="2" step="1">
+                    </div>
+
+                    <div class="space-y-4 pt-2 border-t border-white/5">
+                        <div class="text-sm text-white/50 font-medium tracking-wide">Work Environment</div>
+                        <div class="flex gap-2 p-1 bg-black/20 rounded-lg border border-white/5">
+                            <button class="flex-1 py-2 text-xs font-semibold tracking-wide rounded-md bg-white/10 text-white transition-all duration-200 hover:bg-white/20" id="light-studio">Strict</button>
+                            <button class="flex-1 py-2 text-xs font-semibold tracking-wide rounded-md text-white/50 hover:bg-white/10 hover:text-white transition-all duration-200" id="light-warm">Fluid</button>
+                            <button class="flex-1 py-2 text-xs font-semibold tracking-wide rounded-md text-white/50 hover:bg-white/10 hover:text-white transition-all duration-200" id="light-neon">Open</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-10 md:bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-pulse pointer-events-auto">
+                <span class="text-xs uppercase tracking-widest text-white">Scroll to Explore</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-white"></i>
+            </div>
+
+            <!-- Mobile Controls -->
+            <div class="absolute bottom-0 left-0 w-full pointer-events-auto md:hidden flex flex-col items-center justify-end px-[40px] pb-[40px] bg-gradient-to-t from-black/80 to-transparent h-72">
+                <div class="relative w-full aspect-[2/1]">
+                    <div class="absolute -left-6 top-0 h-full flex flex-col justify-center items-end pr-2">
+                        <span class="text-[10px] text-white/30 uppercase tracking-widest -rotate-90 origin-center whitespace-nowrap">Resolution</span>
+                    </div>
+                    <div class="absolute -bottom-6 w-full text-center">
+                        <span class="text-[10px] text-white/30 uppercase tracking-widest">Density</span>
+                    </div>
+                    <div id="xy-pad" class="w-full h-full border-l border-b border-white/30 relative cursor-crosshair touch-none">
+                        <div class="absolute inset-0 opacity-10 pointer-events-none xy-grid-pattern"></div>
+                        <div id="xy-thumb" class="absolute w-4 h-4 -ml-2 -mt-2 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)] z-10 top-1/2 left-1/2 transition-all duration-300 ease-out">
+                             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-black rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
+        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+        import gsap from 'https://cdn.skypack.dev/gsap';
+
+        // --- CONFIG ---
+        const CONFIG = {
+            blockWidth: 2,
+            blockDepth: 1,
+            colors: {
+                bg: 0x050505, 
+                blockColor: 0x333333, // Lightened from 0x1a1a1a to be visible
+                blockEmissive: 0x000000, 
+            },
+            MAX_FLOORS: 12,
+            MAX_SIZE_LEVEL: 3
+        };
+
+        const state = {
+            floors: 8,      
+            sizeLevel: 2,   
+            gap: 0.3,
+            height: 0.7,
+            activeIndex: 0, // 0: Home, 1: UCE, 2: Mosaic, 3: AWE, 4: Contact
+            expansion: 3.0, 
+            chaos: 1.0,     
+            visualFloors: 8,
+            lightIntensity: 8.0 // Increased from 6.0
+        };
+
+        const canvas = document.querySelector('#gl');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2; // Increased exposure
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(CONFIG.colors.bg);
+        // Fixed Fog: Pushed far plane back significantly (10, 50 -> 20, 90) so scattered blocks are visible
+        scene.fog = new THREE.Fog(CONFIG.colors.bg, 20, 90);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 150);
+        camera.position.set(16, 12, 16); 
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 1.9;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+
+        // Lighting Setup
+        // Increased ambient light
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111111, 0.8);
+        scene.add(hemiLight);
+
+        const mainLight = new THREE.DirectionalLight(0xffffff, state.lightIntensity);
+        mainLight.position.set(10, 20, 10);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 2048;
+        mainLight.shadow.mapSize.height = 2048;
+        mainLight.shadow.bias = -0.0001;
+        mainLight.shadow.radius = 4;
+        scene.add(mainLight);
+
+        // Cyan Rim Light
+        const rimLight = new THREE.SpotLight(0x44adff, 8.0); // Increased intensity
+        rimLight.position.set(-15, 10, -10);
+        rimLight.lookAt(0, 0, 0);
+        scene.add(rimLight);
+
+        // Fill Light (Back)
+        const fillLight = new THREE.PointLight(0x222222, 2.0);
+        fillLight.position.set(0, -10, -20);
+        scene.add(fillLight);
+
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        
+        // Material Adjustment
+        const material = new THREE.MeshPhysicalMaterial({
+            color: CONFIG.colors.blockColor,
+            roughness: 0.25,
+            metalness: 0.75, // Lowered slightly to reflect more environment
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.15,
+            emissive: CONFIG.colors.blockEmissive,
+            flatShading: false,
+        });
+
+        // --- Block Layout & Chaos Data ---
+        function generateMaxTatamiLayout() {
+            const blocks = [];
+            const maxLevel = CONFIG.MAX_SIZE_LEVEL;
+            blocks.push({ x: 0, z: -0.5, rot: 0, ring: 0 });
+            blocks.push({ x: 0, z: 0.5, rot: 0, ring: 0 });
+
+            for (let r = 1; r <= maxLevel; r++) {
+                if (r % 2 !== 0) {
+                    const zPos = r + 0.5;
+                    for (let i = 0; i < r + 1; i++) {
+                        const x = -r + (i * 2);
+                        blocks.push({ x: x, z: -zPos, rot: 0, ring: r }); 
+                        blocks.push({ x: x, z: zPos, rot: 0, ring: r }); 
+                    }
+                    const xPos = r + 0.5;
+                    for (let i = 0; i < r; i++) {
+                        const z = -(r - 1) + (i * 2);
+                        blocks.push({ x: -xPos, z: z, rot: Math.PI / 2, ring: r }); 
+                        blocks.push({ x: xPos, z: z, rot: Math.PI / 2, ring: r }); 
+                    }
+                } else {
+                    const xPos = r + 0.5;
+                    for (let i = 0; i < r + 1; i++) {
+                        const z = -r + (i * 2);
+                        blocks.push({ x: -xPos, z: z, rot: Math.PI / 2, ring: r }); 
+                        blocks.push({ x: xPos, z: z, rot: Math.PI / 2, ring: r }); 
+                    }
+                    const zPos = r + 0.5;
+                    for (let i = 0; i < r; i++) {
+                        const x = -(r - 1) + (i * 2);
+                        blocks.push({ x: x, z: -zPos, rot: 0, ring: r }); 
+                        blocks.push({ x: x, z: zPos, rot: 0, ring: r }); 
+                    }
+                }
+            }
+            return blocks;
+        }
+
+        const maxLayout = generateMaxTatamiLayout();
+        const totalMaxBlocks = maxLayout.length * CONFIG.MAX_FLOORS;
+        
+        const chaosData = [];
+        for (let i = 0; i < totalMaxBlocks; i++) {
+            // Spherical dispersion 
+            // Reduced max radius slightly to ensure visibility within fog
+            const r = 15 + Math.random() * 25; 
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            chaosData.push({
+                pos: new THREE.Vector3(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta), 
+                    r * Math.cos(phi) 
+                ),
+                rot: new THREE.Euler(
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2
+                )
+            });
+        }
+
+        let instancedMesh;
+        const dummy = new THREE.Object3D();
+        const currentScales = new Float32Array(totalMaxBlocks).fill(0);
+        
+        function initSceneObjects() {
+            instancedMesh = new THREE.InstancedMesh(geometry, material, totalMaxBlocks);
+            instancedMesh.castShadow = true;
+            instancedMesh.receiveShadow = true;
+            instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+            scene.add(instancedMesh);
+        }
+
+        function updateInstances() {
+            if (!instancedMesh) return;
+
+            const gap = state.gap;
+            const h = state.height;
+            const expansionY = state.expansion * 1.1; 
+            const chaos = state.chaos;
+            
+            state.visualFloors = THREE.MathUtils.lerp(state.visualFloors, state.floors, 0.08);
+
+            const blockW = Math.max(0.1, CONFIG.blockWidth - (gap * 0.5)); 
+            const blockD = Math.max(0.1, CONFIG.blockDepth - (gap * 0.5));
+            const blockH = Math.max(0.1, h);
+            const spread = 1.0 + (gap * 0.2); 
+
+            let instanceIdx = 0;
+
+            for (let f = 0; f < CONFIG.MAX_FLOORS; f++) {
+                const floorHeightWithGap = blockH + gap;
+                const stackHeight = state.visualFloors * floorHeightWithGap;
+                const baseY = (f * floorHeightWithGap) - (stackHeight / 2);
+                
+                const expansionOffset = (f - (state.visualFloors-1)/2) * expansionY;
+                const y = baseY + expansionOffset;
+
+                for (let b = 0; b < maxLayout.length; b++) {
+                    const block = maxLayout[b];
+                    const isWithinFloors = f < state.floors;
+                    const isWithinSize = block.ring <= state.sizeLevel;
+                    // In Chaos mode, we show all blocks to look grander
+                    const targetScale = (isWithinFloors && isWithinSize) || chaos > 0.5 ? 1.0 : 0.0;
+
+                    currentScales[instanceIdx] = THREE.MathUtils.lerp(currentScales[instanceIdx], targetScale, 0.1);
+                    const s = currentScales[instanceIdx];
+
+                    const posX = block.x * spread;
+                    const posZ = block.z * spread;
+
+                    let tx = posX;
+                    let ty = y;
+                    let tz = posZ;
+                    let rx = 0;
+                    let ry = block.rot;
+                    let rz = 0;
+
+                    if (chaos > 0.001) {
+                        const cData = chaosData[instanceIdx];
+                        const k = chaos; 
+                        
+                        tx = THREE.MathUtils.lerp(posX, cData.pos.x, k);
+                        ty = THREE.MathUtils.lerp(y, cData.pos.y, k);
+                        tz = THREE.MathUtils.lerp(posZ, cData.pos.z, k);
+                        
+                        rx = THREE.MathUtils.lerp(0, cData.rot.x, k);
+                        ry = THREE.MathUtils.lerp(block.rot, cData.rot.y, k);
+                        rz = THREE.MathUtils.lerp(0, cData.rot.z, k);
+                    }
+
+                    dummy.position.set(tx, ty, tz);
+                    dummy.rotation.set(rx, ry, rz);
+
+                    if (s < 0.01) {
+                         dummy.scale.set(0, 0, 0);
+                    } else {
+                        dummy.scale.set(blockW * s, blockH * s, blockD * s);
+                    }
+                    dummy.updateMatrix();
+                    instancedMesh.setMatrixAt(instanceIdx, dummy.matrix);
+                    instanceIdx++;
+                }
+            }
+            instancedMesh.instanceMatrix.needsUpdate = true;
+        }
+
+        const composer = new EffectComposer(renderer);
+        const renderPass = new RenderPass(scene, camera);
+        composer.addPass(renderPass);
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const ssaoPass = new SSAOPass(scene, camera, width, height);
+        ssaoPass.kernelRadius = 8;
+        ssaoPass.minDistance = 0.001;
+        ssaoPass.maxDistance = 0.08;
+        composer.addPass(ssaoPass);
+
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(width, height), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.7; // Lowered threshold to glow easier
+        bloomPass.strength = 0.4;
+        bloomPass.radius = 0.8;
+        composer.addPass(bloomPass);
+
+        const outputPass = new OutputPass();
+        composer.addPass(outputPass);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updateInstances();
+            controls.update();
+            composer.render();
+        }
+
+        // --- DOM Elements ---
+        const sliderFloors = document.getElementById('input-floors');
+        const sliderSize = document.getElementById('input-size');
+        const valFloors = document.getElementById('val-floors');
+        const valSize = document.getElementById('val-size');
+        const builderUI = document.getElementById('builder-ui');
+        const conceptUI = document.getElementById('concept-container');
+        const contactUI = document.getElementById('contact-container');
+        const conceptOverlay = document.getElementById('concept-overlay');
+        const scrollBar = document.getElementById('scroll-bar');
+        
+        const navBtns = [
+            document.getElementById('nav-0'), // Home
+            document.getElementById('nav-1'), // Pillars (Shared)
+            document.getElementById('nav-1'), // Pillars (Shared)
+            document.getElementById('nav-1'), // Pillars (Shared)
+            document.getElementById('nav-4')  // Initialize
+        ];
+        
+        const sections = [
+            document.getElementById('c-sect-0'),
+            document.getElementById('c-sect-1'),
+            document.getElementById('c-sect-2')
+        ];
+        
+        const btnLightStudio = document.getElementById('light-studio');
+        const btnLightWarm = document.getElementById('light-warm');
+        const btnLightNeon = document.getElementById('light-neon');
+        const lightingButtons = [btnLightStudio, btnLightWarm, btnLightNeon];
+
+        // --- STATE MANAGEMENT ---
+
+        function updateNavStyles(index) {
+            navBtns.forEach(btn => {
+                if(btn) {
+                    btn.classList.remove('text-white', 'opacity-100');
+                    btn.classList.add('text-white/30');
+                }
+            });
+
+            if (navBtns[index]) {
+                navBtns[index].classList.remove('text-white/30');
+                navBtns[index].classList.add('text-white');
+            }
+            
+            // Scroll Bar Position
+            let topPos = 0;
+            if(index === 0) topPos = 0;
+            if(index >= 1 && index <= 3) topPos = 40;
+            if(index === 4) topPos = 80;
+            scrollBar.style.top = `${topPos}px`;
+        }
+
+        function goToSection(index) {
+            state.activeIndex = index;
+            updateNavStyles(index);
+
+            // 1. HOME / ARCHITECT
+            if (index === 0) {
+                controls.enabled = true;
+                controls.autoRotate = true;
+                
+                // Move camera to hero shot
+                gsap.to(camera.position, { duration: 1.5, x: 16, y: 12, z: 16, ease: "power3.inOut" });
+                gsap.to(controls.target, { duration: 1.5, x: 0, y: 0, z: 0, ease: "power3.inOut" });
+                
+                // Unify blocks
+                gsap.to(state, { duration: 1.2, expansion: 0, chaos: 0, ease: "power2.inOut" });
+                
+                // UI
+                builderUI.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10');
+                conceptUI.classList.add('hidden');
+                contactUI.classList.add('hidden');
+                conceptOverlay.classList.remove('opacity-100');
+                conceptOverlay.classList.add('opacity-0');
+            } 
+            
+            // 2. CONCEPTS (1, 2, 3)
+            else if (index >= 1 && index <= 3) {
+                controls.enabled = false;
+                controls.autoRotate = false;
+                
+                // Expand blocks to show "Analysis"
+                gsap.to(state, { duration: 1.5, expansion: 1.5, chaos: 0, ease: "power2.out" });
+
+                // UI Transitions
+                builderUI.classList.add('opacity-0', 'pointer-events-none');
+                conceptUI.classList.remove('hidden');
+                contactUI.classList.add('hidden');
+                conceptOverlay.classList.remove('opacity-0');
+                conceptOverlay.classList.add('opacity-100');
+                
+                // Camera angles for each concept
+                const angles = [
+                    { x: 10, y: 5, z: 10 },    // UCE (Looking slightly down)
+                    { x: 14, y: 0, z: 6 },     // MOSAIC (Side view)
+                    { x: 10, y: -5, z: 10 }    // AWE (Looking up)
+                ];
+                const angle = angles[index - 1];
+                
+                gsap.to(camera.position, { duration: 1.5, x: angle.x, y: angle.y, z: angle.z, ease: "power2.inOut" });
+                gsap.to(controls.target, { duration: 1.5, x: 0, y: angle.y * 0.2, z: 0, ease: "power2.inOut" });
+
+                // Text Slide Logic
+                sections.forEach((sec, i) => {
+                    if (i === (index - 1)) {
+                        sec.classList.remove('opacity-0', 'translate-y-8');
+                        sec.classList.add('opacity-100', 'translate-y-0');
+                    } else {
+                        sec.classList.add('opacity-0', 'translate-y-8');
+                        sec.classList.remove('opacity-100', 'translate-y-0');
+                    }
+                });
+            }
+
+            // 3. CONTACT / INITIALIZE
+            else if (index === 4) {
+                controls.enabled = true;
+                controls.autoRotate = false;
+                
+                // Re-scatter blocks for "Network" vibe
+                gsap.to(state, { duration: 2.0, chaos: 0.8, expansion: 0.5, ease: "power3.out" });
+                
+                // Camera
+                gsap.to(camera.position, { duration: 2.0, x: -18, y: 8, z: -10, ease: "power3.inOut" });
+                gsap.to(controls.target, { duration: 2.0, x: 0, y: 0, z: 0, ease: "power3.inOut" });
+
+                // UI
+                builderUI.classList.add('opacity-0', 'pointer-events-none');
+                conceptUI.classList.add('hidden');
+                contactUI.classList.remove('hidden');
+                contactUI.classList.remove('opacity-0', 'translate-y-4');
+                conceptOverlay.classList.remove('opacity-100');
+                conceptOverlay.classList.add('opacity-0');
+            }
+        }
+
+        // --- SCROLL TRIGGER LOGIC ---
+        let isScrolling = false;
+        let lastScrollTime = 0;
+        const scrollCooldown = 800; // ms between slides
+
+        function handleScroll(e) {
+            const now = Date.now();
+            if (now - lastScrollTime < scrollCooldown) return;
+
+            if (Math.abs(e.deltaY) < 20) return;
+
+            const direction = e.deltaY > 0 ? 1 : -1;
+            const nextIndex = state.activeIndex + direction;
+
+            if (nextIndex >= 0 && nextIndex <= 4) {
+                lastScrollTime = now;
+                goToSection(nextIndex);
+            }
+        }
+
+        let touchStartY = 0;
+        window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: false });
+        window.addEventListener('touchend', e => {
+            const now = Date.now();
+            if (now - lastScrollTime < scrollCooldown) return;
+            
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            
+            if (Math.abs(diff) > 50) {
+                const direction = diff > 0 ? 1 : -1; 
+                const nextIndex = state.activeIndex + direction;
+                if (nextIndex >= 0 && nextIndex <= 4) {
+                    lastScrollTime = now;
+                    goToSection(nextIndex);
+                }
+            }
+        }, { passive: false });
+
+        window.addEventListener('wheel', handleScroll);
+
+        navBtns[0].addEventListener('click', () => goToSection(0));
+        navBtns[1].addEventListener('click', () => goToSection(1)); 
+        navBtns[4].addEventListener('click', () => goToSection(4));
+
+        // --- LIGHTING ---
+        function setLighting(type) {
+            lightingButtons.forEach(b => {
+                b.classList.remove('bg-white/10', 'text-white');
+                b.classList.add('text-white/50');
+            });
+            const active = type === 'warm' ? btnLightWarm : type === 'neon' ? btnLightNeon : btnLightStudio;
+            active.classList.remove('text-white/50');
+            active.classList.add('bg-white/10', 'text-white');
+            
+            if (type === 'studio') {
+                gsap.to(mainLight.color, { r: 1, g: 1, b: 1, duration: 1 });
+                gsap.to(mainLight, { intensity: 8.0, duration: 1 });
+                gsap.to(rimLight.color, { r: 0.26, g: 0.67, b: 1.0, duration: 1 }); 
+            } else if (type === 'warm') {
+                gsap.to(mainLight.color, { r: 1, g: 0.9, b: 0.8, duration: 1 });
+                gsap.to(mainLight, { intensity: 6.0, duration: 1 });
+                gsap.to(rimLight.color, { r: 1, g: 0.4, b: 0.2, duration: 1 }); 
+            } else if (type === 'neon') {
+                gsap.to(mainLight.color, { r: 0.8, g: 0.5, b: 1, duration: 1 });
+                gsap.to(mainLight, { intensity: 6.0, duration: 1 });
+                gsap.to(rimLight.color, { r: 0.0, g: 1, b: 0.8, duration: 1 }); 
+            }
+        }
+        
+        btnLightStudio.addEventListener('click', () => setLighting('studio'));
+        btnLightWarm.addEventListener('click', () => setLighting('warm'));
+        btnLightNeon.addEventListener('click', () => setLighting('neon'));
+
+        // --- SLIDERS ---
+        const tierNames = ["Low", "Low", "Mid", "High", "Ultra"];
+        const sizeNames = ["Single", "Squad", "Platoon", "Hive"];
+        sliderFloors.addEventListener('input', (e) => {
+            state.floors = parseInt(e.target.value);
+            const tIndex = Math.min(Math.floor(state.floors / 3), 4);
+            valFloors.innerText = tierNames[tIndex] || "High";
+            updateXYThumb();
+        });
+        sliderSize.addEventListener('input', (e) => {
+            state.sizeLevel = parseInt(e.target.value);
+            valSize.innerText = sizeNames[state.sizeLevel] || "Squad";
+            updateXYThumb();
+        });
+
+        const xyPad = document.getElementById('xy-pad');
+        const xyThumb = document.getElementById('xy-thumb');
+        let isDraggingPad = false;
+
+        function updateFromXY(clientX, clientY) {
+            const rect = xyPad.getBoundingClientRect();
+            let x = (clientX - rect.left) / rect.width;
+            let y = (clientY - rect.top) / rect.height;
+            x = Math.max(0, Math.min(1, x)); 
+            y = Math.max(0, Math.min(1, y));
+            xyThumb.style.left = `${x * 100}%`;
+            xyThumb.style.top = `${y * 100}%`;
+            const newSize = Math.round(x * 3);
+            if (newSize !== state.sizeLevel) { 
+                state.sizeLevel = newSize; 
+                sliderSize.value = newSize; 
+                valSize.innerText = sizeNames[newSize]; 
+            }
+            const newFloors = Math.max(1, Math.round((1 - y) * 11 + 1));
+            if (newFloors !== state.floors) { 
+                state.floors = newFloors; 
+                sliderFloors.value = newFloors; 
+                const tIndex = Math.min(Math.floor(state.floors / 3), 4);
+                valFloors.innerText = tierNames[tIndex];
+            }
+        }
+
+        function updateXYThumb() {
+            const xPct = (state.sizeLevel / 3) * 100;
+            const yPct = (1 - ((state.floors - 1) / 11)) * 100;
+            xyThumb.style.left = `${xPct}%`; 
+            xyThumb.style.top = `${yPct}%`;
+        }
+
+        xyPad.addEventListener('pointerdown', (e) => { 
+            isDraggingPad = true; 
+            xyPad.setPointerCapture(e.pointerId); 
+            xyThumb.classList.remove('duration-300', 'ease-out');
+            xyThumb.classList.add('duration-0');
+            updateFromXY(e.clientX, e.clientY); 
+        });
+        xyPad.addEventListener('pointermove', (e) => { if (isDraggingPad) updateFromXY(e.clientX, e.clientY); });
+        xyPad.addEventListener('pointerup', (e) => { 
+            isDraggingPad = false; 
+            xyPad.releasePointerCapture(e.pointerId);
+            xyThumb.classList.remove('duration-0');
+            xyThumb.classList.add('duration-300', 'ease-out');
+            updateXYThumb(); 
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+            ssaoPass.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- INIT ---
+        initSceneObjects();
+        lucide.createIcons();
+        updateXYThumb();
+        
+        // Start the Animation Loop
+        animate();
+
+        // INTRO SEQUENCE:
+        setTimeout(() => {
+            gsap.to(state, { 
+                chaos: 0, 
+                expansion: 0, 
+                duration: 2.5, 
+                ease: "power3.inOut" 
+            });
+        }, 500);
+
+    </script>
+</body></html>
