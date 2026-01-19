@@ -1,0 +1,306 @@
+@tailwind base;
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; box-shadow: 0 0 20px hsl(var(--primary) / 0.3); }
+  50% { opacity: 1; box-shadow: 0 0 40px hsl(var(--primary) / 0.5); }
+}
+
+@keyframes heart-burst {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(0.9); }
+  75% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes checkmark-draw {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes fade-zoom {
+  0% { opacity: 0; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-up-fade {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes progress-line {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes bounce-check {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(201, 169, 98, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(201, 169, 98, 0.8); }
+}
+
+.animate-scroll-left { animation: scroll-left 30s linear infinite; }
+.animate-scroll-right { animation: scroll-right 30s linear infinite; }
+.animate-scroll-left:hover,
+.animate-scroll-right:hover { animation-play-state: paused; }
+.animate-shimmer { animation: shimmer 2s infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+.animate-heart-burst { animation: heart-burst 0.4s ease-out; }
+.animate-checkmark-draw { animation: checkmark-draw 0.3s ease-out forwards; }
+.animate-fade-zoom { animation: fade-zoom 0.5s ease-out; }
+.animate-slide-up { animation: slide-up-fade 0.4s ease-out forwards; }
+.animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
+.animate-shake { animation: shake 0.5s ease-out; }
+.animate-bounce-check { animation: bounce-check 0.4s ease-out; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+@tailwind components;
+@tailwind utilities;
+
+/* HAUS Design System - Luxury Real Estate Platform */
+/* All colors MUST be HSL */
+
+@layer base {
+  :root {
+    /* HAUS Color Palette */
+    --background: 45 20% 98%;      /* Cream: #FAF8F5 */
+    --foreground: 0 0% 4%;          /* Black: #0A0A0A */
+
+    --card: 0 0% 100%;              /* White */
+    --card-foreground: 0 0% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+
+    /* HAUS Gold - Primary */
+    --primary: 42 65% 59%;          /* Gold: #C9A962 */
+    --primary-foreground: 0 0% 4%;
+
+    --secondary: 30 10% 15%;        /* Charcoal: #1F1F1F */
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 30 8% 90%;             /* Stone light: #E8E4DD */
+    --muted-foreground: 0 0% 35%;
+
+    --accent: 42 65% 59%;           /* Gold */
+    --accent-foreground: 0 0% 4%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 8% 85%;            /* Stone: #E8E4DD */
+    --input: 30 8% 85%;
+    --ring: 42 65% 59%;
+
+    --radius: 0.75rem;
+
+    /* Status Colors */
+    --success: 142 76% 36%;         /* Green: #10B981 */
+    --success-foreground: 0 0% 98%;
+
+    --warning: 38 92% 50%;          /* Amber: #F59E0B */
+    --warning-foreground: 0 0% 9%;
+
+    --error: 0 84% 60%;             /* Red: #EF4444 */
+    --error-foreground: 0 0% 98%;
+
+    --info: 217 91% 60%;            /* Blue: #3B82F6 */
+    --info-foreground: 0 0% 98%;
+
+    /* Glassmorphism */
+    --glass-border: 0 0% 0% / 0.1;
+    --glass-bg: 255 255 255 / 0.7;
+    --glass-blur: 20px;
+
+    /* Premium Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+    --shadow-md: 0 8px 24px rgb(0 0 0 / 0.12);
+    --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.16);
+    --shadow-xl: 0 24px 64px rgb(0 0 0 / 0.2);
+    --shadow-premium: 0 4px 24px rgb(201 169 98 / 0.15);
+    --shadow-glow: 0 0 30px rgb(201 169 98 / 0.3);
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, #FAF8F5 0%, #F5F3EF 100%);
+    --gradient-gold: linear-gradient(135deg, #C9A962 0%, #D4B876 100%);
+    --gradient-premium: linear-gradient(180deg, rgba(201,169,98,0.1) 0%, transparent 100%);
+  }
+
+  .dark {
+    --background: 0 0% 2%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 42 65% 59%;
+    --primary-foreground: 0 0% 2%;
+
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
+
+    --accent: 42 65% 59%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 42 65% 59%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* HAUS Typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  .font-space {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+  }
+
+  .font-nav {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  /* Focus Visible */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Glass morphism */
+  .glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .glass-dark {
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Premium shadows */
+  .shadow-premium { box-shadow: var(--shadow-premium); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+
+  /* Hide scrollbar */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Custom scrollbar */
+  .scrollbar-premium::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-premium::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+  .scrollbar-premium::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border-radius: 4px;
+  }
+  .scrollbar-premium::-webkit-scrollbar-thumb:hover {
+    background: hsl(42 65% 49%);
+  }
+
+  /* Text gradients */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #C9A962 0%, #D4B876 50%, #C9A962 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Image hover zoom */
+  .img-zoom-container {
+    overflow: hidden;
+  }
+  .img-zoom-container img {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .img-zoom-container:hover img {
+    transform: scale(1.05);
+  }
+
+  /* Stagger children animations */
+  .stagger-children > * {
+    animation-delay: calc(var(--stagger-delay, 0) * 100ms);
+  }
+}
