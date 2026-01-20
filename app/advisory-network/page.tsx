@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, ChevronDown, Grid, Map, Crown, TrendingUp, Award, Globe, Users, Zap, BarChart2, Play, ArrowRight, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronDown, Grid, Map, Crown, TrendingUp, Award, Globe, Users, Zap, BarChart2, Play, ArrowRight, X, ChevronLeft, ChevronRight, LucideIcon } from "lucide-react";
 
 // TypeScript interfaces
 interface Agent {
@@ -15,7 +15,7 @@ interface Agent {
   avgDeal: string;
   badges: Array<{
     text: string;
-    icon?: any;
+    icon?: LucideIcon;
     variant: 'top-1%' | 'trending' | 'new' | 'active' | 'online';
   }>;
   tags: string[];
