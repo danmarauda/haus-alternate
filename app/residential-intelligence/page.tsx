@@ -455,7 +455,7 @@ export default function ResidentialIntelligencePage() {
                     </div>
                     <div className="flex justify-between items-end">
                       <div className="text-[10px] text-neutral-500 font-mono">
-                        {property.price.estimate || property.price.offer}
+                        {property.price?.estimate || property.price?.offer || "N/A"}
                       </div>
                       <ChevronRight className="w-3 h-3 text-neutral-600 group-hover:text-emerald-500 transition-colors" />
                     </div>
@@ -825,7 +825,7 @@ export default function ResidentialIntelligencePage() {
                             {listing.features.carSpaces && `${listing.features.carSpaces} Car`}
                           </td>
                           <td className="p-4 text-white">
-                            {listing.price.estimate?.formatted || listing.price.sold?.formatted || listing.price.formatted || "---"}
+                            {listing.price?.estimate?.formatted || (listing.price?.sold !== undefined ? `$${listing.price.sold.toLocaleString()}` : undefined) || listing.price?.formatted || "---"}
                           </td>
                           <td className="p-4">
                             <span className={cn(

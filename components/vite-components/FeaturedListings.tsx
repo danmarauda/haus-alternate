@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { PropertyCard } from "./PropertyCard";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, SlidersHorizontal, TrendingUp, DollarSign, Clock, Sparkles, Grid3X3, LayoutGrid } from "lucide-react";
@@ -56,7 +56,7 @@ export const FeaturedListings = () => {
   // Filter and sort properties
   const filteredProperties = properties.filter(property => {
     if (filterBy === "all") return true;
-    return property.badges.some(badge => {
+    return property.badges.some((badge: { variant: string }) => {
       if (filterBy === "new") return badge.variant === "new";
       if (filterBy === "open-house") return badge.variant === "open-house";
       if (filterBy === "price-drop") return badge.variant === "price-drop";
@@ -192,7 +192,7 @@ export const FeaturedListings = () => {
           }`}>
             {sortedProperties.map((property, index) => (
               <Link
-                to={`/listing/${property.id}`}
+                href={`/listing/${property.id}`}
                 key={property.id}
                 className={`block transition-all duration-500 ${
                   isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'

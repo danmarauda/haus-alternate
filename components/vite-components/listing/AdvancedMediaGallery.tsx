@@ -171,7 +171,7 @@ export const AdvancedMediaGallery: React.FC<AdvancedMediaGalleryProps> = ({
         <div className="absolute top-6 right-6 flex gap-2">
           {floorPlan && (
             <Button
-              variant="glass"
+              variant="ghost"
               size="icon"
               onClick={() => setShowFloorPlan(!showFloorPlan)}
               className={showFloorPlan ? 'bg-haus-gold text-haus-black' : ''}
@@ -180,23 +180,23 @@ export const AdvancedMediaGallery: React.FC<AdvancedMediaGalleryProps> = ({
             </Button>
           )}
           {virtualTourUrl && (
-            <Button variant="glass" size="icon" onClick={() => setViewMode('virtual')}>
+            <Button variant="ghost" size="icon" onClick={() => setViewMode('virtual')}>
               <Play className="w-5 h-5" />
             </Button>
           )}
           <Button
-            variant="glass"
+            variant="ghost"
             size="icon"
             onClick={handleSave}
             className={isSaved ? 'bg-error text-white' : ''}
           >
             <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
           </Button>
-          <Button variant="glass" size="icon">
+          <Button variant="ghost" size="icon">
             <Share2 className="w-5 h-5" />
           </Button>
           <Button
-            variant="glass"
+            variant="ghost"
             size="icon"
             onClick={() => setIsFullscreen(!isFullscreen)}
           >

@@ -15,7 +15,7 @@ export const AboutSection = () => {
             {/* Left: Media + Story copy */}
             <div className="lg:col-span-2 space-y-6">
               <div className="relative rounded-2xl overflow-hidden border border-glass-border">
-                <img src={aboutImage} alt="Professional real estate agent consulting with clients" className="w-full h-[260px] sm:h-[360px] object-cover" />
+                <img src={aboutImage.src} alt="Professional real estate agent consulting with clients" className="w-full h-[260px] sm:h-[360px] object-cover" />
                 <div className="absolute inset-0 bg-gradient-overlay"></div>
               </div>
 

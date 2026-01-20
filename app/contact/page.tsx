@@ -1,37 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent, useCallback } from "react";
 import Link from "next/link";
 import {
   Sparkles, ArrowLeft, Mail, Phone, MapPin, Clock, Send,
   MessageSquare, HelpCircle, Building, Users, FileText,
 } from "lucide-react";
-import "@/styles/landing.css";
+import { Suspense } from "react";
+import { Shell } from "@/components/shell";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { PageLoader } from "@/components/page-loader";
 
-const contactOptions = [
+
+interface ContactOption {
+  icon: typeof MessageSquare;
+  title: string;
+  desc: string;
+  available: boolean;
+  action: string;
+}
+
+interface Office {
+  city: string;
+  address: string;
+  phone: string;
+  email: string;
+}
+
+interface Department {
+  name: string;
+  email: string;
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  subject: string;
+  department: string;
+  message: string;
+}
+
+const contactOptions: ContactOption[] = [
   { icon: MessageSquare, title: "Live Chat", desc: "Chat with our team in real-time", available: true, action: "Start Chat" },
   { icon: Mail, title: "Email Support", desc: "Get a response within 24 hours", available: true, action: "Send Email" },
   { icon: Phone, title: "Phone Support", desc: "Available Mon-Fri 9am-6pm AEST", available: true, action: "Call Now" },
   { icon: HelpCircle, title: "Help Center", desc: "Browse our knowledge base", available: true, action: "Browse FAQs" },
-];
+] as const;
 
-const offices = [
+const offices: Office[] = [
   { city: "Sydney", address: "Level 12, 1 Martin Place", phone: "+61 2 8000 0000", email: "sydney@haus.com" },
   { city: "Melbourne", address: "Level 8, 120 Collins Street", phone: "+61 3 9000 0000", email: "melbourne@haus.com" },
   { city: "Brisbane", address: "Level 5, 480 Queen Street", phone: "+61 7 3000 0000", email: "brisbane@haus.com" },
-];
+] as const;
 
-const departments = [
+const departments: Department[] = [
   { name: "General Inquiries", email: "hello@haus.com" },
   { name: "Sales", email: "sales@haus.com" },
   { name: "Support", email: "support@haus.com" },
   { name: "Press", email: "press@haus.com" },
   { name: "Partnerships", email: "partners@haus.com" },
   { name: "Careers", email: "careers@haus.com" },
-];
+] as const;
 
-export default function Contact() {
-  const [formData, setFormData] = useState({
+function ContactPageContent() {
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     subject: "",
@@ -40,21 +72,21 @@ export default function Contact() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitted(true);
-  };
+  }, []);
 
   return (
     <div className="landing-page min-h-screen">
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10" aria-label="Main navigation">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/landing" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors">
+            <Link href="/landing-1" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors" aria-label="Go back">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <Link href="/landing" className="inline-flex items-center gap-2">
+            <Link href="/landing-1" className="inline-flex items-center gap-2" aria-label="HAUS home">
               <div className="h-6 w-6 rounded-md bg-white/10 border border-white/10 flex items-center justify-center">
                 <Sparkles className="h-3.5 w-3.5 text-white/80" />
               </div>
@@ -77,10 +109,10 @@ export default function Contact() {
         </div>
 
         {/* Contact Options */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16" role="list" aria-label="Contact options">
           {contactOptions.map((option) => (
-            <div key={option.title} className="p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group">
-              <option.icon className="w-8 h-8 text-indigo-400 mb-4" />
+            <div key={option.title} className="p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group" role="listitem">
+              <option.icon className="w-8 h-8 text-indigo-400 mb-4" aria-hidden="true" />
               <h3 className="font-medium text-white mb-1">{option.title}</h3>
               <p className="text-xs text-neutral-500 mb-4">{option.desc}</p>
               <button className="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
@@ -99,8 +131,9 @@ export default function Contact() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-neutral-400 mb-2">Your Name</label>
+                    <label htmlFor="name" className="block text-xs font-medium text-neutral-400 mb-2">Your Name</label>
                     <input
+                      id="name"
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -110,21 +143,24 @@ export default function Contact() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-neutral-400 mb-2">Email Address</label>
+                    <label htmlFor="email" className="block text-xs font-medium text-neutral-400 mb-2">Email Address</label>
                     <input
+                      id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="you@example.com"
                       className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-neutral-600 text-sm focus:outline-none focus:border-white/20 transition-colors"
                       required
+                      autoComplete="email"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-neutral-400 mb-2">Department</label>
+                  <label htmlFor="department" className="block text-xs font-medium text-neutral-400 mb-2">Department</label>
                   <select
+                    id="department"
                     value={formData.department}
                     onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white text-sm focus:outline-none focus:border-white/20 transition-colors"
@@ -136,8 +172,9 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-neutral-400 mb-2">Subject</label>
+                  <label htmlFor="subject" className="block text-xs font-medium text-neutral-400 mb-2">Subject</label>
                   <input
+                    id="subject"
                     type="text"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -148,8 +185,9 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-neutral-400 mb-2">Message</label>
+                  <label htmlFor="message" className="block text-xs font-medium text-neutral-400 mb-2">Message</label>
                   <textarea
+                    id="message"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder="Tell us more about your inquiry..."
@@ -189,20 +227,20 @@ export default function Contact() {
             {/* Offices */}
             <div>
               <h2 className="text-xl font-display font-medium text-white mb-6">Our Offices</h2>
-              <div className="space-y-4">
+              <div className="space-y-4" role="list" aria-label="Office locations">
                 {offices.map((office) => (
-                  <div key={office.city} className="p-4 rounded-xl border border-white/10 bg-white/5">
+                  <div key={office.city} className="p-4 rounded-xl border border-white/10 bg-white/5" role="listitem">
                     <div className="flex items-start gap-3">
-                      <Building className="w-5 h-5 text-indigo-400 mt-0.5" />
+                      <Building className="w-5 h-5 text-indigo-400 mt-0.5" aria-hidden="true" />
                       <div>
                         <h3 className="font-medium text-white">{office.city}</h3>
                         <p className="text-sm text-neutral-400 mt-1">{office.address}</p>
                         <div className="flex flex-wrap gap-4 mt-3 text-xs">
                           <a href={`tel:${office.phone}`} className="flex items-center gap-1 text-neutral-500 hover:text-white transition-colors">
-                            <Phone className="w-3 h-3" />{office.phone}
+                            <Phone className="w-3 h-3" aria-hidden="true" />{office.phone}
                           </a>
                           <a href={`mailto:${office.email}`} className="flex items-center gap-1 text-neutral-500 hover:text-white transition-colors">
-                            <Mail className="w-3 h-3" />{office.email}
+                            <Mail className="w-3 h-3" aria-hidden="true" />{office.email}
                           </a>
                         </div>
                       </div>
@@ -215,7 +253,7 @@ export default function Contact() {
             {/* Department Emails */}
             <div>
               <h2 className="text-xl font-display font-medium text-white mb-6">Email Departments Directly</h2>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2" role="list" aria-label="Department contacts">
                 {departments.map((dept) => (
                   <a
                     key={dept.name}
@@ -230,10 +268,10 @@ export default function Contact() {
             </div>
 
             {/* Hours */}
-            <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+            <div className="p-6 rounded-xl border border-white/10 bg-white/5" aria-labelledby="hours-heading">
               <div className="flex items-center gap-2 mb-4">
-                <Clock className="w-5 h-5 text-amber-400" />
-                <h3 className="font-medium text-white">Business Hours</h3>
+                <Clock className="w-5 h-5 text-amber-400" aria-hidden="true" />
+                <h2 id="hours-heading" className="font-medium text-white">Business Hours</h2>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
@@ -266,5 +304,17 @@ export default function Contact() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading contact page..." />}>
+          <ContactPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   );
 }

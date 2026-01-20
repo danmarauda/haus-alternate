@@ -73,7 +73,7 @@ export const InvestmentIntelligenceCard = () => {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={chartData}
-                onMouseMove={(e) => {
+                onMouseMove={(e: any) => {
                   if (e.activePayload) {
                     const data = e.activePayload[0]?.payload;
                     if (data) {

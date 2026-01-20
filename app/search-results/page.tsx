@@ -30,7 +30,7 @@
  * @component
  */
 
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -50,6 +50,10 @@ import {
   X,
   TrendingUp
 } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 import { cn } from "@/lib/utils"
 import type { Property, ListingFilters, ListingViewMode } from "@/types/listings"
 
@@ -353,7 +357,7 @@ const SEARCH_RESULTS: Property[] = [
     latitude: -33.8870,
     longitude: 151.2130
   }
-]
+] as const
 
 /**
  * Active filters state
@@ -372,13 +376,13 @@ const INITIAL_FILTERS: ListingFilters = {
   sortBy: "match-score"
 }
 
-export default function SearchResultsPage() {
+function SearchResultsPageContent() {
   const [filters, setFilters] = useState<ListingFilters>(INITIAL_FILTERS)
   const [viewMode, setViewMode] = useState<ListingViewMode>("grid")
   const [savedProperties, setSavedProperties] = useState<Set<string>>(new Set())
   const [showMobileFilters, setShowMobileFilters] = useState(false)
 
-  const toggleSave = (id: string) => {
+  const toggleSave = useCallback((id: string) => {
     setSavedProperties((prev) => {
       const next = new Set(prev)
       if (next.has(id)) {
@@ -388,27 +392,33 @@ export default function SearchResultsPage() {
       }
       return next
     })
-  }
+  }, [])
 
-  const clearFilter = (filterKey: keyof ListingFilters) => {
+  const clearFilter = useCallback((filterKey: keyof ListingFilters) => {
     setFilters((prev) => ({
       ...prev,
       [filterKey]: filterKey === "priceRange" ? null : filterKey === "sortBy" ? "newest" : typeof INITIAL_FILTERS[filterKey]
     }))
-  }
+  }, [])
 
-  const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === "search") return false
-    if (key === "priceRange") return value !== null
-    if (key === "sortBy") return value !== INITIAL_FILTERS.sortBy
-    if (typeof value === "number") return value !== null
-    if (typeof value === "boolean") return value === true
-    if (Array.isArray(value)) return value.length > 0
-    return false
-  }).length
+  const activeFilterCount = useMemo(() => {
+    return Object.entries(filters).filter(([key, value]) => {
+      if (key === "search") return false
+      if (key === "priceRange") return value !== null
+      if (key === "sortBy") return value !== INITIAL_FILTERS.sortBy
+      if (typeof value === "number") return value !== null
+      if (typeof value === "boolean") return value === true
+      if (Array.isArray(value)) return value.length > 0
+      return false
+    }).length
+  }, [filters])
+
+  const handleViewModeChange = useCallback((mode: ListingViewMode) => {
+    setViewMode(mode)
+  }, [])
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="landing-page min-h-screen bg-zinc-950 text-zinc-100">
       {/* Noise Overlay */}
       <div
         className="fixed inset-0 z-0 w-full h-full pointer-events-none opacity-20"
@@ -420,11 +430,12 @@ export default function SearchResultsPage() {
           backgroundSize: "50px 50px",
           maskImage: "radial-gradient(circle at center, black 40%, transparent 100%)"
         }}
+        aria-hidden="true"
       />
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <Link href="/" className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group">
+      <nav className="fixed top-0 w-full px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/10" role="navigation" aria-label="Main navigation">
+        <Link href="/" className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group" aria-label="HAUS home">
           <div className="w-8 h-8 bg-white text-black flex items-center justify-center font-bold tracking-tighter group-hover:scale-90 transition-transform duration-300">
             H
           </div>
@@ -432,15 +443,16 @@ export default function SearchResultsPage() {
 
         {/* Search Bar - Desktop */}
         <div className="hidden md:flex items-center bg-neutral-900 border border-white/10 rounded-full px-4 py-2 w-80 gap-3">
-          <Search className="w-4 h-4 text-neutral-500" />
+          <Search className="w-4 h-4 text-neutral-500" aria-hidden="true" />
           <input
             type="text"
             placeholder="Point Piper, NSW 2027"
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
             className="bg-transparent border-none text-xs text-white placeholder-neutral-500 focus:outline-none w-full font-mono"
+            aria-label="Search location"
           />
-          <div className="text-[10px] bg-white/5 border border-white/5 px-1.5 py-0.5 rounded text-neutral-400 font-mono">
+          <div className="text-[10px] bg-white/5 border border-white/5 px-1.5 py-0.5 rounded text-neutral-400 font-mono" aria-hidden="true">
             ⌘K
           </div>
         </div>
@@ -459,13 +471,15 @@ export default function SearchResultsPage() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 pt-28 px-6 md:px-12 pb-32 min-h-screen">
+      <div className="relative z-10 pt-28 px-6 md:px-12 pb-32 min-h-screen" role="main" aria-labelledby="results-heading">
+        <h2 id="results-heading" className="sr-only">Search Results for Surry Hills, NSW</h2>
+
         {/* Header */}
         <header className="mb-8">
           <div className="flex flex-col lg:flex-row justify-between items-end gap-6 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
                 <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">
                   Live Market Data
                 </span>
@@ -476,10 +490,10 @@ export default function SearchResultsPage() {
             </div>
 
             {/* AI Insight Card */}
-            <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-lg p-4 backdrop-blur-md">
+            <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-lg p-4 backdrop-blur-md" role="complementary" aria-labelledby="ai-insight-title">
               <div className="flex items-center gap-2 mb-2">
-                <Bot className="w-4 h-4 text-indigo-400" />
-                <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
+                <Bot className="w-4 h-4 text-indigo-400" aria-hidden="true" />
+                <span id="ai-insight-title" className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
                   HAUS AI Insight
                 </span>
               </div>
@@ -494,57 +508,59 @@ export default function SearchResultsPage() {
           </div>
 
           {/* Filters Bar */}
-          <div className="sticky top-[72px] z-40 bg-[#050505]/80 backdrop-blur-xl border-y border-white/10 py-4 -mx-6 md:-mx-12 px-6 md:px-12 mb-12 flex gap-3 overflow-x-auto no-scrollbar items-center">
+          <div className="sticky top-[72px] z-40 bg-[#050505]/80 backdrop-blur-xl border-y border-white/10 py-4 -mx-6 md:-mx-12 px-6 md:px-12 mb-12 flex gap-3 overflow-x-auto no-scrollbar items-center" role="group" aria-label="Active filters">
             <button
               onClick={() => setShowMobileFilters(!showMobileFilters)}
               className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-full text-xs font-bold uppercase tracking-wider hover:bg-neutral-200 transition-colors shrink-0"
+              aria-expanded={showMobileFilters}
+              aria-controls="mobile-filters"
             >
-              <SlidersHorizontal className="w-3 h-3" />
+              <SlidersHorizontal className="w-3 h-3" aria-hidden="true" />
               All Filters
               {activeFilterCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 bg-black/20 rounded-full text-[10px]">
+                <span className="ml-1 px-1.5 py-0.5 bg-black/20 rounded-full text-[10px]" aria-label={`${activeFilterCount} active filters`}>
                   {activeFilterCount}
                 </span>
               )}
             </button>
 
-            <div className="h-6 w-px bg-white/10 mx-2 shrink-0" />
+            <div className="h-6 w-px bg-white/10 mx-2 shrink-0" aria-hidden="true" />
 
             {/* Active Filters */}
             {filters.priceRange && (
               <button className="flex items-center gap-2 px-4 py-2 border border-white/20 text-white bg-white/5 rounded-full text-xs font-medium hover:bg-white/10 transition shrink-0 group">
                 Price: $1.5M - $3M
-                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("priceRange")} />
+                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("priceRange")} aria-hidden="true" />
               </button>
             )}
 
             {filters.bedrooms && (
               <button className="flex items-center gap-2 px-4 py-2 border border-white/20 text-white bg-white/5 rounded-full text-xs font-medium hover:bg-white/10 transition shrink-0 group">
                 {filters.bedrooms}+ Beds
-                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("bedrooms")} />
+                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("bedrooms")} aria-hidden="true" />
               </button>
             )}
 
             {filters.propertyType.length > 0 && (
               <button className="flex items-center gap-2 px-4 py-2 border border-white/20 text-white bg-white/5 rounded-full text-xs font-medium hover:bg-white/10 transition shrink-0 group">
                 House & Terrace
-                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("propertyType")} />
+                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("propertyType")} aria-hidden="true" />
               </button>
             )}
 
             {filters.aiMatchOnly && (
               <button className="flex items-center gap-2 px-4 py-2 border border-indigo-500/30 text-indigo-300 bg-indigo-500/10 rounded-full text-xs font-medium hover:bg-indigo-500/20 transition shrink-0 group">
-                <Sparkles className="w-3 h-3" />
+                <Sparkles className="w-3 h-3" aria-hidden="true" />
                 AI Matches Only
-                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("aiMatchOnly")} />
+                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("aiMatchOnly")} aria-hidden="true" />
               </button>
             )}
 
             {filters.offMarketOnly && (
               <button className="flex items-center gap-2 px-4 py-2 border border-emerald-500/30 text-emerald-300 bg-emerald-500/10 rounded-full text-xs font-medium hover:bg-emerald-500/20 transition shrink-0 group">
-                <Zap className="w-3 h-3" />
+                <Zap className="w-3 h-3" aria-hidden="true" />
                 Off-Market
-                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("offMarketOnly")} />
+                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => clearFilter("offMarketOnly")} aria-hidden="true" />
               </button>
             )}
           </div>
@@ -557,22 +573,22 @@ export default function SearchResultsPage() {
               <div className="aspect-[4/5] rounded-2xl overflow-hidden relative border border-white/10 group cursor-pointer bg-neutral-900">
                 <Image
                   src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop"
-                  alt="Map view"
+                  alt="Map view of properties"
                   fill
                   className="w-full h-full object-cover grayscale opacity-50 group-hover:opacity-70 transition-opacity duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" aria-hidden="true"></div>
                 <div className="absolute bottom-6 left-6 right-6">
                   <button className="w-full bg-white text-black px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-widest shadow-lg flex justify-center items-center gap-2 hover:bg-neutral-200 transition-colors">
-                    <MapPin className="w-3.5 h-3.5" />
+                    <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
                     Open Interactive Map
                   </button>
                 </div>
 
                 {/* Map Pins Mock */}
-                <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_white] animate-pulse" />
-                <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_white] animate-pulse" />
-                <div className="absolute bottom-1/3 right-1/4 w-2 h-2 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)] animate-pulse" />
+                <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_white] animate-pulse" aria-label="Property marker" />
+                <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_white] animate-pulse" aria-label="Property marker" />
+                <div className="absolute bottom-1/3 right-1/4 w-2 h-2 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)] animate-pulse" aria-label="Property marker" />
               </div>
             </div>
           </div>
@@ -587,31 +603,37 @@ export default function SearchResultsPage() {
 
               <div className="flex items-center gap-3">
                 {/* View Mode Toggle */}
-                <div className="flex bg-[#0A0A0A] p-1 rounded-lg border border-white/5">
+                <div className="flex bg-[#0A0A0A] p-1 rounded-lg border border-white/5" role="group" aria-label="View mode">
                   <button
-                    onClick={() => setViewMode("grid")}
+                    onClick={() => handleViewModeChange("grid")}
                     className={cn(
                       "w-8 h-8 rounded flex items-center justify-center transition-colors",
                       viewMode === "grid" ? "bg-white/10 text-white" : "text-neutral-500 hover:text-white"
                     )}
+                    aria-label="Grid view"
+                    aria-pressed={viewMode === "grid"}
                   >
                     <Grid className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => setViewMode("list")}
+                    onClick={() => handleViewModeChange("list")}
                     className={cn(
                       "w-8 h-8 rounded flex items-center justify-center transition-colors",
                       viewMode === "list" ? "bg-white/10 text-white" : "text-neutral-500 hover:text-white"
                     )}
+                    aria-label="List view"
+                    aria-pressed={viewMode === "list"}
                   >
                     <List className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => setViewMode("map")}
+                    onClick={() => handleViewModeChange("map")}
                     className={cn(
                       "w-8 h-8 rounded flex items-center justify-center transition-colors",
                       viewMode === "map" ? "bg-white/10 text-white" : "text-neutral-500 hover:text-white"
                     )}
+                    aria-label="Map view"
+                    aria-pressed={viewMode === "map"}
                   >
                     <Map className="w-4 h-4" />
                   </button>
@@ -620,7 +642,7 @@ export default function SearchResultsPage() {
                 {/* Sort Dropdown */}
                 <button className="flex items-center gap-2 px-4 py-2 bg-[#0A0A0A] border border-white/10 rounded-lg text-xs text-white hover:bg-white/5 transition-colors">
                   Sort by: Relevance
-                  <ChevronRight className="w-3 h-3 text-neutral-600" />
+                  <ChevronRight className="w-3 h-3 text-neutral-600" aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -630,7 +652,7 @@ export default function SearchResultsPage() {
               "grid gap-6",
               viewMode === "grid" && "md:grid-cols-2 xl:grid-cols-3",
               viewMode === "list" && "grid-cols-1"
-            )}>
+            )} role="list" aria-label="Property listings">
               {SEARCH_RESULTS.map((property) => (
                 <PropertyCard
                   key={property.id}
@@ -653,10 +675,10 @@ export default function SearchResultsPage() {
       </div>
 
       {/* Footer CTA */}
-      <footer className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent z-20 flex items-end justify-center pb-8">
+      <footer className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent z-20 flex items-end justify-center pb-8" role="complementary" aria-label="Call to action">
         <div className="text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-4">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
             <span className="text-[10px] uppercase tracking-widest text-neutral-300">
               Waitlist Active
             </span>
@@ -667,6 +689,18 @@ export default function SearchResultsPage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+export default function SearchResultsPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading search results..." />}>
+          <SearchResultsPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }
 
@@ -704,7 +738,7 @@ function PropertyCard({
           />
 
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex gap-2">
+          <div className="absolute top-3 left-3 flex gap-2" aria-label="Property badges">
             {property.badges?.map((badge, idx) => (
               <div
                 key={idx}
@@ -716,9 +750,9 @@ function PropertyCard({
                   badge.color === "neutral" && "bg-neutral-900/80 border-white/10 text-neutral-300"
                 )}
               >
-                {badge.icon === "sparkles" && <Sparkles className="w-2.5 h-2.5" />}
-                {badge.icon === "leaf" && <Leaf className="w-2.5 h-2.5" />}
-                {badge.icon === "gem" && <Gem className="w-2.5 h-2.5" />}
+                {badge.icon === "sparkles" && <Sparkles className="w-2.5 h-2.5" aria-hidden="true" />}
+                {badge.icon === "leaf" && <Leaf className="w-2.5 h-2.5" aria-hidden="true" />}
+                {badge.icon === "gem" && <Gem className="w-2.5 h-2.5" aria-hidden="true" />}
                 {badge.text}
               </div>
             ))}
@@ -736,14 +770,16 @@ function PropertyCard({
                 ? "bg-rose-500 text-white"
                 : "bg-black/40 backdrop-blur text-white hover:bg-white hover:text-black"
             )}
+            aria-label={isSaved ? `Remove ${property.title} from saved` : `Save ${property.title}`}
+            aria-pressed={isSaved}
           >
             <Heart className={cn("w-3.5 h-3.5", isSaved && "fill-current")} />
           </button>
 
           {/* Market Growth Indicator */}
           {property.insights?.estimatedGrowth && (
-            <div className="absolute bottom-3 left-3 px-2 py-1 rounded bg-emerald-500/90 backdrop-blur border border-emerald-400/20 text-white text-[10px] font-bold uppercase flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />
+            <div className="absolute bottom-3 left-3 px-2 py-1 rounded bg-emerald-500/90 backdrop-blur border border-emerald-400/20 text-white text-[10px] font-bold uppercase flex items-center gap-1" aria-label={`Estimated growth: +${property.insights.estimatedGrowth}%`}>
+              <TrendingUp className="w-3 h-3" aria-hidden="true" />
               +{property.insights.estimatedGrowth}%
             </div>
           )}
@@ -760,7 +796,7 @@ function PropertyCard({
                 {property.title}
               </h3>
               <p className="text-xs text-neutral-500 mt-0.5 flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
+                <MapPin className="w-3 h-3" aria-hidden="true" />
                 {property.address}
               </p>
             </div>
@@ -780,15 +816,15 @@ function PropertyCard({
           </div>
 
           {/* Features */}
-          <div className="flex gap-3 mt-3 text-xs text-neutral-400 border-t border-white/10 pt-3">
+          <div className="flex gap-3 mt-3 text-xs text-neutral-400 border-t border-white/10 pt-3" role="list" aria-label="Property features">
             <span className="flex items-center gap-1.5">
-              <span className="text-neutral-600">•</span> {property.features.bedrooms} Beds
+              <span className="text-neutral-600" aria-hidden="true">•</span> {property.features.bedrooms} Beds
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="text-neutral-600">•</span> {property.features.bathrooms} Bath
+              <span className="text-neutral-600" aria-hidden="true">•</span> {property.features.bathrooms} Bath
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="text-neutral-600">•</span> {property.features.internalArea}m²
+              <span className="text-neutral-600" aria-hidden="true">•</span> {property.features.internalArea}m²
             </span>
           </div>
         </div>

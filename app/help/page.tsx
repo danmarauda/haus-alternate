@@ -1,15 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import {
   Sparkles, ArrowLeft, Search, ChevronDown, ChevronRight, HelpCircle,
   Home, DollarSign, Users, FileText, Shield, CreditCard, Settings,
   MessageSquare, Phone, Mail, ExternalLink,
 } from "lucide-react";
-import "@/styles/landing.css";
+import { Suspense } from "react";
+import { Shell } from "@/components/shell";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { PageLoader } from "@/components/page-loader";
 
-const categories = [
+
+interface Category {
+  id: string;
+  icon: typeof Home;
+  title: string;
+  count: number;
+}
+
+interface Article {
+  title: string;
+  category: string;
+  views: string;
+}
+
+interface FAQ {
+  q: string;
+  a: string;
+}
+
+const categories: Category[] = [
   { id: "getting-started", icon: Home, title: "Getting Started", count: 8 },
   { id: "buying", icon: Home, title: "Buying a Property", count: 12 },
   { id: "selling", icon: DollarSign, title: "Selling a Property", count: 10 },
@@ -18,17 +40,17 @@ const categories = [
   { id: "legal", icon: FileText, title: "Legal & Contracts", count: 7 },
   { id: "account", icon: Settings, title: "Account & Settings", count: 5 },
   { id: "security", icon: Shield, title: "Security & Privacy", count: 4 },
-];
+] as const;
 
-const popularArticles = [
+const popularArticles: Article[] = [
   { title: "How to create your first property search", category: "Getting Started", views: "12.4K" },
   { title: "Understanding property valuations", category: "Buying", views: "8.2K" },
   { title: "Guide to making an offer", category: "Buying", views: "7.8K" },
   { title: "Selling your property with HAUS", category: "Selling", views: "6.5K" },
   { title: "How agent matching works", category: "Agents", views: "5.9K" },
-];
+] as const;
 
-const faqs = [
+const faqs: FAQ[] = [
   {
     q: "How accurate is the AI property valuation?",
     a: "Our AI valuation model is trained on millions of historical transactions and achieves a median accuracy of 97.9% compared to actual sale prices. For most properties, the valuation is within 2-3% of the final sale price. The model considers factors like location, property features, recent sales, and market trends."
@@ -53,22 +75,26 @@ const faqs = [
     q: "How do I list my property for sale?",
     a: "Start by getting a free AI valuation on the 'Sell' page. Then you'll be matched with verified local agents who specialize in your area. Once you choose an agent, they'll handle photography, listing creation, and the entire sales process."
   },
-];
+] as const;
 
-export default function Help() {
+function HelpPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const toggleFaq = useCallback((index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  }, [openFaq]);
 
   return (
     <div className="landing-page min-h-screen">
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10" aria-label="Main navigation">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors">
+            <Link href="/dashboard" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors" aria-label="Go back to dashboard">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <Link href="/landing" className="inline-flex items-center gap-2">
+            <Link href="/landing-1" className="inline-flex items-center gap-2" aria-label="HAUS home">
               <div className="h-6 w-6 rounded-md bg-white/10 border border-white/10 flex items-center justify-center">
                 <Sparkles className="h-3.5 w-3.5 text-white/80" />
               </div>
@@ -89,13 +115,14 @@ export default function Help() {
 
           {/* Search */}
           <div className="max-w-xl mx-auto relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" aria-hidden="true" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for answers..."
               className="w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-white/20 transition-colors"
+              aria-label="Search help articles"
             />
           </div>
         </div>
@@ -103,14 +130,14 @@ export default function Help() {
         {/* Categories */}
         <section className="mb-16">
           <h2 className="text-lg font-medium text-white mb-6">Browse by Category</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4" role="list" aria-label="Help categories">
             {categories.map((category) => (
               <Link
                 key={category.id}
                 href={`/help/${category.id}`}
                 className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group"
               >
-                <category.icon className="w-6 h-6 text-indigo-400 mb-3" />
+                <category.icon className="w-6 h-6 text-indigo-400 mb-3" aria-hidden="true" />
                 <h3 className="font-medium text-white group-hover:text-indigo-400 transition-colors">{category.title}</h3>
                 <p className="text-xs text-neutral-500 mt-1">{category.count} articles</p>
               </Link>
@@ -121,7 +148,7 @@ export default function Help() {
         {/* Popular Articles */}
         <section className="mb-16">
           <h2 className="text-lg font-medium text-white mb-6">Popular Articles</h2>
-          <div className="space-y-2">
+          <div className="space-y-2" role="list" aria-label="Popular help articles">
             {popularArticles.map((article, i) => (
               <Link
                 key={i}
@@ -130,14 +157,14 @@ export default function Help() {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-neutral-400" />
+                    <FileText className="w-4 h-4 text-neutral-400" aria-hidden="true" />
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-white group-hover:text-indigo-400 transition-colors">{article.title}</h3>
                     <p className="text-xs text-neutral-500">{article.category} • {article.views} views</p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-neutral-600 group-hover:text-white transition-colors" />
+                <ChevronRight className="w-4 h-4 text-neutral-600 group-hover:text-white transition-colors" aria-hidden="true" />
               </Link>
             ))}
           </div>
@@ -146,18 +173,20 @@ export default function Help() {
         {/* FAQs */}
         <section className="mb-16">
           <h2 className="text-lg font-medium text-white mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-2">
+          <div className="space-y-2" role="list" aria-label="Frequently asked questions">
             {faqs.map((faq, i) => (
               <div key={i} className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
                 <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  onClick={() => toggleFaq(i)}
                   className="w-full p-4 flex items-center justify-between text-left"
+                  aria-expanded={openFaq === i}
+                  aria-controls={`faq-answer-${i}`}
                 >
                   <span className="font-medium text-white pr-4">{faq.q}</span>
-                  <ChevronDown className={`w-5 h-5 text-neutral-500 shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`w-5 h-5 text-neutral-500 shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`} aria-hidden="true" />
                 </button>
                 {openFaq === i && (
-                  <div className="px-4 pb-4">
+                  <div id={`faq-answer-${i}`} className="px-4 pb-4">
                     <p className="text-sm text-neutral-400 leading-relaxed">{faq.a}</p>
                   </div>
                 )}
@@ -167,22 +196,22 @@ export default function Help() {
         </section>
 
         {/* Contact Options */}
-        <section className="rounded-2xl border border-white/10 bg-white/5 p-8">
-          <h2 className="text-lg font-medium text-white mb-2">Still need help?</h2>
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-8" aria-labelledby="help-contact-heading">
+          <h2 id="help-contact-heading" className="text-lg font-medium text-white mb-2">Still need help?</h2>
           <p className="text-neutral-400 text-sm mb-6">Our support team is available 7 days a week.</p>
           <div className="grid md:grid-cols-3 gap-4">
             <Link href="/contact" className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-center">
-              <MessageSquare className="w-6 h-6 text-indigo-400 mx-auto mb-2" />
+              <MessageSquare className="w-6 h-6 text-indigo-400 mx-auto mb-2" aria-hidden="true" />
               <div className="font-medium text-white text-sm">Live Chat</div>
               <div className="text-xs text-neutral-500">Avg. wait: 2 min</div>
             </Link>
             <a href="tel:+61280000000" className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-center">
-              <Phone className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
+              <Phone className="w-6 h-6 text-emerald-400 mx-auto mb-2" aria-hidden="true" />
               <div className="font-medium text-white text-sm">Call Us</div>
               <div className="text-xs text-neutral-500">Mon-Fri 9am-6pm</div>
             </a>
             <a href="mailto:support@haus.com" className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-center">
-              <Mail className="w-6 h-6 text-amber-400 mx-auto mb-2" />
+              <Mail className="w-6 h-6 text-amber-400 mx-auto mb-2" aria-hidden="true" />
               <div className="font-medium text-white text-sm">Email</div>
               <div className="text-xs text-neutral-500">24hr response</div>
             </a>
@@ -202,5 +231,17 @@ export default function Help() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function HelpPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading help center..." />}>
+          <HelpPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   );
 }

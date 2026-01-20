@@ -1,4 +1,7 @@
-import { useLocation, NavLink } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Home,
   Search,
@@ -212,16 +215,16 @@ const routeGroups: RouteGroup[] = [
 ];
 
 export const GlobalSidebar = () => {
-  const location = useLocation();
+  const pathname = usePathname();
 
   const isActiveRoute = (path: string) => {
-    if (path === "/") return location.pathname === "/";
+    if (path === "/") return pathname === "/";
     // Handle dynamic routes
     if (path.includes(":")) {
       const basePath = path.split("/:")[0];
-      return location.pathname.startsWith(basePath);
+      return pathname.startsWith(basePath);
     }
-    return location.pathname.startsWith(path);
+    return pathname.startsWith(path);
   };
 
   return (
@@ -251,13 +254,13 @@ export const GlobalSidebar = () => {
                       isActive={isActiveRoute(item.path)}
                       tooltip={item.name}
                     >
-                      <NavLink to={item.path}>
+                      <Link href={item.path}>
                         <item.icon className="w-4 h-4" />
                         <span>{item.name}</span>
                         {isActiveRoute(item.path) && (
                           <ChevronRight className="ml-auto w-4 h-4" />
                         )}
-                      </NavLink>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

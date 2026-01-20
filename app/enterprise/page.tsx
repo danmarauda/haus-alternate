@@ -62,11 +62,6 @@ import {
   BadgeCheck,
 } from "lucide-react"
 
-export const metadata = {
-  title: "Enterprise AI Platform | HAUS",
-  description: "A structured approach to AI adoption: strategy, framework, architecture, agents, and production rollout.",
-}
-
 // Implementation stages mock data
 const stages = [
   {

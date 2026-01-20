@@ -11,14 +11,17 @@
  * - Real-time finance and rate tracking
  * - Filtering and search capabilities
  *
- * @example
- * ```tsx
- * import MyFeedPage from '@/app/feed/page'
- * <MyFeedPage />
- * ```
+ * @features
+ * - Property feed cards with images and stats
+ * - Match scores and AI recommendations
+ * - Inspection and auction scheduling
+ * - Market insights and trends
+ * - Recently sold properties
+ * - Finance status tracking
+ * - Quick tools access
  */
 
-import { useState, useEffect } from "react"
+import { useState, useCallback, useMemo } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -46,12 +49,16 @@ import {
   FileSearch,
   Map,
   History,
-  TrendingDown,
 } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+
 
 // Types
 interface FeedItem {
@@ -139,7 +146,7 @@ const mockFeedItems: FeedItem[] = [
     features: ["Quiet Street", "No Parking"],
     isFavorite: false,
   },
-]
+] as const
 
 const mockSchedule: ScheduleEvent[] = [
   {
@@ -159,7 +166,7 @@ const mockSchedule: ScheduleEvent[] = [
     address: "22 Smith St, Redfern",
     status: "contract-reviewed",
   },
-]
+] as const
 
 const mockInsight: MarketInsight = {
   id: "1",
@@ -167,7 +174,7 @@ const mockInsight: MarketInsight = {
   description: "2 properties matching your 'Terrace' criteria were listed in Redfern today under $1.2M.",
   type: "new-listings",
   link: "#",
-}
+} as const
 
 const mockRecentlySold: RecentlySold[] = [
   {
@@ -186,27 +193,37 @@ const mockRecentlySold: RecentlySold[] = [
     imageUrl: "https://images.unsplash.com/photo-1600596542815-2a4d9f6facb8?w=150&q=80",
     soldDate: "4d ago",
   },
-]
+] as const
 
-export default function MyFeedPage() {
+function MyFeedPageContent() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [activeFilter, setActiveFilter] = useState<string>("top-matches")
   const [feedItems, setFeedItems] = useState<FeedItem[]>(mockFeedItems)
 
-  const toggleFavorite = (id: string) => {
-    const newFavorites = new Set(favorites)
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id)
-    } else {
-      newFavorites.add(id)
-    }
-    setFavorites(newFavorites)
-  }
+  const toggleFavorite = useCallback((id: string) => {
+    setFavorites((prev) => {
+      const newFavorites = new Set(prev)
+      if (newFavorites.has(id)) {
+        newFavorites.delete(id)
+      } else {
+        newFavorites.add(id)
+      }
+      return newFavorites
+    })
+  }, [])
+
+  const handleFilterChange = useCallback((filterId: string) => {
+    setActiveFilter(filterId)
+  }, [])
+
+  const filteredFeedItems = useMemo(() => {
+    return feedItems
+  }, [feedItems])
 
   return (
     <div className="min-h-screen bg-background">
       {/* Background Effects */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40" aria-hidden="true">
         <div
           className="absolute inset-0 w-full h-full"
           style={{
@@ -217,11 +234,12 @@ export default function MyFeedPage() {
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full px-6 md:px-8 h-16 flex justify-between items-center z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+      <nav className="fixed top-0 w-full px-6 md:px-8 h-16 flex justify-between items-center z-50 bg-background/80 backdrop-blur-xl border-b border-border" role="navigation" aria-label="Main navigation">
         <div className="flex items-center gap-8">
           <Link
             href="/"
             className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group"
+            aria-label="HAUS home"
           >
             <div className="w-8 h-8 bg-primary text-primary-foreground flex items-center justify-center font-bold tracking-tighter rounded-sm group-hover:scale-95 transition-transform duration-300">
               AU
@@ -240,6 +258,7 @@ export default function MyFeedPage() {
                   ? "text-white bg-primary/10 shadow-sm border-primary/20"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
               )}
+              aria-current={activeFilter === "top-matches" ? "page" : undefined}
             >
               My Feed
             </Link>
@@ -248,7 +267,7 @@ export default function MyFeedPage() {
               className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-accent flex items-center gap-1"
             >
               Watchlist
-              <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full text-foreground">
+              <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full text-foreground" aria-label="4 items in watchlist">
                 4
               </span>
             </Link>
@@ -261,13 +280,13 @@ export default function MyFeedPage() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-accent/50">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-accent/50" aria-live="polite" aria-label="Market status">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
             <span className="text-[10px] font-mono font-medium text-muted-foreground">
               MARKET: SYDNEY (AUCTION)
             </span>
           </div>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 border border-border ring-4 ring-background/50" />
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 border border-border ring-4 ring-background/50" aria-hidden="true" />
         </div>
       </nav>
 
@@ -275,7 +294,7 @@ export default function MyFeedPage() {
       <div className="relative z-10 pt-28 pb-12 px-6 md:px-8 max-w-[1280px] mx-auto">
         <div className="grid grid-cols-12 gap-8 lg:gap-12">
           {/* Left Sidebar: Filters */}
-          <aside className="col-span-12 lg:col-span-3">
+          <aside className="col-span-12 lg:col-span-3" aria-label="Feed filters">
             <div className="sticky top-32 space-y-8">
               {/* Context Header */}
               <div>
@@ -288,7 +307,7 @@ export default function MyFeedPage() {
               </div>
 
               {/* Feed Filters */}
-              <nav className="space-y-1">
+              <nav className="space-y-1" aria-label="Feed views">
                 <div className="px-3 pb-2 text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">
                   Feed Views
                 </div>
@@ -300,13 +319,14 @@ export default function MyFeedPage() {
                 ].map((filter) => (
                   <button
                     key={filter.id}
-                    onClick={() => setActiveFilter(filter.id)}
+                    onClick={() => handleFilterChange(filter.id)}
                     className={cn(
                       "nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg border transition-all group",
                       activeFilter === filter.id
                         ? "text-white bg-primary/10 shadow-sm border-primary/20"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
                     )}
+                    aria-pressed={activeFilter === filter.id}
                   >
                     <div className="flex items-center gap-3">
                       <filter.icon
@@ -314,6 +334,7 @@ export default function MyFeedPage() {
                           "w-4 h-4 transition-colors",
                           activeFilter === filter.id ? "text-primary" : "group-hover:text-primary"
                         )}
+                        aria-hidden="true"
                       />
                       {filter.label}
                     </div>
@@ -325,6 +346,7 @@ export default function MyFeedPage() {
                             ? "bg-primary/10 text-primary border border-primary/20"
                             : "text-muted-foreground/60"
                         )}
+                        aria-label={`${filter.count} items`}
                       >
                         {filter.count}
                       </span>
@@ -336,7 +358,7 @@ export default function MyFeedPage() {
               {/* Quick Stats */}
               <Card className="p-4 border-border bg-accent/5">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" aria-hidden="true" />
                   <span className="text-[10px] uppercase font-mono tracking-widest text-muted-foreground">
                     Market Pulse
                   </span>
@@ -348,7 +370,7 @@ export default function MyFeedPage() {
                       68.4%
                     </span>
                   </div>
-                  <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
+                  <div className="w-full bg-muted h-1 rounded-full overflow-hidden" role="progressbar" aria-valuenow={68.4} aria-valuemin={0} aria-valuemax={100} aria-label="Market clearance rate">
                     <div className="bg-primary h-full w-[68%]" />
                   </div>
                   <p className="text-[10px] text-muted-foreground leading-relaxed">
@@ -364,26 +386,26 @@ export default function MyFeedPage() {
                   <h3 className="text-[10px] uppercase font-mono tracking-widest text-muted-foreground">
                     Active Search
                   </h3>
-                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                  <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Search settings">
                     <Settings2 className="w-3 h-3" />
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge className="bg-primary/10 border-primary/20 text-primary px-2 py-1.5 text-[10px]">
+                <div className="flex flex-wrap gap-2 mb-4" role="list" aria-label="Active search filters">
+                  <Badge className="bg-primary/10 border-primary/20 text-primary px-2 py-1.5 text-[10px]" role="listitem">
                     Surry Hills +3
                   </Badge>
-                  <Badge variant="outline" className="px-2 py-1.5 text-[10px]">
+                  <Badge variant="outline" className="px-2 py-1.5 text-[10px]" role="listitem">
                     $900k - $1.35M
                   </Badge>
-                  <Badge variant="outline" className="px-2 py-1.5 text-[10px]">
+                  <Badge variant="outline" className="px-2 py-1.5 text-[10px]" role="listitem">
                     2+ Bed
                   </Badge>
-                  <Badge variant="outline" className="px-2 py-1.5 text-[10px]">
+                  <Badge variant="outline" className="px-2 py-1.5 text-[10px]" role="listitem">
                     Parking
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-muted h-1.5 rounded-full overflow-hidden">
+                  <div className="flex-1 bg-muted h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={65} aria-valuemin={0} aria-valuemax={100} aria-label="Search progress">
                     <div className="bg-primary h-full w-[65%] rounded-full" />
                   </div>
                   <span className="text-[9px] font-mono text-muted-foreground">
@@ -405,12 +427,13 @@ export default function MyFeedPage() {
                     View Map
                   </Link>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" role="list" aria-label="Recently sold properties">
                   {mockRecentlySold.map((item) => (
                     <Link
                       key={item.id}
                       href="#"
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors group"
+                      role="listitem"
                     >
                       <div className="w-10 h-10 rounded bg-muted overflow-hidden border border-border relative">
                         <Image
@@ -442,11 +465,13 @@ export default function MyFeedPage() {
           </aside>
 
           {/* Main Feed Stream */}
-          <main className="col-span-12 lg:col-span-6 space-y-6">
+          <main className="col-span-12 lg:col-span-6 space-y-6" aria-labelledby="feed-heading">
+            <h2 id="feed-heading" className="sr-only">Property Feed</h2>
+
             {/* Insight Card */}
             <Card className="p-4 rounded-xl border-primary/20 bg-primary/5 flex items-start gap-4">
               <div className="p-2 bg-primary/10 rounded-lg text-primary shrink-0">
-                <TrendingUp className="w-4 h-4" />
+                <TrendingUp className="w-4 h-4" aria-hidden="true" />
               </div>
               <div>
                 <h3 className="text-xs font-medium text-foreground mb-1">
@@ -460,13 +485,13 @@ export default function MyFeedPage() {
                   className="text-[10px] font-medium text-primary hover:text-primary/80 flex items-center gap-1"
                 >
                   View Listings
-                  <ArrowRight className="w-3 h-3" />
+                  <ArrowRight className="w-3 h-3" aria-hidden="true" />
                 </Link>
               </div>
             </Card>
 
             {/* Feed Items */}
-            {feedItems.map((item) => (
+            {filteredFeedItems.map((item) => (
               <FeedCard
                 key={item.id}
                 item={item}
@@ -477,19 +502,19 @@ export default function MyFeedPage() {
           </main>
 
           {/* Right Sidebar: Schedule & Tools */}
-          <aside className="col-span-12 lg:col-span-3 space-y-6">
+          <aside className="col-span-12 lg:col-span-3 space-y-6" aria-label="Schedule and tools">
             <div className="sticky top-32">
               {/* Schedule Widget */}
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xs font-medium text-foreground uppercase tracking-wider font-mono">
                   Your Schedule
                 </h3>
-                <button className="text-muted-foreground hover:text-foreground transition-colors">
+                <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Add to calendar">
                   <CalendarPlus className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3" role="list" aria-label="Upcoming events">
                 {mockSchedule.map((event) => (
                   <ScheduleCard key={event.id} event={event} />
                 ))}
@@ -502,7 +527,7 @@ export default function MyFeedPage() {
                 </h3>
                 <Card className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-transparent border-primary/20 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-100 transition-opacity">
-                    <RefreshCw className="w-3 h-3 text-primary" />
+                    <RefreshCw className="w-3 h-3 text-primary" aria-hidden="true" />
                   </div>
                   <div className="relative z-10">
                     <div className="flex items-center gap-2 mb-3">
@@ -516,7 +541,7 @@ export default function MyFeedPage() {
                         1,350,000
                       </span>
                     </div>
-                    <div className="w-full bg-muted h-1 rounded-full overflow-hidden mb-2">
+                    <div className="w-full bg-muted h-1 rounded-full overflow-hidden mb-2" role="progressbar" aria-valuenow={85} aria-valuemin={0} aria-valuemax={100} aria-label="Approval used">
                       <div className="bg-primary h-full w-[85%] rounded-full" />
                     </div>
                     <div className="flex justify-between items-center text-[10px] font-mono">
@@ -541,7 +566,7 @@ export default function MyFeedPage() {
                       6.14% p.a.
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
+                  <ArrowRight className="w-4 h-4 text-muted-foreground/40" aria-hidden="true" />
                 </Card>
               </div>
 
@@ -550,7 +575,7 @@ export default function MyFeedPage() {
                 <h3 className="text-xs font-medium text-foreground uppercase tracking-wider font-mono mb-3">
                   Quick Tools
                 </h3>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2" role="list" aria-label="Quick tools">
                   {[
                     { icon: Calculator, label: "Stamp Duty" },
                     { icon: FileSearch, label: "Strata Check" },
@@ -561,8 +586,9 @@ export default function MyFeedPage() {
                       key={tool.label}
                       href="#"
                       className="p-3 rounded-lg bg-accent/5 border border-border hover:bg-accent/10 hover:border-border/80 transition-all group flex flex-col gap-2"
+                      role="listitem"
                     >
-                      <tool.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <tool.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" />
                       <span className="text-[10px] text-muted-foreground font-medium group-hover:text-foreground">
                         {tool.label}
                       </span>
@@ -575,6 +601,18 @@ export default function MyFeedPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function MyFeedPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading feed..." />}>
+          <MyFeedPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }
 
@@ -592,7 +630,7 @@ function FeedCard({ item, isFavorite, onFavorite }: { item: FeedItem; isFavorite
         />
 
         {/* Badges */}
-        <div className="absolute top-4 left-4 flex gap-2">
+        <div className="absolute top-4 left-4 flex gap-2" aria-label="Property badges">
           {item.listingType === "auction" && (
             <Badge className="bg-black/60 backdrop-blur-md border-border px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">
               Auction
@@ -600,13 +638,13 @@ function FeedCard({ item, isFavorite, onFavorite }: { item: FeedItem; isFavorite
           )}
           {item.listingType === "off-market" && (
             <Badge className="bg-purple-500/90 backdrop-blur-md px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider flex items-center gap-1">
-              <EyeOff className="w-3 h-3" />
+              <EyeOff className="w-3 h-3" aria-hidden="true" />
               Off Market
             </Badge>
           )}
           {item.matchScore >= 90 && (
             <Badge className="bg-primary/90 backdrop-blur-md px-2 py-1 text-[10px] font-bold text-primary-foreground uppercase tracking-wider flex items-center gap-1">
-              <Star className="w-3 h-3 fill-primary-foreground" />
+              <Star className="w-3 h-3 fill-primary-foreground" aria-hidden="true" />
               Strong Match
             </Badge>
           )}
@@ -617,16 +655,18 @@ function FeedCard({ item, isFavorite, onFavorite }: { item: FeedItem; isFavorite
           <button
             onClick={onFavorite}
             className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-border flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors"
+            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            aria-pressed={isFavorite}
           >
             <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
           </button>
-          <button className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-border flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors">
+          <button className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-border flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors" aria-label="Share property">
             <Share2 className="w-4 h-4" />
           </button>
         </div>
 
         {/* Bottom Gradient */}
-        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-card to-transparent" />
+        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-card to-transparent" aria-hidden="true" />
       </div>
 
       {/* Content */}
@@ -639,6 +679,11 @@ function FeedCard({ item, isFavorite, onFavorite }: { item: FeedItem; isFavorite
               item.matchScore >= 90 ? "#10b981" : item.matchScore >= 75 ? "#eab308" : "#ef4444"
             } ${item.matchScore}%, rgba(255,255,255,0.1) 0)`,
           }}
+          aria-label={`${item.matchScore}% match`}
+          role="progressbar"
+          aria-valuenow={item.matchScore}
+          aria-valuemin={0}
+          aria-valuemax={100}
         >
           <div className="absolute inset-[2px] rounded-full bg-card" />
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pt-0.5">
@@ -667,34 +712,34 @@ function FeedCard({ item, isFavorite, onFavorite }: { item: FeedItem; isFavorite
         {/* Key Stats */}
         <div className="flex items-center gap-4 py-3 border-b border-border mb-3">
           <div className="flex items-center gap-1.5 text-muted-foreground">
-            <BedDouble className="w-4 h-4" />
+            <BedDouble className="w-4 h-4" aria-hidden="true" />
             <span className="text-xs font-mono">{item.beds}</span>
           </div>
           <div className="flex items-center gap-1.5 text-muted-foreground">
-            <Bath className="w-4 h-4" />
+            <Bath className="w-4 h-4" aria-hidden="true" />
             <span className="text-xs font-mono">{item.baths}</span>
           </div>
           <div className="flex items-center gap-1.5 text-muted-foreground">
             {item.parking > 0 ? (
               <>
-                <CarFront className="w-4 h-4" />
+                <CarFront className="w-4 h-4" aria-hidden="true" />
                 <span className="text-xs font-mono">{item.parking}</span>
               </>
             ) : (
               <>
-                <Ban className="w-4 h-4 text-red-500/50" />
+                <Ban className="w-4 h-4 text-red-500/50" aria-hidden="true" />
                 <span className="text-xs font-mono text-muted-foreground/60">0</span>
               </>
             )}
           </div>
-          <div className="w-px h-4 bg-border mx-1" />
+          <div className="w-px h-4 bg-border mx-1" aria-hidden="true" />
           <div className={cn("text-xs font-mono", item.price ? "text-primary" : "text-foreground")}>
             {item.priceDisplay}
           </div>
         </div>
 
         {/* Match Reasons */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4" role="list" aria-label="Property features">
           {item.features.map((feature, idx) => (
             <Badge
               key={idx}
@@ -705,11 +750,12 @@ function FeedCard({ item, isFavorite, onFavorite }: { item: FeedItem; isFavorite
                   ? "text-destructive border-destructive/20"
                   : "border-border"
               )}
+              role="listitem"
             >
               {feature.toLowerCase().includes("no") ? (
-                <AlertCircle className="w-3 h-3 text-destructive" />
+                <AlertCircle className="w-3 h-3 text-destructive" aria-hidden="true" />
               ) : (
-                <Check className="w-3 h-3 text-primary" />
+                <Check className="w-3 h-3 text-primary" aria-hidden="true" />
               )}
               {feature}
             </Badge>
@@ -733,8 +779,8 @@ function ScheduleCard({ event }: { event: ScheduleEvent }) {
   const color = event.type === "inspection" ? "bg-emerald-500" : "bg-orange-500"
 
   return (
-    <Card className="group relative p-3 rounded-lg bg-card border-border hover:border-border/80 transition-all cursor-pointer">
-      <div className={cn("absolute left-0 top-3 bottom-3 w-0.5 rounded-r", color)} />
+    <Card className="group relative p-3 rounded-lg bg-card border-border hover:border-border/80 transition-all cursor-pointer" role="listitem">
+      <div className={cn("absolute left-0 top-3 bottom-3 w-0.5 rounded-r", color)} aria-hidden="true" />
       <div className="pl-3">
         <div className="flex justify-between items-start mb-1">
           <Badge
@@ -756,7 +802,7 @@ function ScheduleCard({ event }: { event: ScheduleEvent }) {
         {event.status === "contract-reviewed" && (
           <div className="mt-2 flex items-center gap-2">
             <span className="text-[9px] text-muted-foreground bg-accent px-1.5 py-0.5 rounded flex items-center gap-1">
-              <FileText className="w-2.5 h-2.5" />
+              <FileText className="w-2.5 h-2.5" aria-hidden="true" />
               Contract Reviewed
             </span>
           </div>

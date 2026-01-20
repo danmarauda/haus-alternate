@@ -7,19 +7,47 @@
  * A modern React page showcasing the HAUS elite advisory network of real estate agents.
  * Features agent cards with search/filter functionality, responsive design, and animations.
  *
- * @example
- * ```tsx
- * // Access at /advisory route
- * <AdvisoryPage />
- * ```
+ * @features
+ * - Elite agent directory with ratings
+ * - Volume and deal tracking
+ * - Search and filter functionality
+ * - Grid and map view toggle
+ * - Agent badges and online status
+ * - Responsive design
  */
 
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Grid, Map, ChevronLeft, ChevronRight, Crown, TrendingUp, Award, BarChart2, Users, Globe, Zap } from "lucide-react"
+import { Search, Grid, Map, ChevronLeft, ChevronRight, Crown, TrendingUp, Award, BarChart2, Users, Globe, Zap, Sparkles } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 import { cn } from "@/lib/utils"
-import type { Agent, FilterState, ViewMode } from "@/types/advisory"
+
+
+type Agent = {
+  id: string
+  name: string
+  title: string
+  location: string
+  image: string
+  volume: string
+  avgDeal: string
+  specialties: string[]
+  badges?: { icon: string; text: string; color: string }[]
+  isOnline?: boolean
+}
+
+type FilterState = {
+  search: string
+  location: string
+  specialty: string
+  language: string
+}
+
+type ViewMode = "grid" | "map"
 
 // Mock data for agents
 const AGENTS: Agent[] = [
@@ -107,7 +135,7 @@ const AGENTS: Agent[] = [
     avgDeal: "€3.4M",
     specialties: ["Historic", "Rural"]
   }
-]
+] as const
 
 const BADGE_ICONS: Record<string, React.ElementType> = {
   crown: Crown,
@@ -115,7 +143,7 @@ const BADGE_ICONS: Record<string, React.ElementType> = {
   award: Award
 }
 
-export default function AdvisoryPage() {
+function AdvisoryPageContent() {
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     location: "",
@@ -125,20 +153,35 @@ export default function AdvisoryPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [currentPage, setCurrentPage] = useState(1)
 
-  const handleSearchChange = (value: string) => {
+  const handleSearchChange = useCallback((value: string) => {
     setFilters(prev => ({ ...prev, search: value }))
-  }
+  }, [])
 
-  const handleLocationChange = (value: string) => {
+  const handleLocationChange = useCallback((value: string) => {
     setFilters(prev => ({ ...prev, location: value }))
-  }
+  }, [])
 
-  const handleSpecialtyChange = (value: string) => {
+  const handleSpecialtyChange = useCallback((value: string) => {
     setFilters(prev => ({ ...prev, specialty: value }))
-  }
+  }, [])
+
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode)
+  }, [])
+
+  const filteredAgents = useMemo(() => {
+    return AGENTS.filter(agent => {
+      const matchesSearch = !filters.search ||
+        agent.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+        agent.location.toLowerCase().includes(filters.search.toLowerCase()) ||
+        agent.specialties.some(s => s.toLowerCase().includes(filters.search.toLowerCase()))
+
+      return matchesSearch
+    })
+  }, [filters.search])
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="landing-page min-h-screen bg-zinc-950 text-zinc-100">
       {/* Noise Overlay */}
       <div className="fixed inset-0 z-0 w-full h-full pointer-events-none opacity-20"
         style={{
@@ -149,11 +192,12 @@ export default function AdvisoryPage() {
           backgroundSize: "50px 50px",
           maskImage: "radial-gradient(circle at center, black 40%, transparent 100%)"
         }}
+        aria-hidden="true"
       />
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <Link href="/" className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group">
+      <nav className="fixed top-0 w-full px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/10" role="navigation" aria-label="Main navigation">
+        <Link href="/" className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group" aria-label="HAUS home">
           <div className="w-8 h-8 bg-white text-black flex items-center justify-center font-bold tracking-tighter group-hover:scale-90 transition-transform duration-300">
             H
           </div>
@@ -162,7 +206,7 @@ export default function AdvisoryPage() {
           <Link href="#" className="text-xs font-mono text-white/60 hover:text-white transition-colors">
             PROPERTIES
           </Link>
-          <Link href="#" className="text-xs font-mono text-white border-b border-white transition-colors">
+          <Link href="#" className="text-xs font-mono text-white border-b border-white transition-colors" aria-current="page">
             AGENTS
           </Link>
           <Link href="#" className="text-xs font-mono text-white/60 hover:text-white transition-colors">
@@ -177,7 +221,8 @@ export default function AdvisoryPage() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 pt-32 pb-24">
+      <div className="relative z-10 pt-32 pb-24" role="main" aria-labelledby="advisory-heading">
+        <h2 id="advisory-heading" className="sr-only">Elite Advisory Network</h2>
 
         {/* Header */}
         <header className="px-6 md:px-12 max-w-[1600px] mx-auto mb-16">
@@ -206,49 +251,54 @@ export default function AdvisoryPage() {
           <div className="sticky top-24 z-40 bg-black/60 backdrop-blur-xl border border-white/10 rounded-xl p-2 flex flex-col md:flex-row gap-2 shadow-2xl">
             {/* Search */}
             <div className="flex-1 bg-[#0A0A0A] border border-white/5 rounded-lg flex items-center px-4 h-12 focus-within:border-white/20 transition-colors">
-              <Search className="w-4 h-4 text-neutral-500 mr-3" />
+              <Search className="w-4 h-4 text-neutral-500 mr-3" aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Search by name, region, or specialty..."
                 value={filters.search}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 className="bg-transparent border-none text-white text-xs placeholder-neutral-600 focus:outline-none w-full h-full font-mono"
+                aria-label="Search agents"
               />
             </div>
 
             {/* Dropdowns */}
             <div className="grid grid-cols-2 md:flex gap-2">
-              <button className="px-4 h-12 bg-[#0A0A0A] border border-white/5 rounded-lg flex items-center justify-between gap-3 text-xs text-white hover:bg-white/5 transition-colors min-w-[140px]">
+              <button className="px-4 h-12 bg-[#0A0A0A] border border-white/5 rounded-lg flex items-center justify-between gap-3 text-xs text-white hover:bg-white/5 transition-colors min-w-[140px]" aria-haspopup="true">
                 <span className="text-neutral-400">Location</span>
-                <ChevronRight className="w-3 h-3 text-neutral-600" />
+                <ChevronRight className="w-3 h-3 text-neutral-600" aria-hidden="true" />
               </button>
-              <button className="px-4 h-12 bg-[#0A0A0A] border border-white/5 rounded-lg flex items-center justify-between gap-3 text-xs text-white hover:bg-white/5 transition-colors min-w-[140px]">
+              <button className="px-4 h-12 bg-[#0A0A0A] border border-white/5 rounded-lg flex items-center justify-between gap-3 text-xs text-white hover:bg-white/5 transition-colors min-w-[140px]" aria-haspopup="true">
                 <span className="text-neutral-400">Specialty</span>
-                <ChevronRight className="w-3 h-3 text-neutral-600" />
+                <ChevronRight className="w-3 h-3 text-neutral-600" aria-hidden="true" />
               </button>
-              <button className="px-4 h-12 bg-[#0A0A0A] border border-white/5 rounded-lg flex items-center justify-between gap-3 text-xs text-white hover:bg-white/5 transition-colors min-w-[140px]">
+              <button className="px-4 h-12 bg-[#0A0A0A] border border-white/5 rounded-lg flex items-center justify-between gap-3 text-xs text-white hover:bg-white/5 transition-colors min-w-[140px]" aria-haspopup="true">
                 <span className="text-neutral-400">Language</span>
-                <ChevronRight className="w-3 h-3 text-neutral-600" />
+                <ChevronRight className="w-3 h-3 text-neutral-600" aria-hidden="true" />
               </button>
             </div>
 
             {/* View Toggle */}
-            <div className="flex bg-[#0A0A0A] p-1 rounded-lg border border-white/5">
+            <div className="flex bg-[#0A0A0A] p-1 rounded-lg border border-white/5" role="group" aria-label="View mode">
               <button
-                onClick={() => setViewMode("grid")}
+                onClick={() => handleViewModeChange("grid")}
                 className={cn(
                   "w-10 h-10 rounded flex items-center justify-center transition-colors",
                   viewMode === "grid" ? "bg-white/10 text-white" : "text-neutral-500 hover:text-white"
                 )}
+                aria-label="Grid view"
+                aria-pressed={viewMode === "grid"}
               >
                 <Grid className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setViewMode("map")}
+                onClick={() => handleViewModeChange("map")}
                 className={cn(
                   "w-10 h-10 rounded flex items-center justify-center transition-colors",
                   viewMode === "map" ? "bg-white/10 text-white" : "text-neutral-500 hover:text-white"
                 )}
+                aria-label="Map view"
+                aria-pressed={viewMode === "map"}
               >
                 <Map className="w-4 h-4" />
               </button>
@@ -257,36 +307,38 @@ export default function AdvisoryPage() {
         </header>
 
         {/* Agents Grid */}
-        <section className="px-6 md:px-12 max-w-[1600px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {AGENTS.map((agent) => (
+        <section className="px-6 md:px-12 max-w-[1600px] mx-auto" aria-labelledby="agents-heading">
+          <h2 id="agents-heading" className="sr-only">Agent Directory ({filteredAgents.length} agents)</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
+            {filteredAgents.map((agent) => (
               <AgentCard key={agent.id} agent={agent} />
             ))}
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center mt-24 gap-2">
-            <button className="w-10 h-10 rounded border border-white/10 flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/5 transition-colors">
+          <nav className="flex justify-center mt-24 gap-2" aria-label="Pagination">
+            <button className="w-10 h-10 rounded border border-white/10 flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/5 transition-colors" aria-label="Previous page">
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-10 h-10 rounded bg-white text-black text-xs font-mono font-medium">
+            <button className="w-10 h-10 rounded bg-white text-black text-xs font-mono font-medium" aria-current="page" aria-label="Page 1">
               1
             </button>
-            <button className="w-10 h-10 rounded border border-white/10 flex items-center justify-center text-neutral-400 text-xs font-mono hover:bg-white/5 hover:text-white transition-colors">
+            <button className="w-10 h-10 rounded border border-white/10 flex items-center justify-center text-neutral-400 text-xs font-mono hover:bg-white/5 hover:text-white transition-colors" aria-label="Page 2">
               2
             </button>
-            <button className="w-10 h-10 rounded border border-white/10 flex items-center justify-center text-neutral-400 text-xs font-mono hover:bg-white/5 hover:text-white transition-colors">
+            <button className="w-10 h-10 rounded border border-white/10 flex items-center justify-center text-neutral-400 text-xs font-mono hover:bg-white/5 hover:text-white transition-colors" aria-label="Page 3">
               3
             </button>
-            <span className="w-10 h-10 flex items-center justify-center text-neutral-600">...</span>
-            <button className="w-10 h-10 rounded border border-white/10 flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/5 transition-colors">
+            <span className="w-10 h-10 flex items-center justify-center text-neutral-600" aria-hidden="true">...</span>
+            <button className="w-10 h-10 rounded border border-white/10 flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/5 transition-colors" aria-label="Next page">
               <ChevronRight className="w-4 h-4" />
             </button>
-          </div>
+          </nav>
         </section>
 
         {/* Join CTA */}
-        <section className="mt-32 border-t border-white/10 bg-[#0A0A0A]">
+        <section className="mt-32 border-t border-white/10 bg-[#0A0A0A]" aria-labelledby="join-heading">
+          <h2 id="join-heading" className="sr-only">Join the Advisory Network</h2>
           <div className="px-6 md:px-12 max-w-[1600px] mx-auto py-24 grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="font-display text-4xl md:text-5xl font-medium tracking-tight text-white mb-6">
@@ -308,7 +360,7 @@ export default function AdvisoryPage() {
               </div>
             </div>
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-transparent blur-3xl" />
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-transparent blur-3xl" aria-hidden="true" />
               <div className="grid grid-cols-2 gap-4 relative z-10">
                 <StatCard icon={BarChart2} value="3x" label="Deal Velocity" />
                 <StatCard icon={Users} value="24k+" label="Qualified Leads" />
@@ -321,10 +373,11 @@ export default function AdvisoryPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-black border-t border-white/10 py-24 px-6 md:px-12">
+      <footer className="bg-black border-t border-white/10 py-24 px-6 md:px-12" role="contentinfo">
         <div className="max-w-[1600px] mx-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12">
           <div className="col-span-2 lg:col-span-2">
-            <div className="font-display text-2xl font-medium tracking-tight text-white mb-6">
+            <div className="font-display text-2xl font-medium tracking-tight text-white mb-6 flex items-center gap-2">
+              <Sparkles className="w-6 h-6" aria-hidden="true" />
               HAUS
             </div>
             <p className="text-xs text-neutral-500 max-w-xs leading-relaxed">
@@ -345,15 +398,27 @@ export default function AdvisoryPage() {
   )
 }
 
+export default function AdvisoryPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading advisory network..." />}>
+          <AdvisoryPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
+  )
+}
+
 // Agent Card Component
 function AgentCard({ agent }: { agent: Agent }) {
   return (
-    <div className="group relative bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-white/20">
+    <div className="group relative bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-white/20" role="listitem">
       <div className="aspect-[3/4] overflow-hidden relative">
         <div className="relative w-full h-full">
           <Image
             src={agent.image}
-            alt={agent.name}
+            alt={`${agent.name}, ${agent.title} in ${agent.location}`}
             fill
             className="object-cover transition-transform duration-700 grayscale group-hover:grayscale-0 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -361,12 +426,12 @@ function AgentCard({ agent }: { agent: Agent }) {
         </div>
 
         {/* Badges */}
-        <div className="absolute top-4 left-4 flex gap-2">
+        <div className="absolute top-4 left-4 flex gap-2" aria-label="Agent achievements">
           {agent.badges?.map((badge, idx) => {
             const Icon = BADGE_ICONS[badge.icon]
             return (
               <div key={idx} className="bg-black/60 backdrop-blur border border-white/10 px-2 py-1 rounded text-[10px] uppercase tracking-wider text-white flex items-center gap-1">
-                <Icon className={`w-3 h-3 text-${badge.color}-400`} />
+                <Icon className={`w-3 h-3 text-${badge.color}-400`} aria-hidden="true" />
                 {badge.text}
               </div>
             )
@@ -375,8 +440,8 @@ function AgentCard({ agent }: { agent: Agent }) {
 
         {/* Online Indicator */}
         {agent.isOnline && (
-          <div className="absolute top-4 right-4 flex gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
+          <div className="absolute top-4 right-4">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]" aria-label="Online now" />
           </div>
         )}
 
@@ -399,9 +464,9 @@ function AgentCard({ agent }: { agent: Agent }) {
             <div className="text-sm font-medium text-white">{agent.avgDeal}</div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2 pt-2">
+        <div className="flex flex-wrap gap-2 pt-2" role="list" aria-label="Specialties">
           {agent.specialties.map((specialty, idx) => (
-            <span key={idx} className="px-2 py-1 bg-white/5 border border-white/5 rounded text-[10px] text-neutral-400">
+            <span key={idx} className="px-2 py-1 bg-white/5 border border-white/5 rounded text-[10px] text-neutral-400" role="listitem">
               {specialty}
             </span>
           ))}
@@ -418,7 +483,7 @@ function AgentCard({ agent }: { agent: Agent }) {
 function StatCard({ icon: Icon, value, label }: { icon: React.ElementType; value: string; label: string }) {
   return (
     <div className="bg-black border border-white/10 p-6 rounded-xl">
-      <Icon className="w-6 h-6 text-indigo-400 mb-4" />
+      <Icon className="w-6 h-6 text-indigo-400 mb-4" aria-hidden="true" />
       <div className="text-2xl font-medium text-white mb-1">{value}</div>
       <div className="text-xs text-neutral-500">{label}</div>
     </div>
@@ -430,11 +495,13 @@ function FooterColumn({ title, links }: { title: string; links: string[] }) {
   return (
     <div className="flex flex-col gap-4">
       <span className="text-[10px] uppercase tracking-widest text-white font-semibold">{title}</span>
-      {links.map((link, idx) => (
-        <Link key={idx} href="#" className="text-xs text-neutral-400 hover:text-white transition-colors">
-          {link}
-        </Link>
-      ))}
+      <nav aria-label={`${title} links`}>
+        {links.map((link, idx) => (
+          <Link key={idx} href="#" className="text-xs text-neutral-400 hover:text-white transition-colors block">
+            {link}
+          </Link>
+        ))}
+      </nav>
     </div>
   )
 }

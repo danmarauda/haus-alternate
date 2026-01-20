@@ -543,7 +543,7 @@ export default function PrestigeWolseleyListingPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 bg-gradient-to-br from-[#0A0A0A] to-neutral-900 border border-white/10 rounded-2xl">
               <FeatureItem icon={Bed} label="Bedrooms" value={PRESTIGE_PROPERTY_DATA.features.bedrooms} />
               <FeatureItem icon={Bath} label="Bathrooms" value={PRESTIGE_PROPERTY_DATA.features.bathrooms} />
-              <FeatureItem icon={Car} label="Parking" value={PRESTIGE_PROPERTY_DATA.features.parking} />
+              <FeatureItem icon={Car} label="Parking" value={PRESTIGE_PROPERTY_DATA.features.parking ?? "N/A"} />
               <FeatureItem icon={Maximize} label="Internal Area" value={`${PRESTIGE_PROPERTY_DATA.features.internalArea}m²`} />
             </div>
 
@@ -700,7 +700,7 @@ export default function PrestigeWolseleyListingPage() {
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-14 h-14 rounded-full overflow-hidden bg-neutral-800 ring-2 ring-amber-500/20">
                     <Image
-                      src={PRESTIGE_PROPERTY_DATA.agent.image}
+                      src={PRESTIGE_PROPERTY_DATA.agent.image ?? "/placeholder-agent.jpg"}
                       alt={PRESTIGE_PROPERTY_DATA.agent.name}
                       width={56}
                       height={56}

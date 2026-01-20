@@ -415,7 +415,7 @@ export default function WolseleyListingPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-[#0A0A0A] border border-white/10 rounded-xl">
               <FeatureItem icon={Bed} label="Bedrooms" value={PROPERTY_DATA.features.bedrooms} />
               <FeatureItem icon={Bath} label="Bathrooms" value={PROPERTY_DATA.features.bathrooms} />
-              <FeatureItem icon={Calendar} label="Parking" value={PROPERTY_DATA.features.parking} />
+              <FeatureItem icon={Calendar} label="Parking" value={PROPERTY_DATA.features.parking ?? "N/A"} />
               <FeatureItem icon={Maximize} label="Internal Area" value={`${PROPERTY_DATA.features.internalArea}m²`} />
             </div>
 
@@ -445,7 +445,7 @@ export default function WolseleyListingPage() {
                   />
                   <InsightCard
                     label="Demand Level"
-                    value={PROPERTY_DATA.insights.demandLevel}
+                    value={PROPERTY_DATA.insights.demandLevel ?? "N/A"}
                     icon={Award}
                     trend="High buyer interest"
                     color="amber"
@@ -507,7 +507,7 @@ export default function WolseleyListingPage() {
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-neutral-800">
                       <Image
-                        src={PROPERTY_DATA.agent.image}
+                        src={PROPERTY_DATA.agent.image ?? "/placeholder-agent.jpg"}
                         alt={PROPERTY_DATA.agent.name}
                         width={48}
                         height={48}

@@ -469,7 +469,6 @@ const MobilePhone: FC = () => (
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 shadow-sm shrink-0">
                   <Icon
                     className={`w-4 h-4 ${feature.iconColor}`}
-                    strokeWidth={1.5}
                   />
                 </div>
                 <div>

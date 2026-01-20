@@ -27,6 +27,7 @@ import {
   Check,
   X,
   Plus,
+  PlusCircle,
   Mail,
   Search,
   Eye,

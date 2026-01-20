@@ -480,7 +480,7 @@ export default function BadgePage() {
                         />
                         <div className="absolute top-3 left-3">
                           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-zinc-100/90 text-zinc-900 border border-zinc-700">
-                            <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
+                            <Icon className="h-3.5 w-3.5" />
                           </span>
                         </div>
                         <div className="absolute top-3 right-3">

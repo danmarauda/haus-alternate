@@ -1,54 +1,84 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight, Chrome, User, Check } from "lucide-react";
-import "@/styles/landing.css";
+import { Suspense } from "react";
+import { Shell } from "@/components/shell";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { PageLoader } from "@/components/page-loader";
 
-const plans = [
+
+interface Plan {
+  id: string;
+  label: string;
+  desc: string;
+}
+
+const plans: Plan[] = [
   { id: "buyer", label: "Buying", desc: "Search and purchase properties" },
   { id: "seller", label: "Selling", desc: "List and sell your property" },
   { id: "agent", label: "Agent", desc: "Professional real estate agent" },
   { id: "investor", label: "Investor", desc: "Portfolio and market analysis" },
-];
+] as const;
 
-export default function RegisterPage() {
+type PlanId = typeof plans[number]["id"];
+
+function RegisterPageContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [selectedPlan, setSelectedPlan] = useState("buyer");
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>("buyer");
   const [agreeTerms, setAgreeTerms] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     console.log("Register:", { name, email, password, selectedPlan });
-  };
+  }, [name, email, password, selectedPlan]);
+
+  const handlePlanSelect = useCallback((planId: PlanId) => {
+    setSelectedPlan(planId);
+  }, []);
+
+  const handleTogglePassword = useCallback(() => {
+    setShowPassword((prev) => !prev);
+  }, []);
 
   const passwordStrength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
 
   return (
     <div className="landing-page min-h-screen flex">
       {/* Left Side - Image */}
-      <div className="hidden lg:block lg:flex-1 relative">
-        <img
+      <div className="hidden lg:block lg:flex-1 relative" aria-hidden="true">
+        <Image
           src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop"
           alt="Modern Architecture"
-          className="absolute inset-0 w-full h-full object-cover"
+          fill
+          className="object-cover"
+          priority
         />
         <div className="absolute inset-0 bg-gradient-to-l from-[#050505] via-[#050505]/50 to-transparent" />
         <div className="absolute top-12 left-12">
-          <Link href="/landing" className="inline-flex items-center gap-2">
+          <Link href="/landing-1" className="inline-flex items-center gap-2">
             <div className="h-8 w-8 rounded-md bg-white/10 border border-white/10 flex items-center justify-center backdrop-blur-md">
-              <Sparkles className="h-4 w-4 text-white/80" />
+              <Sparkles className="h-4 w-4 text-white/80" aria-hidden="true" />
             </div>
             <span className="text-lg font-semibold tracking-tight text-white">HAUS</span>
           </Link>
         </div>
         <div className="absolute bottom-12 left-12 right-12">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-6" aria-label="Recent users">
             {[1, 2, 3, 4, 5].map((i) => (
-              <img key={i} src={`https://i.pravatar.cc/40?img=${i + 10}`} alt="" className="w-8 h-8 rounded-full border-2 border-[#050505] -ml-2 first:ml-0" />
+              <Image
+                key={i}
+                src={`https://i.pravatar.cc/40?img=${i + 10}`}
+                alt=""
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-full border-2 border-[#050505] -ml-2 first:ml-0"
+              />
             ))}
             <span className="text-sm text-neutral-400">+12,400 users</span>
           </div>
@@ -61,9 +91,9 @@ export default function RegisterPage() {
       <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 overflow-y-auto">
         <div className="max-w-md w-full mx-auto">
           {/* Mobile Logo */}
-          <Link href="/landing" className="lg:hidden inline-flex items-center gap-2 mb-12">
+          <Link href="/landing-1" className="lg:hidden inline-flex items-center gap-2 mb-12" aria-label="HAUS home">
             <div className="h-8 w-8 rounded-md bg-white/10 border border-white/10 flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-white/80" />
+              <Sparkles className="h-4 w-4 text-white/80" aria-hidden="true" />
             </div>
             <span className="text-lg font-semibold tracking-tight">HAUS</span>
           </Link>
@@ -75,23 +105,26 @@ export default function RegisterPage() {
           </div>
 
           {/* User Type Selection */}
-          <div className="mb-6">
-            <label className="block text-xs font-medium text-neutral-400 mb-3">I'm interested in</label>
-            <div className="grid grid-cols-2 gap-2">
+          <div className="mb-6" role="group" aria-labelledby="user-type-heading">
+            <label id="user-type-heading" className="block text-xs font-medium text-neutral-400 mb-3">I'm interested in</label>
+            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Select your user type">
               {plans.map((plan) => (
                 <button
                   key={plan.id}
                   type="button"
-                  onClick={() => setSelectedPlan(plan.id)}
+                  onClick={() => handlePlanSelect(plan.id)}
                   className={`p-3 rounded-xl border text-left transition-all ${
                     selectedPlan === plan.id
                       ? "border-indigo-500 bg-indigo-500/10"
                       : "border-white/10 bg-white/5 hover:bg-white/10"
                   }`}
+                  role="radio"
+                  aria-checked={selectedPlan === plan.id}
+                  tabIndex={selectedPlan === plan.id ? 0 : -1}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className={`text-sm font-medium ${selectedPlan === plan.id ? "text-white" : "text-neutral-300"}`}>{plan.label}</span>
-                    {selectedPlan === plan.id && <Check className="w-4 h-4 text-indigo-400" />}
+                    {selectedPlan === plan.id && <Check className="w-4 h-4 text-indigo-400" aria-hidden="true" />}
                   </div>
                   <span className="text-[10px] text-neutral-500">{plan.desc}</span>
                 </button>
@@ -100,20 +133,20 @@ export default function RegisterPage() {
           </div>
 
           {/* Social Login */}
-          <div className="flex gap-3 mb-6">
-            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium text-white">
-              <Chrome className="w-4 h-4" />
+          <div className="flex gap-3 mb-6" role="group" aria-label="Social sign up options">
+            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium text-white" type="button">
+              <Chrome className="w-4 h-4" aria-hidden="true" />
               Google
             </button>
-            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium text-white">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium text-white" type="button">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
               GitHub
             </button>
           </div>
 
           {/* Divider */}
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
+          <div className="relative mb-6" role="separator" aria-orientation="horizontal">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="w-full border-t border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-xs">
@@ -124,57 +157,65 @@ export default function RegisterPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-2">Full name</label>
+              <label htmlFor="fullName" className="block text-xs font-medium text-neutral-400 mb-2">Full name</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" aria-hidden="true" />
                 <input
+                  id="fullName"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Smith"
                   className="w-full pl-11 pr-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-neutral-600 text-sm focus:outline-none focus:border-white/20 focus:bg-white/10 transition-colors"
                   required
+                  autoComplete="name"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-2">Email address</label>
+              <label htmlFor="registerEmail" className="block text-xs font-medium text-neutral-400 mb-2">Email address</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" aria-hidden="true" />
                 <input
+                  id="registerEmail"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="w-full pl-11 pr-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-neutral-600 text-sm focus:outline-none focus:border-white/20 focus:bg-white/10 transition-colors"
                   required
+                  autoComplete="email"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-2">Password</label>
+              <label htmlFor="registerPassword" className="block text-xs font-medium text-neutral-400 mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" aria-hidden="true" />
                 <input
+                  id="registerPassword"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a strong password"
                   className="w-full pl-11 pr-12 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-neutral-600 text-sm focus:outline-none focus:border-white/20 focus:bg-white/10 transition-colors"
                   required
+                  autoComplete="new-password"
+                  aria-describedby="password-strength password-requirements"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={handleTogglePassword}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {/* Password Strength */}
-              <div className="flex gap-1 mt-2">
+              <div className="flex gap-1 mt-2" aria-hidden="true">
                 {[1, 2, 3].map((level) => (
                   <div
                     key={level}
@@ -186,7 +227,7 @@ export default function RegisterPage() {
                   />
                 ))}
               </div>
-              <p className="text-[10px] text-neutral-500 mt-1">Use 10+ characters with a mix of letters, numbers & symbols</p>
+              <p id="password-requirements" className="text-[10px] text-neutral-500 mt-1">Use 10+ characters with a mix of letters, numbers & symbols</p>
             </div>
 
             <div className="flex items-start gap-2">
@@ -197,8 +238,9 @@ export default function RegisterPage() {
                 onChange={(e) => setAgreeTerms(e.target.checked)}
                 className="w-4 h-4 mt-0.5 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
                 required
+                aria-describedby="terms-desc"
               />
-              <label htmlFor="terms" className="text-xs text-neutral-400">
+              <label htmlFor="terms" className="text-xs text-neutral-400" id="terms-desc">
                 I agree to the{" "}
                 <Link href="/terms" className="text-white hover:text-indigo-400 transition-colors">Terms of Service</Link>
                 {" "}and{" "}
@@ -211,17 +253,29 @@ export default function RegisterPage() {
               className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white text-black text-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors"
             >
               Create Account
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </form>
 
           {/* Footer */}
           <p className="mt-8 text-center text-sm text-neutral-500">
             Already have an account?{" "}
-            <Link href="/login" className="text-white hover:text-indigo-400 transition-colors font-medium">Sign in</Link>
+            <Link href="/auth/login" className="text-white hover:text-indigo-400 transition-colors font-medium">Sign in</Link>
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <ErrorBoundary>
+      <Shell variant="minimal">
+        <Suspense fallback={<PageLoader text="Creating your account..." />}>
+          <RegisterPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   );
 }

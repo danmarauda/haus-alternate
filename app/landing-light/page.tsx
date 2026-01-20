@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -12,34 +12,24 @@ import {
   Glasses,
   Quote,
   ArrowUpRight,
-  Home,
   CheckCircle2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { HausLogo } from "@/components/haus-logo"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 import { cn } from "@/lib/utils"
-import type {
-  PlatformStat,
-  FeatureCard,
-  PropertyListing,
-  Testimonial,
-  FeeBreakdown,
-} from "@/types/landing-light"
+import { Suspense } from "react"
+import type { PlatformStat, FeatureCard, PropertyListing, Testimonial, FeeBreakdown } from "@/types/landing-light"
 
-/**
- * Landing Page Light Theme
- *
- * Premium light-themed landing page for HAUS AI-native real estate platform
- * Features smooth scroll animations, voice search interface, and modern property cards
- *
- * @example
- * ```tsx
- * import LandingLightPage from './landing-light/page'
- * <LandingLightPage />
- * ```
- */
-export default function LandingLightPage() {
+
+interface ROIData {
+  totalReturn: number
+  annualAppreciation: number
+}
+
+function LandingLightPageContent() {
   const [isLoaded, setIsLoaded] = useState(false)
   const [purchasePrice, setPurchasePrice] = useState(500000)
   const [holdingPeriod, setHoldingPeriod] = useState(5)
@@ -50,14 +40,14 @@ export default function LandingLightPage() {
   }, [])
 
   // Calculate ROI based on inputs
-  const calculateROI = (price: number, years: number) => {
+  const calculateROI = useCallback((price: number, years: number): ROIData => {
     const annualAppreciation = 5.2
     const totalReturn = Math.round((1 + annualAppreciation / 100) ** years * 100)
     return {
       totalReturn,
       annualAppreciation,
     }
-  }
+  }, [])
 
   const roiData = calculateROI(purchasePrice, holdingPeriod)
 
@@ -171,12 +161,13 @@ export default function LandingLightPage() {
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
+        aria-hidden="true"
       />
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full px-4 sm:px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 mix-blend-exclusion text-white">
-        <Link href="/" className="flex items-center gap-2 font-display text-base sm:text-lg font-medium tracking-tight">
-          <div className="w-3 sm:w-4 h-3 sm:h-4 bg-white rounded-sm" /> HAUS
+      <nav className="fixed top-0 w-full px-4 sm:px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 mix-blend-exclusion text-white" aria-label="Main navigation">
+        <Link href="/landing-1" className="flex items-center gap-2 font-display text-base sm:text-lg font-medium tracking-tight">
+          <div className="w-3 sm:w-4 h-3 sm:h-4 bg-white rounded-sm" aria-hidden="true" /> HAUS
         </Link>
 
         <div className="hidden md:flex gap-6 sm:gap-8 text-[10px] sm:text-xs font-medium tracking-[0.15em] uppercase opacity-80">
@@ -194,7 +185,7 @@ export default function LandingLightPage() {
           </Link>
         </div>
 
-        <Button variant="ghost" size="icon" className="md:hidden rounded-full">
+        <Button variant="ghost" size="icon" className="md:hidden rounded-full" aria-label="Menu">
           <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
         </Button>
       </nav>
@@ -202,7 +193,7 @@ export default function LandingLightPage() {
       {/* Main Wrapper */}
       <div className="relative z-10 shadow-2xl rounded-b-3xl overflow-hidden mb-[100vh]">
         {/* Hero Section */}
-        <section className="h-screen relative flex flex-col items-center justify-center overflow-hidden">
+        <section className="h-screen relative flex flex-col items-center justify-center overflow-hidden" aria-labelledby="hero-heading">
           {/* Parallax Image */}
           <div className="absolute inset-0 w-full h-full">
             <Image
@@ -229,7 +220,7 @@ export default function LandingLightPage() {
             </div>
 
             {/* Title */}
-            <h1 className="font-display text-[13vw] leading-[0.8] tracking-tighter overflow-hidden">
+            <h1 id="hero-heading" className="font-display text-[13vw] leading-[0.8] tracking-tighter overflow-hidden">
               <span
                 className={cn(
                   "block transition-transform duration-1000",
@@ -324,9 +315,9 @@ export default function LandingLightPage() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mt-8 sm:mt-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mt-8 sm:mt-12" role="list" aria-label="Platform statistics">
             {stats.map((stat, index) => (
-              <div key={index}>
+              <div key={index} role="listitem">
                 <div className="text-2xl sm:text-3xl font-medium tracking-tight mb-1 text-[#0A0A0A]">
                   {stat.value}
                 </div>
@@ -342,7 +333,7 @@ export default function LandingLightPage() {
         <section className="py-16 sm:py-20 md:py-32 bg-[#F2F2F4]">
           <div className="px-4 sm:px-6 md:px-12 lg:px-20 mb-12 sm:mb-16 md:mb-20">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-600" aria-hidden="true" />
               <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.15em] text-gray-500">
                 Platform Capabilities
               </span>
@@ -430,7 +421,7 @@ export default function LandingLightPage() {
                         {feature.id === "02" && (
                           // Fair Play Protocol
                           <>
-                            <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:12px_12px] sm:[background-size:16px_16px] opacity-50" />
+                            <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:12px_12px] sm:[background-size:16px_16px] opacity-50" aria-hidden="true" />
                             <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 w-56 sm:w-64 z-10">
                               <div className="flex justify-between items-center mb-3 sm:mb-4">
                                 <span className="text-[10px] sm:text-xs font-medium text-gray-500">
@@ -474,7 +465,7 @@ export default function LandingLightPage() {
                               className="object-cover transition-transform duration-1000 hover:scale-105"
                             />
                             <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 bg-white/90 backdrop-blur px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-medium flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse" />
+                              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse" aria-hidden="true" />
                               Live View
                             </div>
                           </>
@@ -505,12 +496,12 @@ export default function LandingLightPage() {
                   <span className="text-gray-500">Property Value</span>
                   <span className="font-medium">$880,000</span>
                 </div>
-                <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 text-gray-600 text-[10px] sm:text-xs">
+                <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 text-gray-600 text-[10px] sm:text-xs" role="list">
                   {feeBreakdown.map((fee, index) => (
-                    <div key={index} className="flex justify-between">
+                    <li key={index} className="flex justify-between">
                       <span>{fee.label}</span>
                       <span>{fee.value}</span>
-                    </div>
+                    </li>
                   ))}
                 </div>
                 <div className="flex justify-between border-t border-dashed border-gray-300 pt-3 sm:pt-4">
@@ -533,7 +524,7 @@ export default function LandingLightPage() {
                 <div className="space-y-4 sm:space-y-6">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="text-[10px] sm:text-xs font-medium text-gray-600">
+                      <label htmlFor="purchase-price" className="text-[10px] sm:text-xs font-medium text-gray-600">
                         Purchase Price
                       </label>
                       <span className="text-[10px] sm:text-xs font-bold">
@@ -541,6 +532,7 @@ export default function LandingLightPage() {
                       </span>
                     </div>
                     <input
+                      id="purchase-price"
                       type="range"
                       min={300000}
                       max={2000000}
@@ -559,7 +551,7 @@ export default function LandingLightPage() {
 
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="text-[10px] sm:text-xs font-medium text-gray-600">
+                      <label htmlFor="holding-period" className="text-[10px] sm:text-xs font-medium text-gray-600">
                         Holding Period (Years)
                       </label>
                       <span className="text-[10px] sm:text-xs font-bold">
@@ -567,6 +559,7 @@ export default function LandingLightPage() {
                       </span>
                     </div>
                     <input
+                      id="holding-period"
                       type="range"
                       min={1}
                       max={30}
@@ -607,9 +600,9 @@ export default function LandingLightPage() {
         </section>
 
         {/* Featured Listings */}
-        <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 lg:px-20 bg-[#F2F2F4]">
+        <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 lg:px-20 bg-[#F2F2F4]" aria-labelledby="listings-heading">
           <div className="flex justify-between items-end mb-8 sm:mb-12">
-            <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#0A0A0A]">
+            <h2 id="listings-heading" className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#0A0A0A]">
               FEATURED
               <br />
               LISTINGS
@@ -622,7 +615,7 @@ export default function LandingLightPage() {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6" role="list" aria-label="Featured properties">
             {featuredListings.map((listing) => (
               <Card
                 key={listing.id}
@@ -669,10 +662,10 @@ export default function LandingLightPage() {
         </section>
 
         {/* Testimonials */}
-        <section className="py-20 sm:py-32 flex flex-col items-center justify-center text-center px-4 sm:px-6 border-t border-gray-200">
+        <section className="py-20 sm:py-32 flex flex-col items-center justify-center text-center px-4 sm:px-6 border-t border-gray-200" aria-labelledby="testimonial-heading">
           <div className="max-w-3xl mx-auto">
-            <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-gray-300 mx-auto mb-6 sm:mb-8" />
-            <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-medium tracking-tight mb-6 sm:mb-8 leading-normal text-gray-900">
+            <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-gray-300 mx-auto mb-6 sm:mb-8" aria-hidden="true" />
+            <h3 id="testimonial-heading" className="font-display text-xl sm:text-2xl md:text-3xl font-medium tracking-tight mb-6 sm:mb-8 leading-normal text-gray-900">
               "{testimonial.quote}"
             </h3>
             <div className="flex flex-col items-center">
@@ -703,12 +696,12 @@ export default function LandingLightPage() {
             fill
             className="object-cover opacity-10 pointer-events-none grayscale"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent" aria-hidden="true" />
         </div>
 
         <div className="relative z-10 text-center w-full max-w-4xl px-4 sm:px-6">
           <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-6 sm:mb-8">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
             <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.15em] text-gray-300">
               Waitlist Active
             </span>
@@ -776,5 +769,17 @@ export default function LandingLightPage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+export default function LandingLightPage() {
+  return (
+    <ErrorBoundary>
+      <Shell variant="landing">
+        <Suspense fallback={<PageLoader text="Loading page..." />}>
+          <LandingLightPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

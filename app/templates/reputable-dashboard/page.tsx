@@ -16,7 +16,7 @@ import {
   Layout,
   Settings,
   Bell,
-  Broadcast,
+  Radio,
   FileText,
   Star,
   Users,
@@ -72,7 +72,7 @@ export default function ReputableDashboardPage() {
     {
       title: "Outputs",
       items: [
-        { name: "Channels", icon: Broadcast },
+        { name: "Channels", icon: Radio },
         { name: "Content", icon: FileText },
       ],
     },
@@ -154,12 +154,12 @@ export default function ReputableDashboardPage() {
                           <Link
                             href="#"
                             className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
-                              item.active
+                              "active" in item && item.active
                                 ? "bg-cyan-400/20 text-zinc-100"
                                 : "hover:bg-zinc-800 text-zinc-400"
                             }`}
                           >
-                            {item.active ? (
+                            {"active" in item && item.active ? (
                               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-400 text-white">
                                 <Icon className="h-3.5 w-3.5" />
                               </span>

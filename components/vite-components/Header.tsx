@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Home, Zap, Grid, Sun, Moon } from "lucide-react";
-import { WorkspaceSwitcher } from "@/components/navigation/WorkspaceSwitcher";
-import { MegaMenu } from "@/components/navigation/MegaMenu";
-import { MobileNav } from "@/components/navigation/MobileNav";
-import { CommandPalette } from "@/components/CommandPalette";
+import { WorkspaceSwitcher } from "@/components/vite-components/navigation/WorkspaceSwitcher";
+import { MegaMenu } from "@/components/vite-components/navigation/MegaMenu";
+import { MobileNav } from "@/components/vite-components/navigation/MobileNav";
+import { CommandPalette } from "@/components/vite-components/CommandPalette";
 import { useTheme } from "@/hooks/useTheme";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 

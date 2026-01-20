@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { GlobalSidebar } from "@/components/GlobalSidebar";
-import { Header } from "@/components/Header";
+import { GlobalSidebar } from "@/components/vite-components/GlobalSidebar";
+import { Header } from "@/components/vite-components/Header";
 
 interface AppLayoutProps {
   children: ReactNode;

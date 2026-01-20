@@ -1,15 +1,30 @@
 import Link from "next/link";
 import { Sparkles, ArrowLeft, Shield, Calendar, Lock, Eye, Database, Globe } from "lucide-react";
-import "@/styles/landing.css";
+import { Suspense } from "react";
+import { Shell } from "@/components/shell";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { PageLoader } from "@/components/page-loader";
 
-const highlights = [
+
+interface Highlight {
+  icon: typeof Lock;
+  title: string;
+  desc: string;
+}
+
+interface Section {
+  title: string;
+  content: string;
+}
+
+const highlights: Highlight[] = [
   { icon: Lock, title: "Encrypted Data", desc: "All data encrypted at rest and in transit using AES-256" },
   { icon: Eye, title: "No Selling Data", desc: "We never sell your personal information to third parties" },
   { icon: Database, title: "Minimal Collection", desc: "We only collect data necessary for the service" },
   { icon: Globe, title: "GDPR Compliant", desc: "Full compliance with global privacy regulations" },
-];
+] as const;
 
-const sections = [
+const sections: Section[] = [
   {
     title: "1. Information We Collect",
     content: `We collect information you provide directly to us, such as:
@@ -126,21 +141,21 @@ Australia
 Email: privacy@haus.com
 Phone: +61 2 8000 0000`
   },
-];
+] as const;
 
-export default function Privacy() {
+function PrivacyPageContent() {
   return (
     <div className="landing-page min-h-screen">
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10" aria-label="Main navigation">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/landing" className="inline-flex items-center gap-2">
+          <Link href="/landing-1" className="inline-flex items-center gap-2" aria-label="HAUS home">
             <div className="h-6 w-6 rounded-md bg-white/10 border border-white/10 flex items-center justify-center">
               <Sparkles className="h-3.5 w-3.5 text-white/80" />
             </div>
             <span className="text-base font-semibold tracking-tight">HAUS</span>
           </Link>
-          <Link href="/landing" className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors">
+          <Link href="/landing-1" className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors" aria-label="Go back">
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
@@ -152,21 +167,21 @@ export default function Privacy() {
           {/* Header */}
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="w-4 h-4 text-neutral-500" />
+              <Shield className="w-4 h-4 text-neutral-500" aria-hidden="true" />
               <span className="text-xs font-medium text-neutral-500 uppercase tracking-widest">Legal</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-display font-medium tracking-tight text-white mb-4">Privacy Policy</h1>
             <div className="flex items-center gap-2 text-sm text-neutral-500">
-              <Calendar className="w-4 h-4" />
+              <Calendar className="w-4 h-4" aria-hidden="true" />
               Last updated: October 24, 2025
             </div>
           </div>
 
           {/* Highlights */}
-          <div className="grid sm:grid-cols-2 gap-4 mb-12">
+          <div className="grid sm:grid-cols-2 gap-4 mb-12" role="list" aria-label="Privacy highlights">
             {highlights.map((item) => (
-              <div key={item.title} className="p-4 rounded-xl border border-white/10 bg-white/5">
-                <item.icon className="w-5 h-5 text-indigo-400 mb-3" />
+              <div key={item.title} className="p-4 rounded-xl border border-white/10 bg-white/5" role="listitem">
+                <item.icon className="w-5 h-5 text-indigo-400 mb-3" aria-hidden="true" />
                 <h3 className="text-sm font-medium text-white mb-1">{item.title}</h3>
                 <p className="text-xs text-neutral-500">{item.desc}</p>
               </div>
@@ -206,5 +221,17 @@ export default function Privacy() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function PrivacyPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading privacy policy..." />}>
+          <PrivacyPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   );
 }

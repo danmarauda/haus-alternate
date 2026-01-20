@@ -286,7 +286,7 @@ export default function LandingSplinePage() {
       value: "AUSTRAC Certified",
       icon: "Shield",
     },
-    { label: "Security", value: "Zero", color: "text-rose-300", sublabel: "breach record" },
+    { label: "Security", value: "Zero", color: "text-rose-300" },
   ]
 
   const transparencyItems: TransparencyItem[] = [
@@ -637,9 +637,6 @@ export default function LandingSplinePage() {
                     <p className={cn("text-2xl font-medium mt-1", metric.color)}>
                       {metric.value}
                     </p>
-                  )}
-                  {metric.sublabel && (
-                    <p className="text-xs text-zinc-500">{metric.sublabel}</p>
                   )}
                 </div>
               ))}

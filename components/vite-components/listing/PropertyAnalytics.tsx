@@ -23,7 +23,7 @@ import { Progress } from "@/components/ui/progress";
 interface PropertyAnalyticsProps {
   price: number;
   priceHistory?: { date: string; price: number }[];
-  suburbPerformance?: { period: string; change: number };
+  suburbPerformance?: { period: string; change: number; auctionClearance?: number; daysOnMarket?: number; pricePerSqm?: number };
   comparables?: {
     address: string;
     price: number;
@@ -188,7 +188,7 @@ export const PropertyAnalytics: React.FC<PropertyAnalyticsProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 bg-secondary/50 rounded-xl">
                 <span className="text-xs text-muted-foreground">Auction Clearance</span>
-                <p className="text-lg font-space font-medium">{suburbMetrics.auctionClearance}%</p>
+                <p className="text-lg font-space font-medium">{suburbMetrics.auctionClearance ?? 78}%</p>
                 <div className="flex items-center gap-1 mt-1">
                   <div className="w-2 h-2 rounded-full bg-success" />
                   <span className="text-xs text-muted-foreground">Above Average</span>
@@ -196,7 +196,7 @@ export const PropertyAnalytics: React.FC<PropertyAnalyticsProps> = ({
               </div>
               <div className="p-3 bg-secondary/50 rounded-xl">
                 <span className="text-xs text-muted-foreground">Days on Market</span>
-                <p className="text-lg font-space font-medium">{suburbMetrics.daysOnMarket}</p>
+                <p className="text-lg font-space font-medium">{suburbMetrics.daysOnMarket ?? 45}</p>
                 <div className="flex items-center gap-1 mt-1">
                   <div className="w-2 h-2 rounded-full bg-success" />
                   <span className="text-xs text-muted-foreground">Fast Selling</span>
@@ -204,7 +204,7 @@ export const PropertyAnalytics: React.FC<PropertyAnalyticsProps> = ({
               </div>
               <div className="p-3 bg-secondary/50 rounded-xl col-span-2">
                 <span className="text-xs text-muted-foreground">Price per m²</span>
-                <p className="text-lg font-space font-medium">{formatCurrency(suburbMetrics.pricePerSqm)}/m²</p>
+                <p className="text-lg font-space font-medium">{formatCurrency(suburbMetrics.pricePerSqm ?? 40234)}/m²</p>
               </div>
             </div>
           </CardContent>

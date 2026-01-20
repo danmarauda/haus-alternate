@@ -128,8 +128,6 @@ export default function MobileVoiceAssistantPage() {
                     isListening={isListening}
                     onVoiceCommand={handleVoiceCommand}
                     suggestions={suggestions}
-                    transcript={transcript}
-                    response={response}
                   />
                 </div>
 

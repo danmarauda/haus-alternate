@@ -1,16 +1,6 @@
 "use client"
 
-/**
- * HAUS Mobile Storyboard Page
- *
- * @description
- * A comprehensive storyboard view showcasing mobile UI flows for HAUS:
- * - Core Flow: Tailor Your Agent -> Toolbox -> Conversation
- * - Voice Assistant: Idle -> Listening -> Transcribing -> Responding
- * - Device frame mockups with iOS-style status bars
- * - Cyan/Blue and Fuchsia/Purple themed sections
- */
-
+import { useCallback } from "react"
 import {
   Sparkles,
   Map,
@@ -29,7 +19,7 @@ import {
   ShieldAlert,
   Library,
   ListTree,
-  Grid2X2Check,
+  Grid2x2,
   Smartphone,
   Tablet,
   Monitor,
@@ -50,19 +40,35 @@ import {
   Mic,
   Send,
 } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
+
+
+/**
+ * HAUS Mobile Storyboard Page
+ *
+ * @description
+ * A comprehensive storyboard view showcasing mobile UI flows for HAUS:
+ * - Core Flow: Tailor Your Agent -> Toolbox -> Conversation
+ * - Voice Assistant: Idle -> Listening -> Transcribing -> Responding
+ * - Device frame mockups with iOS-style status bars
+ * - Cyan/Blue and Fuchsia/Purple themed sections
+ */
 
 // Status Bar Component (iOS-style)
 function StatusBar() {
   return (
-    <div className="flex items-center justify-between px-8 pt-4 pb-2">
+    <div className="flex items-center justify-between px-8 pt-4 pb-2" role="status" aria-label="Phone status bar">
       <div className="text-white text-sm">9:41</div>
-      <div className="w-6 h-5 rounded-full bg-neutral-800/70" />
-      <div className="flex items-center gap-1 text-white">
-        <Signal className="w-4 h-4" />
-        <Wifi className="w-4 h-4" />
-        <div className="w-6 h-3 rounded-sm border border-white/60 relative">
-          <div className="absolute inset-0.5 bg-white rounded-[1px]" />
-          <div className="absolute -right-0.5 top-1 w-0.5 h-1 bg-white/60 rounded-r-sm" />
+      <div className="w-6 h-5 rounded-full bg-neutral-800/70" aria-hidden="true" />
+      <div className="flex items-center gap-1 text-white" aria-label="Connectivity">
+        <Signal className="w-4 h-4" aria-hidden="true" />
+        <Wifi className="w-4 h-4" aria-hidden="true" />
+        <div className="w-6 h-3 rounded-sm border border-white/60 relative" aria-label="Battery level">
+          <div className="absolute inset-0.5 bg-white rounded-[1px]" aria-hidden="true" />
+          <div className="absolute -right-0.5 top-1 w-0.5 h-1 bg-white/60 rounded-r-sm" aria-hidden="true" />
         </div>
       </div>
     </div>
@@ -71,7 +77,7 @@ function StatusBar() {
 
 // Home Indicator Component
 function HomeIndicator() {
-  return <div className="w-36 h-1 bg-white/30 rounded-full mx-auto mt-6" />
+  return <div className="w-36 h-1 bg-white/30 rounded-full mx-auto mt-6" role="presentation" />
 }
 
 // Connector Arrow Component
@@ -79,7 +85,7 @@ function ConnectorArrow() {
   return (
     <div className="shrink-0 mt-[180px]">
       <div className="size-10 rounded-full border border-white/10 bg-neutral-900/60 flex items-center justify-center">
-        <ArrowRight className="w-5 h-5 text-neutral-300" />
+        <ArrowRight className="w-5 h-5 text-neutral-300" aria-hidden="true" />
       </div>
     </div>
   )
@@ -105,9 +111,9 @@ function TailorAgentScreen() {
 
             {/* Avatar Orb */}
             <div className="relative mx-auto mt-7">
-              <div className="absolute inset-0 -z-10 blur-2xl bg-gradient-to-br from-cyan-500/35 via-blue-500/25 to-cyan-400/30 rounded-full w-64 h-64" />
+              <div className="absolute inset-0 -z-10 blur-2xl bg-gradient-to-br from-cyan-500/35 via-blue-500/25 to-cyan-400/30 rounded-full w-64 h-64" aria-hidden="true" />
               <div className="relative w-64 h-64 rounded-full overflow-hidden border border-cyan-400/30 bg-gradient-to-br from-neutral-900 via-neutral-950 to-black shadow-[0_0_40px_4px_rgba(34,211,238,0.25)]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(34,211,238,0.35),transparent_60%),radial-gradient(circle_at_70%_70%,rgba(59,130,246,0.35),transparent_55%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(34,211,238,0.35),transparent_60%),radial-gradient(circle_at_70%_70%,rgba(59,130,246,0.35),transparent_55%)]" aria-hidden="true" />
                 <div className="absolute inset-0 mix-blend-screen opacity-70">
                   <video
                     autoPlay
@@ -124,38 +130,39 @@ function TailorAgentScreen() {
                   </video>
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="p-4 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_24px_8px_rgba(34,211,238,0.35)]">
+                  <div className="p-4 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_24px_8px_rgba(34,211,238,0.35)]" aria-hidden="true">
                     <Sparkles className="w-8 h-8 text-white" />
                   </div>
                 </div>
               </div>
 
               {/* Customization quick picks */}
-              <div className="flex items-center justify-center gap-3 mt-4">
-                <button className="p-2.5 rounded-full bg-neutral-900/60 backdrop-blur-md border border-white/10 hover:border-cyan-400/40 transition">
+              <div className="flex items-center justify-center gap-3 mt-4" role="group" aria-label="Customization options">
+                <button className="p-2.5 rounded-full bg-neutral-900/60 backdrop-blur-md border border-white/10 hover:border-cyan-400/40 transition" aria-label="Customize bot avatar">
                   <Bot className="w-5 h-5 text-cyan-300" />
                 </button>
-                <button className="p-2.5 rounded-full bg-neutral-900/60 backdrop-blur-md border border-white/10 hover:border-cyan-400/40 transition">
+                <button className="p-2.5 rounded-full bg-neutral-900/60 backdrop-blur-md border border-white/10 hover:border-cyan-400/40 transition" aria-label="Customize voice">
                   <Headphones className="w-5 h-5 text-blue-300" />
                 </button>
-                <button className="p-2.5 rounded-full bg-neutral-900/60 backdrop-blur-md border border-white/10 hover:border-cyan-400/40 transition">
+                <button className="p-2.5 rounded-full bg-neutral-900/60 backdrop-blur-md border border-white/10 hover:border-cyan-400/40 transition" aria-label="Customize capabilities">
                   <Wand2 className="w-5 h-5 text-cyan-200" />
                 </button>
               </div>
             </div>
 
             {/* Stepper */}
-            <div className="mt-7">
+            <div className="mt-7" role="group" aria-labelledby="stepper-heading">
+              <h3 id="stepper-heading" className="sr-only">Setup progress</h3>
               <div className="flex items-center justify-between">
                 <div className="flex-1 flex items-center">
                   <div className="size-7 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-white text-[12px] flex items-center justify-center shadow-[0_0_16px_rgba(34,211,238,0.5)]">
                     1
                   </div>
-                  <div className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-cyan-500/50 to-blue-500/40" />
+                  <div className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-cyan-500/50 to-blue-500/40" aria-hidden="true" />
                   <div className="size-7 rounded-full bg-neutral-900/70 border border-white/10 text-[12px] text-neutral-300 flex items-center justify-center">
                     2
                   </div>
-                  <div className="h-0.5 flex-1 mx-2 bg-white/10" />
+                  <div className="h-0.5 flex-1 mx-2 bg-white/10" aria-hidden="true" />
                   <div className="size-7 rounded-full bg-neutral-900/70 border border-white/10 text-[12px] text-neutral-300 flex items-center justify-center">
                     3
                   </div>
@@ -171,22 +178,22 @@ function TailorAgentScreen() {
             {/* Skills */}
             <div className="mt-5">
               <div className="text-[13px] text-neutral-300 mb-2">Example skills</div>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-2.5" role="group" aria-label="Available skills">
                 <button className="px-3.5 py-2 rounded-full text-[12px] bg-gradient-to-br from-cyan-500/15 to-blue-500/10 border border-cyan-400/30 text-cyan-200 backdrop-blur-md hover:border-cyan-300/60 transition shadow-[0_0_12px_rgba(34,211,238,0.25)]">
                   <div className="flex items-center gap-1.5">
-                    <Search className="w-3.5 h-3.5" />
+                    <Search className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Research</span>
                   </div>
                 </button>
-                <button className="px-3.5 py-2 rounded-full text-[12px] bg-gradient-to-br from-cyan-500/15 to-blue-500/10 border border-cyan-400/30 text-cyan-200 backdrop-blur-md hover:border-cyan-300/60 transition">
+                <button className="px-3.5 py-2 rounded-full text-[12px] bg-gradient-to-br from-cyan-500/15 to-blue-500/10 border border-cyan-400/30 text-cyan-200 backdrop-blur-md hover:border-cyan-300/60 transition shadow-[0_0_12px_rgba(34,211,238,0.25)]">
                   <div className="flex items-center gap-1.5">
-                    <Workflow className="w-3.5 h-3.5" />
+                    <Workflow className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Project Management</span>
                   </div>
                 </button>
-                <button className="px-3.5 py-2 rounded-full text-[12px] bg-gradient-to-br from-cyan-500/15 to-blue-500/10 border border-cyan-400/30 text-cyan-200 backdrop-blur-md hover:border-cyan-300/60 transition">
+                <button className="px-3.5 py-2 rounded-full text-[12px] bg-gradient-to-br from-cyan-500/15 to-blue-500/10 border border-cyan-400/30 text-cyan-200 backdrop-blur-md hover:border-cyan-300/60 transition shadow-[0_0_12px_rgba(34,211,238,0.25)]">
                   <div className="flex items-center gap-1.5">
-                    <Headset className="w-3.5 h-3.5" />
+                    <Headset className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Customer Support</span>
                   </div>
                 </button>
@@ -222,18 +229,18 @@ function ToolboxScreen() {
               <h2 className="text-[22px] tracking-tight bg-gradient-to-r from-cyan-300 via-cyan-200 to-blue-300 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.45)]">
                 HAUS Toolbox
               </h2>
-              <button className="size-9 rounded-full bg-neutral-900/60 border border-white/10 flex items-center justify-center">
+              <button className="size-9 rounded-full bg-neutral-900/60 border border-white/10 flex items-center justify-center" aria-label="Open settings">
                 <Sliders className="w-4.5 h-4.5 text-neutral-300" />
               </button>
             </div>
 
             {/* Tools Grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3" role="list" aria-label="Available tools">
               {/* Finance Tracker */}
               <div className="p-4 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/10 hover:border-green-400/40 transition relative overflow-hidden">
-                <div className="absolute -inset-6 bg-gradient-to-br from-green-400/10 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute -inset-6 bg-gradient-to-br from-green-400/10 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
                 <div className="size-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-400/20 to-emerald-400/10 border border-green-300/30 shadow-[0_0_24px_rgba(74,222,128,0.35)]">
-                  <Wallet className="w-5 h-5 text-green-300" />
+                  <Wallet className="w-5 h-5 text-green-300" aria-hidden="true" />
                 </div>
                 <div className="mt-3">
                   <div className="text-[14px] text-neutral-100 tracking-tight">Finance Tracker</div>
@@ -243,9 +250,9 @@ function ToolboxScreen() {
 
               {/* Task Automator */}
               <div className="p-4 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/10 hover:border-cyan-400/40 transition relative overflow-hidden">
-                <div className="absolute -inset-6 bg-gradient-to-br from-cyan-400/10 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute -inset-6 bg-gradient-to-br from-cyan-400/10 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
                 <div className="size-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-cyan-400/20 to-blue-400/10 border border-cyan-300/30 shadow-[0_0_24px_rgba(34,211,238,0.35)]">
-                  <Bot className="w-5 h-5 text-cyan-300" />
+                  <Bot className="w-5 h-5 text-cyan-300" aria-hidden="true" />
                 </div>
                 <div className="mt-3">
                   <div className="text-[14px] text-neutral-100 tracking-tight">Task Automator</div>
@@ -255,9 +262,9 @@ function ToolboxScreen() {
 
               {/* Meeting Summarizer */}
               <div className="p-4 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/10 hover:border-blue-400/40 transition relative overflow-hidden">
-                <div className="absolute -inset-6 bg-gradient-to-br from-blue-400/10 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute -inset-6 bg-gradient-to-br from-blue-400/10 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
                 <div className="size-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-400/20 to-cyan-400/10 border border-blue-300/30 shadow-[0_0_24px_rgba(59,130,246,0.35)]">
-                  <FileText className="w-5 h-5 text-blue-300" />
+                  <FileText className="w-5 h-5 text-blue-300" aria-hidden="true" />
                 </div>
                 <div className="mt-3">
                   <div className="text-[14px] text-neutral-100 tracking-tight">Meeting Summarizer</div>
@@ -267,9 +274,9 @@ function ToolboxScreen() {
 
               {/* Idea Generator */}
               <div className="p-4 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/10 hover:border-purple-400/40 transition relative overflow-hidden">
-                <div className="absolute -inset-6 bg-gradient-to-br from-purple-400/10 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute -inset-6 bg-gradient-to-br from-purple-400/10 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
                 <div className="size-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-400/20 to-fuchsia-400/10 border border-purple-300/30 shadow-[0_0_24px_rgba(168,85,247,0.35)]">
-                  <Sparkles className="w-5 h-5 text-purple-300" />
+                  <Sparkles className="w-5 h-5 text-purple-300" aria-hidden="true" />
                 </div>
                 <div className="mt-3">
                   <div className="text-[14px] text-neutral-100 tracking-tight">Idea Generator</div>
@@ -281,7 +288,7 @@ function ToolboxScreen() {
             {/* Subscription Banner */}
             <div className="mt-auto">
               <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-neutral-900/70 to-black/80 border border-white/10 backdrop-blur-xl relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(600px_200px_at_50%_-20%,rgba(34,211,238,0.2),transparent)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(600px_200px_at_50%_-20%,rgba(34,211,238,0.2),transparent)]" aria-hidden="true" />
                 <div className="flex items-center justify-between relative z-10">
                   <div>
                     <div className="text-[14px] text-neutral-100 tracking-tight">Unlock the full toolbox</div>
@@ -329,7 +336,7 @@ function ConversationScreen() {
                 </button>
                 <button
                   className="size-9 rounded-xl bg-neutral-900/60 border border-white/10 flex items-center justify-center hover:border-cyan-400/40 transition"
-                  aria-label="More"
+                  aria-label="More options"
                 >
                   <MoreHorizontal className="w-4.5 h-4.5 text-neutral-300" />
                 </button>
@@ -337,7 +344,7 @@ function ConversationScreen() {
             </div>
 
             {/* Messages */}
-            <div className="mt-2 flex-1 overflow-y-auto space-y-3 px-2">
+            <div className="mt-2 flex-1 overflow-y-auto space-y-3 px-2" role="log" aria-label="Chat messages">
               {/* System bubble */}
               <div className="flex items-start gap-2">
                 <div className="size-7 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 border border-cyan-300/60 flex items-center justify-center shrink-0">
@@ -392,23 +399,24 @@ function ConversationScreen() {
               <div className="h-14 rounded-2xl bg-neutral-900/60 border border-white/10 flex items-center px-2 gap-2">
                 <button
                   className="size-10 rounded-xl bg-neutral-900/60 border border-white/10 flex items-center justify-center hover:border-cyan-400/40 transition"
-                  aria-label="Attach"
+                  aria-label="Attach file"
                 >
                   <Paperclip className="w-5 h-5 text-neutral-300" />
                 </button>
                 <input
                   className="flex-1 bg-transparent outline-none text-[13px] placeholder:text-neutral-500"
                   placeholder="Type a message or use the mic..."
+                  aria-label="Message input"
                 />
                 <button
                   className="size-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white border border-cyan-300/60 flex items-center justify-center shadow-[0_0_16px_rgba(34,211,238,0.4)] hover:shadow-[0_0_26px_rgba(34,211,238,0.55)] transition"
-                  aria-label="Voice"
+                  aria-label="Voice input"
                 >
                   <Mic className="w-5 h-5" />
                 </button>
                 <button
                   className="size-10 rounded-xl bg-neutral-900/60 border border-white/10 flex items-center justify-center hover:border-cyan-400/40 transition"
-                  aria-label="Send"
+                  aria-label="Send message"
                 >
                   <Send className="w-5 h-5 text-neutral-200" />
                 </button>
@@ -442,12 +450,12 @@ function VoiceIdleScreen() {
 
             {/* Idle Orb */}
             <div className="mt-10 mx-auto relative">
-              <div className="absolute inset-0 -z-10 blur-3xl bg-gradient-to-br from-fuchsia-500/30 via-purple-500/20 to-fuchsia-400/25 rounded-full w-64 h-64" />
+              <div className="absolute inset-0 -z-10 blur-3xl bg-gradient-to-br from-fuchsia-500/30 via-purple-500/20 to-fuchsia-400/25 rounded-full w-64 h-64" aria-hidden="true" />
               <button
                 className="group relative w-64 h-64 rounded-full border border-fuchsia-300/40 bg-gradient-to-br from-neutral-900 via-neutral-950 to-black overflow-hidden shadow-[0_0_40px_6px_rgba(217,70,239,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/70"
-                aria-label="Tap to talk"
+                aria-label="Tap to talk, hold to speak longer"
               >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(217,70,239,0.35),transparent_60%),radial-gradient(circle_at_70%_70%,rgba(168,85,247,0.35),transparent_55%)] transition transform group-active:scale-[1.03]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(217,70,239,0.35),transparent_60%),radial-gradient(circle_at_70%_70%,rgba(168,85,247,0.35),transparent_55%)] transition transform group-active:scale-[1.03]" aria-hidden="true" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="p-5 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 border border-white/20 shadow-[0_0_28px_8px_rgba(217,70,239,0.35)] group-active:scale-110 transition">
                     <Mic className="w-10 h-10 text-white" />
@@ -458,7 +466,7 @@ function VoiceIdleScreen() {
             </div>
 
             {/* Quick intents */}
-            <div className="mt-10 grid grid-cols-3 gap-2">
+            <div className="mt-10 grid grid-cols-3 gap-2" role="group" aria-label="Quick voice commands">
               <button className="h-10 rounded-xl bg-neutral-900/60 border border-white/10 text-[12px] text-neutral-300 hover:border-fuchsia-400/40 transition">
                 Summarize
               </button>
@@ -498,23 +506,23 @@ function VoiceListeningScreen() {
             {/* Listening visualizer */}
             <div className="mt-12 flex-1 flex items-center justify-center">
               <div className="relative w-64 h-64 rounded-full bg-gradient-to-br from-neutral-900 via-neutral-950 to-black border border-fuchsia-300/30 overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(217,70,239,0.3),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(168,85,247,0.3),transparent_55%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(217,70,239,0.3),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(168,85,247,0.3),transparent_55%)]" aria-hidden="true" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex items-end gap-1.5">
-                    <span className="w-1.5 h-6 bg-fuchsia-400/70 rounded-full animate-pulse" />
-                    <span className="w-1.5 h-10 bg-purple-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.1s" }} />
-                    <span className="w-1.5 h-7 bg-fuchsia-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.2s" }} />
-                    <span className="w-1.5 h-12 bg-purple-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.3s" }} />
-                    <span className="w-1.5 h-8 bg-fuchsia-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.4s" }} />
-                    <span className="w-1.5 h-11 bg-purple-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.5s" }} />
-                    <span className="w-1.5 h-7 bg-fuchsia-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.6s" }} />
+                  <div className="flex items-end gap-1.5" aria-label="Audio levels">
+                    <span className="w-1.5 h-6 bg-fuchsia-400/70 rounded-full animate-pulse" aria-hidden="true" />
+                    <span className="w-1.5 h-10 bg-purple-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.1s" }} aria-hidden="true" />
+                    <span className="w-1.5 h-7 bg-fuchsia-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.2s" }} aria-hidden="true" />
+                    <span className="w-1.5 h-12 bg-purple-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.3s" }} aria-hidden="true" />
+                    <span className="w-1.5 h-8 bg-fuchsia-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.4s" }} aria-hidden="true" />
+                    <span className="w-1.5 h-11 bg-purple-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.5s" }} aria-hidden="true" />
+                    <span className="w-1.5 h-7 bg-fuchsia-400/70 rounded-full animate-pulse" style={{ animationDelay: "0.6s" }} aria-hidden="true" />
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Controls */}
-            <div className="mt-6 flex items-center justify-center gap-3">
+            <div className="mt-6 flex items-center justify-center gap-3" role="group" aria-label="Recording controls">
               <button className="px-4 h-10 rounded-xl bg-neutral-900/60 border border-white/10 text-[12px] text-neutral-300 hover:border-fuchsia-400/40 transition">
                 Cancel
               </button>
@@ -538,15 +546,16 @@ function VoiceTranscribingScreen() {
     <div className="w-[390px] max-w-full shrink-0">
       <div className="relative rounded-[3rem] p-[2px] bg-gradient-to-b from-fuchsia-400/60 via-purple-500/40 to-fuchsia-500/60 shadow-[0_20px_80px_-12px_rgba(217,70,239,0.35)]">
         <div className="rounded-[2.9rem] bg-black overflow-hidden h-[844px] relative">
+          <StatusBar />
           <div className="flex items-center justify-between px-8 pt-4 pb-2">
             <div className="text-white text-sm">9:42</div>
-            <div className="w-6 h-5 rounded-full bg-neutral-800/70" />
-            <div className="flex items-center gap-1 text-white">
-              <Signal className="w-4 h-4" />
-              <Wifi className="w-4 h-4" />
-              <div className="w-6 h-3 rounded-sm border border-white/60 relative">
-                <div className="absolute inset-0.5 bg-white rounded-[1px]" />
-                <div className="absolute -right-0.5 top-1 w-0.5 h-1 bg-white/60 rounded-r-sm" />
+            <div className="w-6 h-5 rounded-full bg-neutral-800/70" aria-hidden="true" />
+            <div className="flex items-center gap-1 text-white" aria-label="Connectivity">
+              <Signal className="w-4 h-4" aria-hidden="true" />
+              <Wifi className="w-4 h-4" aria-hidden="true" />
+              <div className="w-6 h-3 rounded-sm border border-white/60 relative" aria-label="Battery">
+                <div className="absolute inset-0.5 bg-white rounded-[1px]" aria-hidden="true" />
+                <div className="absolute -right-0.5 top-1 w-0.5 h-1 bg-white/60 rounded-r-sm" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -570,7 +579,7 @@ function VoiceTranscribingScreen() {
               <div className="p-3 rounded-2xl bg-neutral-900/40 border border-white/10">
                 <div className="text-[12px] text-neutral-500 mb-1">Detecting context</div>
                 <div className="flex items-center gap-1.5 text-[13px] text-neutral-300">
-                  <span className="inline-block size-1.5 rounded-full bg-fuchsia-400 animate-pulse" />
+                  <span className="inline-block size-1.5 rounded-full bg-fuchsia-400 animate-pulse" aria-hidden="true" />
                   <span>Fetching calendar and notes</span>
                 </div>
               </div>
@@ -578,8 +587,8 @@ function VoiceTranscribingScreen() {
 
             {/* Progress */}
             <div className="mt-6">
-              <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full w-1/2 bg-gradient-to-r from-fuchsia-500 to-purple-500 animate-pulse" />
+              <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden" aria-label="Transcription progress">
+                <div className="h-full w-1/2 bg-gradient-to-r from-fuchsia-500 to-purple-500 animate-pulse" aria-valuemin={0} aria-valuemax={100} aria-valuenow={52} aria-hidden="true" />
               </div>
               <div className="mt-2 text-[12px] text-neutral-400">Transcription 52%</div>
             </div>
@@ -607,16 +616,16 @@ function VoiceRespondingScreen() {
   return (
     <div className="w-[390px] max-w-full shrink-0">
       <div className="relative rounded-[3rem] p-[2px] bg-gradient-to-b from-fuchsia-400/60 via-purple-500/40 to-fuchsia-500/60 shadow-[0_20px_80px_-12px_rgba(217,70,239,0.35)]">
-        <div className="rounded-[2.9rem] bg-black overflow-hidden h-[844px] relative">
+        <div className="rounded-[2.9rem] bg-black overflow-hidden h-[844px relative">
           <div className="flex items-center justify-between px-8 pt-4 pb-2">
             <div className="text-white text-sm">9:43</div>
-            <div className="w-6 h-5 rounded-full bg-neutral-800/70" />
-            <div className="flex items-center gap-1 text-white">
-              <Signal className="w-4 h-4" />
-              <Wifi className="w-4 h-4" />
-              <div className="w-6 h-3 rounded-sm border border-white/60 relative">
-                <div className="absolute inset-0.5 bg-white rounded-[1px]" />
-                <div className="absolute -right-0.5 top-1 w-0.5 h-1 bg-white/60 rounded-r-sm" />
+            <div className="w-6 h-5 rounded-full bg-neutral-800/70" aria-hidden="true" />
+            <div className="flex items-center gap-1 text-white" aria-label="Connectivity">
+              <Signal className="w-4 h-4" aria-hidden="true" />
+              <Wifi className="w-4 h-4" aria-hidden="true" />
+              <div className="w-6 h-3 rounded-sm border border-white/60 relative" aria-label="Battery">
+                <div className="absolute inset-0.5 bg-white rounded-[1px]" aria-hidden="true" />
+                <div className="absolute -right-0.5 top-1 w-0.5 h-1 bg-white/60 rounded-r-sm" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -631,7 +640,7 @@ function VoiceRespondingScreen() {
 
             {/* Response card */}
             <div className="mt-6 rounded-2xl bg-neutral-900/60 border border-white/10 p-4 overflow-hidden relative">
-              <div className="absolute inset-0 bg-[radial-gradient(600px_200px_at_50%_-20%,rgba(217,70,239,0.15),transparent)] pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(600px_200px_at_50%_-20%,rgba(217,70,239,0.15),transparent)] pointer-events-none" aria-hidden="true" />
               <div className="text-[12px] text-neutral-500 mb-1">HAUS</div>
               <div className="space-y-2">
                 <p className="text-[13px] text-neutral-200">
@@ -699,14 +708,14 @@ function NavItem({ icon: Icon, label, active }: NavItemProps) {
 }
 
 // Main Page Component
-export default function MobileStoryboardPage() {
+function MobileStoryboardPageContent() {
   return (
     <div
       className="min-h-screen bg-neutral-950 text-neutral-100 antialiased"
       style={{ fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji" }}
     >
       {/* Backdrop */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
+      <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-gradient-to-br from-cyan-400/20 via-blue-500/10 to-cyan-500/20 blur-3xl rounded-full" />
       </div>
 
@@ -722,20 +731,20 @@ export default function MobileStoryboardPage() {
               <div className="text-neutral-600">/</div>
               <div className="text-[14px] text-neutral-300">Mobile v1</div>
               <div className="hidden md:flex items-center gap-2 ml-4 text-[12px] text-neutral-400">
-                <Map className="w-4 h-4" />
+                <Map className="w-4 h-4" aria-hidden="true" />
                 <span>Storyboard</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button className="hidden sm:flex items-center gap-2 h-9 px-3 rounded-xl bg-neutral-900/60 border border-white/10 text-[13px]">
-                <ZoomIn className="w-4.5 h-4.5" />
+                <ZoomIn className="w-4.5 h-4.5" aria-hidden="true" />
                 Zoom
               </button>
               <button className="hidden md:flex items-center gap-2 h-9 px-3 rounded-xl bg-neutral-900/60 border border-white/10 text-[13px]">
-                <Share className="w-4.5 h-4.5" />
+                <Share className="w-4.5 h-4.5" aria-hidden="true" />
                 Export
               </button>
-              <button className="size-9 rounded-full bg-neutral-900/60 border border-white/10 flex items-center justify-center">
+              <button className="size-9 rounded-full bg-neutral-900/60 border border-white/10 flex items-center justify-center" aria-label="More options">
                 <MoreHorizontal className="w-4.5 h-4.5 text-neutral-300" />
               </button>
             </div>
@@ -747,10 +756,10 @@ export default function MobileStoryboardPage() {
         <div className="max-w-[1800px] mx-auto">
           <div className="flex">
             {/* Left Rail */}
-            <aside className="hidden lg:block w-64 shrink-0 border-r border-white/10 min-h-[calc(100vh-56px)]">
+            <aside className="hidden lg:block w-64 shrink-0 border-r border-white/10 min-h-[calc(100vh-56px)]" aria-label="Sidebar navigation">
               <div className="p-4">
                 <div className="text-[12px] uppercase tracking-wider text-neutral-500 mb-2">Flows</div>
-                <nav className="space-y-1">
+                <nav className="space-y-1" aria-label="Mobile flows">
                   <NavItem icon={Workflow} label="Core: Tailor -> Toolbox -> Chat" active />
                   <NavItem icon={LogIn} label="Onboarding" />
                   <NavItem icon={Home} label="Home" />
@@ -764,9 +773,9 @@ export default function MobileStoryboardPage() {
                 </nav>
               </div>
               <div className="px-4">
-                <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-3" />
+                <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-3" aria-hidden="true" />
                 <div className="text-[12px] uppercase tracking-wider text-neutral-500 mb-2">Artifacts</div>
-                <nav className="space-y-1">
+                <nav className="space-y-1" aria-label="Artifacts">
                   <div className="flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-neutral-900/40 text-[13px]">
                     <Library className="w-4.5 h-4.5 text-neutral-400" />
                     Components
@@ -791,13 +800,13 @@ export default function MobileStoryboardPage() {
                   </div>
                   <div className="hidden sm:flex items-center gap-2">
                     <div className="h-9 px-3 rounded-xl bg-neutral-900/60 border border-white/10 text-[13px] flex items-center gap-2">
-                      <Grid2X2Check className="w-4.5 h-4.5 text-neutral-300" />
+                      <Grid2x2 className="w-4.5 h-4.5 text-neutral-300" />
                       Snap to grid
                     </div>
 
                     {/* Device selector */}
-                    <div className="h-9 rounded-xl bg-neutral-900/60 border border-white/10 text-[13px] flex items-center p-1 gap-1">
-                      <button className="h-7 px-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white border border-cyan-300/60 flex items-center gap-1.5">
+                    <div className="h-9 rounded-xl bg-neutral-900/60 border border-white/10 text-[13px] flex items-center p-1 gap-1" role="group" aria-label="Device type selector">
+                      <button className="h-7 px-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white border border-cyan-300/60 flex items-center gap-1.5" aria-pressed="true">
                         <Smartphone className="w-4 h-4 text-white" />
                         <span className="hidden xl:block">Mobile</span>
                         <span className="hidden lg:block text-white/80">390x844</span>
@@ -826,9 +835,9 @@ export default function MobileStoryboardPage() {
                   {/* Lane: Core Flow */}
                   <div>
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="size-2 rounded-full bg-cyan-400" />
+                      <div className="size-2 rounded-full bg-cyan-400" aria-hidden="true" />
                       <div className="text-[13px] text-neutral-300 tracking-tight">Core Flow</div>
-                      <div className="text-[12px] text-neutral-500">Tailor -> Toolbox -> Conversation</div>
+                      <div className="text-[12px] text-neutral-500">Tailor -{">"} Toolbox -{">"} Conversation</div>
                     </div>
 
                     <div className="relative">
@@ -845,9 +854,9 @@ export default function MobileStoryboardPage() {
                   {/* Lane: Voice Assistant */}
                   <div className="mt-10">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="size-2 rounded-full bg-fuchsia-400" />
+                      <div className="size-2 rounded-full bg-fuchsia-400" aria-hidden="true" />
                       <div className="text-[13px] text-neutral-300 tracking-tight">Voice Assistant</div>
-                      <div className="text-[12px] text-neutral-500">Idle -> Listening -> Transcribing -> Responding</div>
+                      <div className="text-[12px] text-neutral-500">Idle -{">"} Listening -{">"} Transcribing -{">"} Responding</div>
                     </div>
 
                     <div className="relative">
@@ -869,5 +878,17 @@ export default function MobileStoryboardPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function MobileStoryboardPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading storyboard..." />}>
+          <MobileStoryboardPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

@@ -5,15 +5,18 @@
  * These types are automatically inferred from your Convex schema.
  */
 
-import {
- GenericDocument,
-  GenericMutationCtx,
-  GenericQueryCtx,
-  NamedArray,
-  NamedTableInfo,
-  NamedDocument,
-  NamedTableInfo,
-} from "convex/server"
+// Stub types for Convex server exports
+type GenericDocument = any;
+type GenericMutationCtx = any;
+type GenericQueryCtx = any;
+type NamedTableInfo = any;
+
+// Generic document type stub
+type NamedDocument<T, K extends string> = GenericDocument & {
+  _id: string
+  creationTime?: number
+};
+
 import type { DataModel } from "../convex/_generated/dataModel"
 
 // ==================== TABLE TYPES ====================
@@ -141,7 +144,7 @@ export interface SavedSearchCriteria {
 /**
  * Extract ID type from document
  */
-export type Id<T extends NamedTableInfo<DataModel>> = GenericDocument<DataModel, T>["_id"]
+export type Id<T extends NamedTableInfo> = GenericDocument["_id"]
 
 /**
  * Create input type (without system fields)
@@ -208,7 +211,7 @@ export function hasUpcomingInspections(inspections?: Property["inspections"]): b
   if (!inspections || inspections.length === 0) return false
 
   const now = new Date()
-  return inspections.some(inspection => {
+  return inspections.some((inspection: any) => {
     const inspectionDate = new Date(`${inspection.date} ${inspection.time}`)
     return inspectionDate > now
   })
@@ -222,12 +225,12 @@ export function getNextInspection(inspections?: Property["inspections"]): Proper
 
   const now = new Date()
   const upcoming = inspections
-    .map(inspection => ({
+    .map((inspection: any) => ({
       ...inspection,
       datetime: new Date(`${inspection.date} ${inspection.time}`),
     }))
-    .filter(inspection => inspection.datetime > now)
-    .sort((a, b) => a.datetime.getTime() - b.datetime.getTime())
+    .filter((inspection: any) => inspection.datetime > now)
+    .sort((a: any, b: any) => a.datetime.getTime() - b.datetime.getTime())
 
   return upcoming[0] || null
 }
@@ -258,7 +261,7 @@ export function getPropertyShareUrl(slug: string): string {
 /**
  * Parse comma-separated string to array
  */
-export function parseList(value: string | string[] | undefined): string[] {
+export function parseList(value: string | string[] | undefined | null): string[] {
   if (Array.isArray(value)) return value
   if (!value) return []
   return value.split(",").map(v => v.trim()).filter(Boolean)

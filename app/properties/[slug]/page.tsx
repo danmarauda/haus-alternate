@@ -13,7 +13,7 @@
 
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { usePropertyPageData } from "@/hooks/useConvex"
 import { PropertyCard } from "@/components/properties/PropertyCard"
@@ -43,18 +43,31 @@ import Link from "next/link"
 import { useSessionId } from "@/hooks/useConvex"
 import { useTrackEvent } from "@/hooks/useConvex"
 import { EnquiryForm } from "@/components/properties/EnquiryForm"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
+import { Suspense } from "react"
 
-export default function PropertyDetailsPage() {
-  const params = useParams()
+interface PropertyDetailsPageProps {
+  params: { slug: string }
+}
+
+interface MarketData {
+  medianPrice: number
+  yearlyGrowth: number
+  clearanceRate: number
+  daysOnMarket: number
+  totalListings: number
+}
+
+function PropertyDetailsPageContent({ slug }: { slug: string }) {
   const router = useRouter()
-  const slug = params.slug as string
-
   const sessionId = useSessionId()
   const { trackEvent } = useTrackEvent()
 
   const { property, isLoading, error, marketData, similarProperties } = usePropertyPageData(slug)
 
-  // Track page view
+  // Track page view with useEffect
   useEffect(() => {
     if (property) {
       trackEvent({
@@ -67,8 +80,8 @@ export default function PropertyDetailsPage() {
     }
   }, [property, slug, sessionId, trackEvent])
 
-  // Handle share
-  const handleShare = async () => {
+  // Handle share with useCallback
+  const handleShare = useCallback(async () => {
     if (typeof window === "undefined" || !property) return
 
     const url = window.location.href
@@ -85,12 +98,13 @@ export default function PropertyDetailsPage() {
       navigator.clipboard.writeText(url)
       alert("Link copied to clipboard!")
     }
-  }
+  }, [property])
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
         <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+        <span className="sr-only">Loading property details...</span>
       </div>
     )
   }
@@ -122,7 +136,7 @@ export default function PropertyDetailsPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       {/* Header */}
-      <div className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
+      <header className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Button variant="ghost" onClick={() => router.back()} className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -147,7 +161,7 @@ export default function PropertyDetailsPage() {
                   )}
                   <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">{property.title}</h2>
                   <p className="text-zinc-600 dark:text-zinc-400 flex items-center gap-1 mt-1">
-                    <MapPin className="w-4 h-4" />
+                    <MapPin className="w-4 h-4" aria-hidden="true" />
                     {formatAddress(property)}
                   </p>
                 </div>
@@ -155,7 +169,7 @@ export default function PropertyDetailsPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-2" role="group" aria-label="Property actions">
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
@@ -167,236 +181,245 @@ export default function PropertyDetailsPage() {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <main className="lg:col-span-2 space-y-8" aria-label="Property details">
             {/* Image Gallery */}
-            <Card>
-              <CardContent className="p-0">
-                <div className="relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-800">
-                  {property.mainImage ? (
-                    <Image
-                      src={property.mainImage}
-                      alt={property.title}
-                      fill
-                      className="object-cover"
-                      priority
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Home className="w-16 h-16 text-zinc-400" />
-                    </div>
-                  )}
-                  {property.images.length > 1 && (
-                    <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                      {property.images.length} photos
-                    </div>
-                  )}
-                </div>
-                {property.images.length > 1 && (
-                  <div className="p-4 grid grid-cols-4 gap-2">
-                    {property.images.slice(0, 4).map((image, i) => (
-                      <div key={i} className="relative aspect-square bg-zinc-100 dark:bg-zinc-800 rounded overflow-hidden">
-                        <Image src={image} alt={`${property.title} ${i + 1}`} fill className="object-cover" />
+            <section aria-labelledby="gallery-heading">
+              <h2 id="gallery-heading" className="sr-only">Property Gallery</h2>
+              <Card>
+                <CardContent className="p-0">
+                  <div className="relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-800">
+                    {property.mainImage ? (
+                      <Image
+                        src={property.mainImage}
+                        alt={property.title}
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Home className="w-16 h-16 text-zinc-400" />
                       </div>
-                    ))}
+                    )}
+                    {property.images.length > 1 && (
+                      <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                        {property.images.length} photos
+                      </div>
+                    )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  {property.images.length > 1 && (
+                    <div className="p-4 grid grid-cols-4 gap-2">
+                      {property.images.slice(0, 4).map((image: string, i: number) => (
+                        <div key={i} className="relative aspect-square bg-zinc-100 dark:bg-zinc-800 rounded overflow-hidden">
+                          <Image src={image} alt={`${property.title} ${i + 1}`} fill className="object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </section>
 
             {/* Property Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Property Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Key Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {property.bedrooms !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Bed className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-                      <div>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">Bedrooms</p>
-                        <p className="font-semibold">{property.bedrooms}</p>
-                      </div>
-                    </div>
-                  )}
-                  {property.bathrooms !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Bath className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-                      <div>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">Bathrooms</p>
-                        <p className="font-semibold">{property.bathrooms}</p>
-                      </div>
-                    </div>
-                  )}
-                  {property.parkingSpaces !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Car className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-                      <div>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">Parking</p>
-                        <p className="font-semibold">{property.parkingSpaces}</p>
-                      </div>
-                    </div>
-                  )}
-                  {property.landSize && (
-                    <div className="flex items-center gap-2">
-                      <Ruler className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-                      <div>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">Land Size</p>
-                        <p className="font-semibold">{property.landSize}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <Separator />
-
-                {/* Description */}
-                {property.description && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Description</h3>
-                    <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-line">{property.description}</p>
-                  </div>
-                )}
-
-                {/* Additional Details */}
-                <div className="grid grid-cols-2 gap-4">
-                  {property.yearBuilt && (
-                    <div>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">Year Built</p>
-                      <p className="font-medium">{property.yearBuilt}</p>
-                    </div>
-                  )}
-                  {property.buildingSize && (
-                    <div>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">Building Size</p>
-                      <p className="font-medium">{property.buildingSize}</p>
-                    </div>
-                  )}
-                  {property.aspect && (
-                    <div>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">Aspect</p>
-                      <p className="font-medium">{property.aspect}</p>
-                    </div>
-                  )}
-                  {property.zoning && (
-                    <div>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">Zoning</p>
-                      <p className="font-medium">{property.zoning}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Features */}
-                {property.features && property.features.length > 0 && (
-                  <>
-                    <Separator />
-                    <div>
-                      <h3 className="font-semibold mb-3">Features</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {property.features.map((feature, i) => (
-                          <Badge key={i} variant="secondary">
-                            {feature}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* AI Insights */}
-                {property.aiInsights && (
-                  <>
-                    <Separator />
-                    <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950 rounded-lg border border-indigo-200 dark:border-indigo-800">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                        <h3 className="font-semibold">AI Insights</h3>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        {property.aiInsights.valueRange && (
-                          <div>
-                            <p className="text-zinc-600 dark:text-zinc-400">Value Range</p>
-                            <p className="font-medium">{property.aiInsights.valueRange}</p>
-                          </div>
-                        )}
-                        {property.aiInsights.targetPrice && (
-                          <div>
-                            <p className="text-zinc-600 dark:text-zinc-400">Target Price</p>
-                            <p className="font-medium">{property.aiInsights.targetPrice}</p>
-                          </div>
-                        )}
-                        {property.aiInsights.yield && (
-                          <div>
-                            <p className="text-zinc-600 dark:text-zinc-400">Rental Yield</p>
-                            <p className="font-medium">{property.aiInsights.yield}</p>
-                          </div>
-                        )}
-                        {property.aiInsights.growth && (
-                          <div>
-                            <p className="text-zinc-600 dark:text-zinc-400">Expected Growth</p>
-                            <p className="font-medium">{property.aiInsights.growth}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Inspection Times */}
-            {property.inspections && property.inspections.length > 0 && (
+            <section aria-labelledby="details-heading">
               <Card>
                 <CardHeader>
-                  <CardTitle>Inspection Times</CardTitle>
+                  <CardTitle id="details-heading">Property Details</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {property.inspections.map((inspection, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-                        <Calendar className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
+                <CardContent className="space-y-6">
+                  {/* Key Stats */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" role="list" aria-label="Property specifications">
+                    {property.bedrooms !== undefined && (
+                      <div className="flex items-center gap-2" role="listitem">
+                        <Bed className="w-5 h-5 text-zinc-600 dark:text-zinc-400" aria-hidden="true" />
                         <div>
-                          <p className="font-medium">{formatInspection(inspection)}</p>
-                          {nextInspection && inspection.date === nextInspection.date && (
-                            <Badge variant="outline" className="mt-1 text-xs">Next Inspection</Badge>
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400">Bedrooms</p>
+                          <p className="font-semibold">{property.bedrooms}</p>
+                        </div>
+                      </div>
+                    )}
+                    {property.bathrooms !== undefined && (
+                      <div className="flex items-center gap-2" role="listitem">
+                        <Bath className="w-5 h-5 text-zinc-600 dark:text-zinc-400" aria-hidden="true" />
+                        <div>
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400">Bathrooms</p>
+                          <p className="font-semibold">{property.bathrooms}</p>
+                        </div>
+                      </div>
+                    )}
+                    {property.parkingSpaces !== undefined && (
+                      <div className="flex items-center gap-2" role="listitem">
+                        <Car className="w-5 h-5 text-zinc-600 dark:text-zinc-400" aria-hidden="true" />
+                        <div>
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400">Parking</p>
+                          <p className="font-semibold">{property.parkingSpaces}</p>
+                        </div>
+                      </div>
+                    )}
+                    {property.landSize && (
+                      <div className="flex items-center gap-2" role="listitem">
+                        <Ruler className="w-5 h-5 text-zinc-600 dark:text-zinc-400" aria-hidden="true" />
+                        <div>
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400">Land Size</p>
+                          <p className="font-semibold">{property.landSize}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  {/* Description */}
+                  {property.description && (
+                    <div>
+                      <h3 className="font-semibold mb-2">Description</h3>
+                      <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-line">{property.description}</p>
+                    </div>
+                  )}
+
+                  {/* Additional Details */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {property.yearBuilt && (
+                      <div>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">Year Built</p>
+                        <p className="font-medium">{property.yearBuilt}</p>
+                      </div>
+                    )}
+                    {property.buildingSize && (
+                      <div>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">Building Size</p>
+                        <p className="font-medium">{property.buildingSize}</p>
+                      </div>
+                    )}
+                    {property.aspect && (
+                      <div>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">Aspect</p>
+                        <p className="font-medium">{property.aspect}</p>
+                      </div>
+                    )}
+                    {property.zoning && (
+                      <div>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">Zoning</p>
+                        <p className="font-medium">{property.zoning}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Features */}
+                  {property.features && property.features.length > 0 && (
+                    <>
+                      <Separator />
+                      <div>
+                        <h3 className="font-semibold mb-3">Features</h3>
+                        <div className="flex flex-wrap gap-2" role="list" aria-label="Property features">
+                          {property.features.map((feature: string, i: number) => (
+                            <Badge key={i} variant="secondary" role="listitem">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* AI Insights */}
+                  {property.aiInsights && (
+                    <>
+                      <Separator />
+                      <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+                          <h3 className="font-semibold">AI Insights</h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          {property.aiInsights.valueRange && (
+                            <div>
+                              <p className="text-zinc-600 dark:text-zinc-400">Value Range</p>
+                              <p className="font-medium">{property.aiInsights.valueRange}</p>
+                            </div>
+                          )}
+                          {property.aiInsights.targetPrice && (
+                            <div>
+                              <p className="text-zinc-600 dark:text-zinc-400">Target Price</p>
+                              <p className="font-medium">{property.aiInsights.targetPrice}</p>
+                            </div>
+                          )}
+                          {property.aiInsights.yield && (
+                            <div>
+                              <p className="text-zinc-600 dark:text-zinc-400">Rental Yield</p>
+                              <p className="font-medium">{property.aiInsights.yield}</p>
+                            </div>
+                          )}
+                          {property.aiInsights.growth && (
+                            <div>
+                              <p className="text-zinc-600 dark:text-zinc-400">Expected Growth</p>
+                              <p className="font-medium">{property.aiInsights.growth}</p>
+                            </div>
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
+            </section>
+
+            {/* Inspection Times */}
+            {property.inspections && property.inspections.length > 0 && (
+              <section aria-labelledby="inspections-heading">
+                <Card>
+                  <CardHeader>
+                    <CardTitle id="inspections-heading">Inspection Times</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2" role="list" aria-label="Scheduled inspections">
+                      {property.inspections.map((inspection: { date: string; month: string; day: string; time: string }, i: number) => (
+                        <div key={i} className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg" role="listitem">
+                          <Calendar className="w-5 h-5 text-zinc-600 dark:text-zinc-400" aria-hidden="true" />
+                          <div>
+                            <p className="font-medium">{formatInspection(inspection)}</p>
+                            {nextInspection && inspection.date === nextInspection.date && (
+                              <Badge variant="outline" className="mt-1 text-xs">Next Inspection</Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
             )}
 
             {/* Similar Properties */}
             {similarProperties.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Similar Properties</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {similarProperties.slice(0, 4).map(similarProperty => (
-                      <PropertyCard
-                        key={similarProperty._id}
-                        property={similarProperty}
-                        variant="compact"
-                      />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <section aria-labelledby="similar-heading">
+                <Card>
+                  <CardHeader>
+                    <CardTitle id="similar-heading">Similar Properties</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6" role="list" aria-label="Similar properties">
+                      {similarProperties.slice(0, 4).map((similarProperty: any) => (
+                        <PropertyCard
+                          key={similarProperty._id}
+                          property={similarProperty}
+                          variant="compact"
+                        />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
             )}
-          </div>
+          </main>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <aside className="space-y-6" aria-label="Property sidebar">
             {/* Enquiry Form */}
             <Card className="sticky top-4">
               <CardHeader>
@@ -433,7 +456,7 @@ export default function PropertyDetailsPage() {
                       )}
                       {property.agent.rating && (
                         <div className="flex items-center justify-center gap-1 mt-2">
-                          <span className="text-yellow-500">★</span>
+                          <span className="text-yellow-500" aria-hidden="true">★</span>
                           <span className="text-sm">{property.agent.rating}</span>
                           {property.agent.reviewCount && (
                             <span className="text-xs text-zinc-600 dark:text-zinc-400">
@@ -502,9 +525,26 @@ export default function PropertyDetailsPage() {
                 </CardContent>
               </Card>
             )}
-          </div>
+          </aside>
         </div>
       </div>
     </div>
+  )
+}
+
+function PropertyDetailsPageWrapper({ params }: PropertyDetailsPageProps) {
+  const slug = params.slug as string
+  return <PropertyDetailsPageContent slug={slug} />
+}
+
+export default function PropertyDetailsPage({ params }: PropertyDetailsPageProps) {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading property details..." />}>
+          <PropertyDetailsPageWrapper params={params} />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

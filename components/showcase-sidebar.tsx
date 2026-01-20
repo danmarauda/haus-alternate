@@ -421,6 +421,7 @@ const categoryColors = {
   core: "bg-emerald-500",
   enterprise: "bg-purple-500",
   component: "bg-amber-500",
+  template: "bg-cyan-500",
 }
 
 interface ShowcaseSidebarProps {

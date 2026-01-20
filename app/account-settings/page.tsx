@@ -25,7 +25,7 @@
  * ```
  */
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -50,6 +50,11 @@ import {
   Monitor,
   Building2
 } from "lucide-react"
+import Link from "next/link"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -73,6 +78,7 @@ import type {
   NotificationChannel,
   NotificationFrequency
 } from "@/types/settings"
+
 
 // Zod schema for profile update
 const profileSchema = z.object({
@@ -132,7 +138,7 @@ const MOCK_USER: UserProfile = {
   isEmailVerified: true,
   isPhoneVerified: true,
   isActive: true
-}
+} as const
 
 const MOCK_SECURITY: SecuritySettings = {
   twoFactorEnabled: true,
@@ -170,7 +176,7 @@ const MOCK_SECURITY: SecuritySettings = {
   requireSpecialChar: true,
   requireNumber: true,
   requireUppercase: true
-}
+} as const
 
 const MOCK_PRIVACY: PrivacySettings = {
   profileVisibility: "registered-only",
@@ -186,7 +192,7 @@ const MOCK_PRIVACY: PrivacySettings = {
   },
   gdprAccepted: true,
   gdprAcceptedAt: new Date("2021-03-15")
-}
+} as const
 
 const MOCK_DISPLAY: DisplayPreferences = {
   theme: "dark",
@@ -202,7 +208,7 @@ const MOCK_DISPLAY: DisplayPreferences = {
   compactMode: false,
   reducedMotion: false,
   highContrast: false
-}
+} as const
 
 const MOCK_CONNECTIONS: ConnectedAccount[] = [
   {
@@ -222,7 +228,7 @@ const MOCK_CONNECTIONS: ConnectedAccount[] = [
     isActive: true,
     scopes: ["profile", "email"]
   }
-]
+] as const
 
 const MOCK_INVOICES: Invoice[] = [
   {
@@ -253,14 +259,18 @@ const MOCK_INVOICES: Invoice[] = [
     ],
     pdfUrl: "/invoices/inv-2024-10.pdf"
   }
-]
+] as const
 
 type TabValue = "profile" | "security" | "notifications" | "privacy" | "billing" | "connections" | "api"
 
-export default function AccountSettingsPage() {
+function AccountSettingsPageContent() {
   const [activeTab, setActiveTab] = useState<TabValue>("profile")
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+
+  const handleTabChange = useCallback((tab: TabValue) => {
+    setActiveTab(tab)
+  }, [])
 
   // Profile form
   const profileForm = useForm<ProfileFormData>({
@@ -287,16 +297,16 @@ export default function AccountSettingsPage() {
     }
   })
 
-  const handleProfileSubmit = async (data: ProfileFormData) => {
+  const handleProfileSubmit = useCallback(async (data: ProfileFormData) => {
     setIsSaving(true)
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
     setIsSaving(false)
     setSaveSuccess(true)
     setTimeout(() => setSaveSuccess(false), 3000)
-  }
+  }, [])
 
-  const handlePasswordSubmit = async (data: PasswordFormData) => {
+  const handlePasswordSubmit = useCallback(async (data: PasswordFormData) => {
     setIsSaving(true)
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
@@ -304,12 +314,13 @@ export default function AccountSettingsPage() {
     passwordForm.reset()
     setSaveSuccess(true)
     setTimeout(() => setSaveSuccess(false), 3000)
-  }
+  }, [passwordForm])
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="landing-page min-h-screen">
       {/* Noise Overlay */}
-      <div className="fixed inset-0 z-0 w-full h-full pointer-events-none opacity-20"
+      <div
+        className="fixed inset-0 z-0 w-full h-full pointer-events-none opacity-20"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
@@ -318,33 +329,35 @@ export default function AccountSettingsPage() {
           backgroundSize: "50px 50px",
           maskImage: "radial-gradient(circle at center, black 40%, transparent 100%)"
         }}
+        aria-hidden="true"
       />
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <a href="/" className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group">
+      <nav className="fixed top-0 w-full px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/10" role="navigation" aria-label="Settings navigation">
+        <Link href="/dashboard" className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group" aria-label="HAUS dashboard">
           <div className="w-8 h-8 bg-white text-black flex items-center justify-center font-bold tracking-tighter group-hover:scale-90 transition-transform duration-300">
             H
           </div>
-        </a>
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#" className="text-xs font-mono text-white/60 hover:text-white transition-colors">DASHBOARD</a>
-          <a href="#" className="text-xs font-mono text-white border-b border-white transition-colors">SETTINGS</a>
+        </Link>
+        <div className="hidden md:flex items-center gap-8" role="list" aria-label="Page navigation">
+          <Link href="/dashboard" className="text-xs font-mono text-white/60 hover:text-white transition-colors">DASHBOARD</Link>
+          <span className="text-xs font-mono text-white border-b border-white transition-colors" aria-current="page">SETTINGS</span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border border-white/20" />
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border border-white/20" aria-label="User profile" />
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 pt-32 pb-24">
+      <div className="relative z-10 pt-32 pb-24" role="main" aria-labelledby="settings-heading">
+        <h1 id="settings-heading" className="sr-only">Account Settings</h1>
         <div className="px-6 md:px-12 max-w-[1400px] mx-auto">
 
           {/* Header */}
           <header className="mb-8">
-            <h1 className="font-display text-3xl md:text-4xl font-medium tracking-tight text-white mb-2">
+            <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight text-white mb-2">
               Account Settings
-            </h1>
+            </h2>
             <p className="text-neutral-400 text-sm">
               Manage your profile, security, and preferences
             </p>
@@ -353,75 +366,82 @@ export default function AccountSettingsPage() {
           <div className="grid grid-cols-12 gap-8">
             {/* Sidebar Navigation */}
             <aside className="col-span-12 md:col-span-3">
-              <nav className="bg-[#0A0A0A] border border-white/10 rounded-xl p-2 sticky top-32">
+              <nav className="bg-[#0A0A0A] border border-white/10 rounded-xl p-2 sticky top-32" role="navigation" aria-label="Settings categories">
                 <button
-                  onClick={() => setActiveTab("profile")}
+                  onClick={() => handleTabChange("profile")}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-1",
                     activeTab === "profile" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
                   )}
+                  aria-pressed={activeTab === "profile"}
                 >
-                  <User className="w-4 h-4" />
+                  <User className="w-4 h-4" aria-hidden="true" />
                   Profile
                 </button>
                 <button
-                  onClick={() => setActiveTab("security")}
+                  onClick={() => handleTabChange("security")}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-1",
                     activeTab === "security" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
                   )}
+                  aria-pressed={activeTab === "security"}
                 >
-                  <Shield className="w-4 h-4" />
+                  <Shield className="w-4 h-4" aria-hidden="true" />
                   Security
                 </button>
                 <button
-                  onClick={() => setActiveTab("notifications")}
+                  onClick={() => handleTabChange("notifications")}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-1",
                     activeTab === "notifications" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
                   )}
+                  aria-pressed={activeTab === "notifications"}
                 >
-                  <Bell className="w-4 h-4" />
+                  <Bell className="w-4 h-4" aria-hidden="true" />
                   Notifications
                 </button>
                 <button
-                  onClick={() => setActiveTab("privacy")}
+                  onClick={() => handleTabChange("privacy")}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-1",
                     activeTab === "privacy" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
                   )}
+                  aria-pressed={activeTab === "privacy"}
                 >
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-4 h-4" aria-hidden="true" />
                   Privacy
                 </button>
                 <button
-                  onClick={() => setActiveTab("billing")}
+                  onClick={() => handleTabChange("billing")}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-1",
                     activeTab === "billing" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
                   )}
+                  aria-pressed={activeTab === "billing"}
                 >
-                  <CreditCard className="w-4 h-4" />
+                  <CreditCard className="w-4 h-4" aria-hidden="true" />
                   Billing
                 </button>
                 <button
-                  onClick={() => setActiveTab("connections")}
+                  onClick={() => handleTabChange("connections")}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-1",
                     activeTab === "connections" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
                   )}
+                  aria-pressed={activeTab === "connections"}
                 >
-                  <Building2 className="w-4 h-4" />
+                  <Building2 className="w-4 h-4" aria-hidden="true" />
                   Connections
                 </button>
                 <button
-                  onClick={() => setActiveTab("api")}
+                  onClick={() => handleTabChange("api")}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                     activeTab === "api" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
                   )}
+                  aria-pressed={activeTab === "api"}
                 >
-                  <Key className="w-4 h-4" />
+                  <Key className="w-4 h-4" aria-hidden="true" />
                   API Keys
                 </button>
               </nav>
@@ -430,8 +450,8 @@ export default function AccountSettingsPage() {
             {/* Content Area */}
             <main className="col-span-12 md:col-span-9">
               {saveSuccess && (
-                <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-3">
-                  <Check className="w-5 h-5 text-emerald-500" />
+                <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-3" role="alert" aria-live="polite">
+                  <Check className="w-5 h-5 text-emerald-500" aria-hidden="true" />
                   <span className="text-sm text-emerald-400">Settings saved successfully</span>
                 </div>
               )}
@@ -440,7 +460,7 @@ export default function AccountSettingsPage() {
               {activeTab === "profile" && (
                 <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 md:p-8">
                   <h2 className="text-xl font-medium text-white mb-6 flex items-center gap-2">
-                    <User className="w-5 h-5 text-indigo-400" />
+                    <User className="w-5 h-5 text-indigo-400" aria-hidden="true" />
                     Profile Information
                   </h2>
 
@@ -452,9 +472,10 @@ export default function AccountSettingsPage() {
                           id="firstName"
                           {...profileForm.register("firstName")}
                           className="bg-black/50 border-white/10"
+                          aria-describedby="firstName-error"
                         />
                         {profileForm.formState.errors.firstName && (
-                          <p className="text-xs text-red-500">{profileForm.formState.errors.firstName.message}</p>
+                          <p id="firstName-error" className="text-xs text-red-500" role="alert">{profileForm.formState.errors.firstName.message}</p>
                         )}
                       </div>
 
@@ -464,9 +485,10 @@ export default function AccountSettingsPage() {
                           id="lastName"
                           {...profileForm.register("lastName")}
                           className="bg-black/50 border-white/10"
+                          aria-describedby="lastName-error"
                         />
                         {profileForm.formState.errors.lastName && (
-                          <p className="text-xs text-red-500">{profileForm.formState.errors.lastName.message}</p>
+                          <p id="lastName-error" className="text-xs text-red-500" role="alert">{profileForm.formState.errors.lastName.message}</p>
                         )}
                       </div>
 
@@ -476,9 +498,10 @@ export default function AccountSettingsPage() {
                           id="displayName"
                           {...profileForm.register("displayName")}
                           className="bg-black/50 border-white/10"
+                          aria-describedby="displayName-error"
                         />
                         {profileForm.formState.errors.displayName && (
-                          <p className="text-xs text-red-500">{profileForm.formState.errors.displayName.message}</p>
+                          <p id="displayName-error" className="text-xs text-red-500" role="alert">{profileForm.formState.errors.displayName.message}</p>
                         )}
                       </div>
 
@@ -489,9 +512,10 @@ export default function AccountSettingsPage() {
                           type="email"
                           {...profileForm.register("email")}
                           className="bg-black/50 border-white/10"
+                          aria-describedby="email-error"
                         />
                         {profileForm.formState.errors.email && (
-                          <p className="text-xs text-red-500">{profileForm.formState.errors.email.message}</p>
+                          <p id="email-error" className="text-xs text-red-500" role="alert">{profileForm.formState.errors.email.message}</p>
                         )}
                       </div>
 
@@ -514,7 +538,11 @@ export default function AccountSettingsPage() {
                           {...profileForm.register("website")}
                           className="bg-black/50 border-white/10"
                           placeholder="https://"
+                          aria-describedby="website-error"
                         />
+                        {profileForm.formState.errors.website && (
+                          <p id="website-error" className="text-xs text-red-500" role="alert">{profileForm.formState.errors.website.message}</p>
+                        )}
                       </div>
                     </div>
 
@@ -526,7 +554,11 @@ export default function AccountSettingsPage() {
                         rows={3}
                         className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded-lg text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-white/20 resize-none"
                         placeholder="Tell us about yourself..."
+                        aria-describedby="bio-error"
                       />
+                      {profileForm.formState.errors.bio && (
+                        <p id="bio-error" className="text-xs text-red-500" role="alert">{profileForm.formState.errors.bio.message}</p>
+                      )}
                     </div>
 
                     <div className="pt-4 border-t border-white/10 flex justify-end">
@@ -534,6 +566,7 @@ export default function AccountSettingsPage() {
                         type="submit"
                         disabled={isSaving}
                         className="bg-indigo-600 hover:bg-indigo-500"
+                        aria-busy={isSaving}
                       >
                         {isSaving ? "Saving..." : "Save Changes"}
                       </Button>
@@ -547,7 +580,7 @@ export default function AccountSettingsPage() {
                 <div className="space-y-6">
                   <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 md:p-8">
                     <h2 className="text-xl font-medium text-white mb-6 flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-indigo-400" />
+                      <Shield className="w-5 h-5 text-indigo-400" aria-hidden="true" />
                       Change Password
                     </h2>
 
@@ -559,9 +592,10 @@ export default function AccountSettingsPage() {
                           type="password"
                           {...passwordForm.register("currentPassword")}
                           className="bg-black/50 border-white/10"
+                          aria-describedby="currentPassword-error"
                         />
                         {passwordForm.formState.errors.currentPassword && (
-                          <p className="text-xs text-red-500">{passwordForm.formState.errors.currentPassword.message}</p>
+                          <p id="currentPassword-error" className="text-xs text-red-500" role="alert">{passwordForm.formState.errors.currentPassword.message}</p>
                         )}
                       </div>
 
@@ -572,9 +606,10 @@ export default function AccountSettingsPage() {
                           type="password"
                           {...passwordForm.register("newPassword")}
                           className="bg-black/50 border-white/10"
+                          aria-describedby="newPassword-error"
                         />
                         {passwordForm.formState.errors.newPassword && (
-                          <p className="text-xs text-red-500">{passwordForm.formState.errors.newPassword.message}</p>
+                          <p id="newPassword-error" className="text-xs text-red-500" role="alert">{passwordForm.formState.errors.newPassword.message}</p>
                         )}
                       </div>
 
@@ -585,9 +620,10 @@ export default function AccountSettingsPage() {
                           type="password"
                           {...passwordForm.register("confirmPassword")}
                           className="bg-black/50 border-white/10"
+                          aria-describedby="confirmPassword-error"
                         />
                         {passwordForm.formState.errors.confirmPassword && (
-                          <p className="text-xs text-red-500">{passwordForm.formState.errors.confirmPassword.message}</p>
+                          <p id="confirmPassword-error" className="text-xs text-red-500" role="alert">{passwordForm.formState.errors.confirmPassword.message}</p>
                         )}
                       </div>
 
@@ -596,6 +632,7 @@ export default function AccountSettingsPage() {
                           type="submit"
                           disabled={isSaving}
                           className="bg-indigo-600 hover:bg-indigo-500"
+                          aria-busy={isSaving}
                         >
                           {isSaving ? "Updating..." : "Update Password"}
                         </Button>
@@ -607,15 +644,15 @@ export default function AccountSettingsPage() {
                   <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <Smartphone className="w-5 h-5 text-emerald-500" />
+                        <Smartphone className="w-5 h-5 text-emerald-500" aria-hidden="true" />
                         <div>
                           <h3 className="text-sm font-medium text-white">Two-Factor Authentication</h3>
                           <p className="text-xs text-neutral-500">Authenticator app enabled</p>
                         </div>
                       </div>
                       <span className="flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs font-medium">
-                        <Check className="w-3 h-3" />
-                        Enabled
+                        <Check className="w-3 h-3" aria-hidden="true" />
+                        <span className="sr-only">Status:</span> Enabled
                       </span>
                     </div>
                   </div>
@@ -623,15 +660,15 @@ export default function AccountSettingsPage() {
                   {/* Active Sessions */}
                   <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
                     <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                      <Monitor className="w-4 h-4" />
+                      <Monitor className="w-4 h-4" aria-hidden="true" />
                       Active Sessions
                     </h3>
-                    <div className="space-y-3">
+                    <div className="space-y-3" role="list" aria-label="Active sessions">
                       {MOCK_SECURITY.deviceHistory.map((device) => (
-                        <div key={device.id} className="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-white/5">
+                        <div key={device.id} className="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-white/5" role="listitem">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center">
-                              <Monitor className="w-4 h-4 text-neutral-400" />
+                              <Monitor className="w-4 h-4 text-neutral-400" aria-hidden="true" />
                             </div>
                             <div>
                               <div className="text-sm text-white">{device.deviceName}</div>
@@ -653,11 +690,11 @@ export default function AccountSettingsPage() {
               {activeTab === "notifications" && (
                 <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 md:p-8">
                   <h2 className="text-xl font-medium text-white mb-6 flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-indigo-400" />
+                    <Bell className="w-5 h-5 text-indigo-400" aria-hidden="true" />
                     Notification Preferences
                   </h2>
 
-                  <div className="space-y-6">
+                  <div className="space-y-6" role="list" aria-label="Notification preferences">
                     {[
                       { title: "New Listings", desc: "Get notified when new properties match your criteria" },
                       { title: "Price Changes", desc: "Alerts when saved properties have price changes" },
@@ -665,12 +702,12 @@ export default function AccountSettingsPage() {
                       { title: "System Updates", desc: "Important announcements about platform changes" },
                       { title: "Account Activity", desc: "Security alerts for your account" }
                     ].map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-white/5">
+                      <div key={idx} className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-white/5" role="listitem">
                         <div>
                           <h4 className="text-sm font-medium text-white mb-1">{item.title}</h4>
                           <p className="text-xs text-neutral-500">{item.desc}</p>
                         </div>
-                        <Select defaultValue="email">
+                        <Select defaultValue="email" aria-label={`Frequency for ${item.title}`}>
                           <SelectTrigger className="w-40 bg-black/50 border-white/10">
                             <SelectValue />
                           </SelectTrigger>
@@ -697,7 +734,7 @@ export default function AccountSettingsPage() {
               {activeTab === "privacy" && (
                 <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 md:p-8">
                   <h2 className="text-xl font-medium text-white mb-6 flex items-center gap-2">
-                    <Eye className="w-5 h-5 text-indigo-400" />
+                    <Eye className="w-5 h-5 text-indigo-400" aria-hidden="true" />
                     Privacy Settings
                   </h2>
 
@@ -709,7 +746,7 @@ export default function AccountSettingsPage() {
                           <div className="text-sm text-white">Who can see your profile</div>
                           <div className="text-xs text-neutral-500">Control who can view your profile information</div>
                         </div>
-                        <Select defaultValue="registered-only">
+                        <Select defaultValue="registered-only" aria-label="Profile visibility">
                           <SelectTrigger className="w-48 bg-black/50 border-white/10">
                             <SelectValue />
                           </SelectTrigger>
@@ -732,7 +769,7 @@ export default function AccountSettingsPage() {
                       ].map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between">
                           <span className="text-sm text-neutral-300">{item.label}</span>
-                          <Checkbox defaultChecked={item.defaultChecked} />
+                          <Checkbox id={`privacy-${idx}`} defaultChecked={item.defaultChecked} />
                         </div>
                       ))}
                     </div>
@@ -746,7 +783,7 @@ export default function AccountSettingsPage() {
                       ].map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between">
                           <span className="text-sm text-neutral-300">{item.label}</span>
-                          <Checkbox defaultChecked={item.defaultChecked} />
+                          <Checkbox id={`data-${idx}`} defaultChecked={item.defaultChecked} />
                         </div>
                       ))}
                     </div>
@@ -766,7 +803,7 @@ export default function AccountSettingsPage() {
                   <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-medium text-white flex items-center gap-2">
-                        <CreditCard className="w-5 h-5 text-indigo-400" />
+                        <CreditCard className="w-5 h-5 text-indigo-400" aria-hidden="true" />
                         Billing & Subscription
                       </h2>
                       <span className="px-3 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs font-medium">
@@ -801,9 +838,9 @@ export default function AccountSettingsPage() {
                   {/* Invoice History */}
                   <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
                     <h3 className="text-sm font-medium text-white mb-4">Invoice History</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-3" role="list" aria-label="Invoice history">
                       {MOCK_INVOICES.map((invoice) => (
-                        <div key={invoice.id} className="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-white/5">
+                        <div key={invoice.id} className="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-white/5" role="listitem">
                           <div>
                             <div className="text-sm text-white">{invoice.number}</div>
                             <div className="text-xs text-neutral-500">{invoice.createdAt.toLocaleDateString()}</div>
@@ -813,7 +850,7 @@ export default function AccountSettingsPage() {
                             <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs">
                               {invoice.status}
                             </span>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" aria-label={`Download invoice ${invoice.number}`}>
                               <Download className="w-4 h-4" />
                             </Button>
                           </div>
@@ -828,16 +865,16 @@ export default function AccountSettingsPage() {
               {activeTab === "connections" && (
                 <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 md:p-8">
                   <h2 className="text-xl font-medium text-white mb-6 flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-indigo-400" />
+                    <Building2 className="w-5 h-5 text-indigo-400" aria-hidden="true" />
                     Connected Accounts
                   </h2>
 
-                  <div className="space-y-4">
+                  <div className="space-y-4" role="list" aria-label="Connected accounts">
                     {MOCK_CONNECTIONS.map((conn) => (
-                      <div key={conn.id} className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-white/5">
+                      <div key={conn.id} className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-white/5" role="listitem">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded bg-white/5 flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-neutral-400" />
+                            <Building2 className="w-5 h-5 text-neutral-400" aria-hidden="true" />
                           </div>
                           <div>
                             <div className="text-sm text-white capitalize">{conn.provider}</div>
@@ -846,8 +883,8 @@ export default function AccountSettingsPage() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1 text-xs text-emerald-500">
-                            <Check className="w-3 h-3" />
-                            Connected
+                            <Check className="w-3 h-3" aria-hidden="true" />
+                            <span className="sr-only">Status:</span> Connected
                           </span>
                           <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-400 hover:bg-red-500/10">
                             Disconnect
@@ -859,7 +896,7 @@ export default function AccountSettingsPage() {
 
                   <div className="mt-6 pt-6 border-t border-white/10">
                     <Button variant="outline" className="border-white/20">
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
                       Connect Account
                     </Button>
                   </div>
@@ -870,18 +907,18 @@ export default function AccountSettingsPage() {
               {activeTab === "api" && (
                 <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 md:p-8">
                   <h2 className="text-xl font-medium text-white mb-6 flex items-center gap-2">
-                    <Key className="w-5 h-5 text-indigo-400" />
+                    <Key className="w-5 h-5 text-indigo-400" aria-hidden="true" />
                     API Keys
                   </h2>
 
                   <div className="text-center py-12">
-                    <Key className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
+                    <Key className="w-12 h-12 text-neutral-600 mx-auto mb-4" aria-hidden="true" />
                     <h3 className="text-sm font-medium text-white mb-2">No API keys yet</h3>
                     <p className="text-xs text-neutral-500 mb-6 max-w-sm mx-auto">
                       Create API keys to integrate HAUS data with your applications
                     </p>
                     <Button className="bg-indigo-600 hover:bg-indigo-500">
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
                       Generate API Key
                     </Button>
                   </div>
@@ -894,5 +931,17 @@ export default function AccountSettingsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AccountSettingsPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading settings..." />}>
+          <AccountSettingsPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

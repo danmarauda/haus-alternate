@@ -196,6 +196,7 @@ const SUPPORT_CONTACTS: SupportContact[] = [
     initials: "MK",
     name: "Mike (Broker)",
     role: "Pre-approval issued",
+    status: "Online",
     statusColor: "emerald",
     isOnline: true,
     actionIcon: "message-square",
@@ -205,7 +206,9 @@ const SUPPORT_CONTACTS: SupportContact[] = [
     initials: "LL",
     name: "Legal Team",
     role: "Contract review ready",
+    status: "Offline",
     statusColor: "neutral",
+    isOnline: false,
     actionIcon: "file-text",
   },
 ]

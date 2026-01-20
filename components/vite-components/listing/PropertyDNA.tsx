@@ -184,15 +184,15 @@ export const PropertyDNA: React.FC<PropertyDNAProps> = ({
                     <div>
                       <p className="text-xs text-muted-foreground">{item.label}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        {item.visual === 'stars' ? (
+                        {"visual" in item && item.visual === 'stars' ? (
                           renderStars(item.value)
-                        ) : item.icon ? (
+                        ) : ("icon" in item && item.icon !== undefined) ? (
                           <Check className="w-4 h-4 text-success flex-shrink-0" />
                         ) : null}
                         <p className={`font-space text-sm font-medium ${
-                          item.color === 'success' ? 'text-success' :
-                          item.color === 'warning' ? 'text-warning' :
-                          item.color === 'error' ? 'text-error' :
+                          "color" in item && item.color === 'success' ? 'text-success' :
+                          "color" in item && item.color === 'warning' ? 'text-warning' :
+                          "color" in item && item.color === 'error' ? 'text-error' :
                           ''
                         }`}>
                           {item.value}

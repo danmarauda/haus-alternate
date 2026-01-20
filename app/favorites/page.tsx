@@ -17,15 +17,39 @@
  * - Alert toggles for price updates
  */
 
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
   Sparkles, Heart, Trash2, MapPin, Bed, Bath, Square, ArrowLeft,
   Grid, List, SlidersHorizontal, Bell, BellOff, Share2, ExternalLink,
   TrendingUp, TrendingDown, Calendar,
 } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 
-const savedProperties = [
+
+type PropertyStatus = "Active" | "Under Offer" | "Auction" | "Sold"
+
+type SavedProperty = {
+  id: number
+  image: string
+  title: string
+  location: string
+  price: string
+  priceChange: number
+  beds: number
+  baths: number
+  sqft: string
+  match: number
+  savedDate: string
+  alerts: boolean
+  status: PropertyStatus
+}
+
+const savedProperties: SavedProperty[] = [
   {
     id: 1,
     image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800",
@@ -58,7 +82,7 @@ const savedProperties = [
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800",
+    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800",
     title: "Contemporary Townhouse",
     location: "Austin, TX",
     price: "$1,150,000",
@@ -116,33 +140,41 @@ const savedProperties = [
     alerts: false,
     status: "Sold",
   },
-]
+] as const
 
-export default function FavoritesPage() {
+function FavoritesPageContent() {
   const [view, setView] = useState<"grid" | "list">("grid")
   const [properties, setProperties] = useState(savedProperties)
 
-  const removeProperty = (id: number) => {
+  const removeProperty = useCallback((id: number) => {
     setProperties(properties.filter((p) => p.id !== id))
-  }
+  }, [properties])
 
-  const toggleAlerts = (id: number) => {
+  const toggleAlerts = useCallback((id: number) => {
     setProperties(properties.map((p) => p.id === id ? { ...p, alerts: !p.alerts } : p))
-  }
+  }, [properties])
 
-  const activeCount = properties.filter((p) => p.status === "Active").length
-  const totalValue = properties.reduce((sum, p) => sum + parseInt(p.price.replace(/[$,]/g, "")), 0)
+  const handleViewChange = useCallback((newView: "grid" | "list") => {
+    setView(newView)
+  }, [])
+
+  const stats = useMemo(() => ({
+    totalCount: properties.length,
+    activeCount: properties.filter((p) => p.status === "Active").length,
+    totalValue: properties.reduce((sum, p) => sum + parseInt(p.price.replace(/[$,]/g, "")), 0),
+    alertsCount: properties.filter((p) => p.alerts).length,
+  }), [properties])
 
   return (
     <div className="landing-page min-h-screen">
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10" role="navigation" aria-label="Favorites navigation">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors">
+            <Link href="/dashboard" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors" aria-label="Back to dashboard">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <Link href="/" className="inline-flex items-center gap-2">
+            <Link href="/" className="inline-flex items-center gap-2" aria-label="HAUS home">
               <div className="h-6 w-6 rounded-md bg-white/10 border border-white/10 flex items-center justify-center">
                 <Sparkles className="h-3.5 w-3.5 text-white/80" />
               </div>
@@ -150,65 +182,80 @@ export default function FavoritesPage() {
             </Link>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex bg-white/5 p-1 rounded-lg border border-white/5">
+            <div className="flex bg-white/5 p-1 rounded-lg border border-white/5" role="group" aria-label="View toggle">
               <button
-                onClick={() => setView("grid")}
+                onClick={() => handleViewChange("grid")}
                 className={`p-2 rounded ${view === "grid" ? "bg-white/10 text-white" : "text-neutral-500 hover:text-white"} transition-colors`}
+                aria-label="Grid view"
+                aria-pressed={view === "grid"}
               >
                 <Grid className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setView("list")}
+                onClick={() => handleViewChange("list")}
                 className={`p-2 rounded ${view === "list" ? "bg-white/10 text-white" : "text-neutral-500 hover:text-white"} transition-colors`}
+                aria-label="List view"
+                aria-pressed={view === "list"}
               >
                 <List className="w-4 h-4" />
               </button>
             </div>
-            <button className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors">
+            <button className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors" aria-label="Filter options">
               <SlidersHorizontal className="w-5 h-5" />
             </button>
           </div>
         </div>
       </nav>
 
-      <main className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <main className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-labelledby="favorites-heading">
+        <h1 id="favorites-heading" className="sr-only">Saved Properties</h1>
+
         {/* Header */}
-        <div className="mb-8">
+        <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <Heart className="w-6 h-6 text-rose-400" />
-            <h1 className="text-3xl font-display font-medium tracking-tight text-white">Saved Properties</h1>
+            <Heart className="w-6 h-6 text-rose-400" aria-hidden="true" />
+            <h2 className="text-3xl font-display font-medium tracking-tight text-white">Saved Properties</h2>
           </div>
           <p className="text-neutral-400 text-sm">Track price changes and get alerts on your favorite listings.</p>
-        </div>
+        </header>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-            <div className="text-2xl font-medium text-white">{properties.length}</div>
-            <div className="text-xs text-neutral-500">Total Saved</div>
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" aria-labelledby="stats-heading">
+          <h2 id="stats-heading" className="sr-only">Statistics</h2>
+          <div role="list" aria-label="Property statistics">
+            <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+              <div className="text-2xl font-medium text-white">{stats.totalCount}</div>
+              <div className="text-xs text-neutral-500">Total Saved</div>
+            </div>
+            <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+              <div className="text-2xl font-medium text-emerald-400">{stats.activeCount}</div>
+              <div className="text-xs text-neutral-500">Active Listings</div>
+            </div>
+            <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+              <div className="text-2xl font-medium text-white">${(stats.totalValue / 1000000).toFixed(1)}M</div>
+              <div className="text-xs text-neutral-500">Total Value</div>
+            </div>
+            <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+              <div className="text-2xl font-medium text-amber-400">{stats.alertsCount}</div>
+              <div className="text-xs text-neutral-500">With Alerts</div>
+            </div>
           </div>
-          <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-            <div className="text-2xl font-medium text-emerald-400">{activeCount}</div>
-            <div className="text-xs text-neutral-500">Active Listings</div>
-          </div>
-          <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-            <div className="text-2xl font-medium text-white">${(totalValue / 1000000).toFixed(1)}M</div>
-            <div className="text-xs text-neutral-500">Total Value</div>
-          </div>
-          <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-            <div className="text-2xl font-medium text-amber-400">{properties.filter((p) => p.alerts).length}</div>
-            <div className="text-xs text-neutral-500">With Alerts</div>
-          </div>
-        </div>
+        </section>
 
         {/* Properties Grid */}
         {view === "grid" ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="Saved properties">
             {properties.map((property) => (
-              <div key={property.id} className="group rounded-2xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition-colors">
+              <article key={property.id} className="group rounded-2xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition-colors">
                 <div className="relative aspect-[4/3]">
-                  <img src={property.image} alt={property.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <Image
+                    src={property.image}
+                    alt={property.title}
+                    width={400}
+                    height={300}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" aria-hidden="true" />
 
                   {/* Status Badge */}
                   <div className={`absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-medium uppercase tracking-wider ${
@@ -221,8 +268,8 @@ export default function FavoritesPage() {
                   </div>
 
                   {/* Match Score */}
-                  <div className="absolute top-3 right-3 px-2 py-1 rounded bg-indigo-500/90 text-[10px] font-medium text-white flex items-center gap-1">
-                    <Sparkles className="w-2.5 h-2.5" />{property.match}%
+                  <div className="absolute top-3 right-3 px-2 py-1 rounded bg-indigo-500/90 text-[10px] font-medium text-white flex items-center gap-1" aria-label={`${property.match}% match`}>
+                    <Sparkles className="w-2.5 h-2.5" aria-hidden="true" />{property.match}%
                   </div>
 
                   {/* Price Change */}
@@ -230,7 +277,7 @@ export default function FavoritesPage() {
                     <div className={`absolute bottom-3 left-3 px-2 py-1 rounded backdrop-blur-md text-[10px] font-medium flex items-center gap-1 ${
                       property.priceChange < 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
                     }`}>
-                      {property.priceChange < 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                      {property.priceChange < 0 ? <TrendingDown className="w-3 h-3" aria-hidden="true" /> : <TrendingUp className="w-3 h-3" aria-hidden="true" />}
                       {property.priceChange < 0 ? "-" : "+"}${Math.abs(property.priceChange).toLocaleString()}
                     </div>
                   )}
@@ -242,15 +289,18 @@ export default function FavoritesPage() {
                       className={`w-8 h-8 rounded-lg backdrop-blur-md flex items-center justify-center transition-colors ${
                         property.alerts ? "bg-amber-500/20 text-amber-400" : "bg-white/10 text-neutral-400 hover:text-white"
                       }`}
+                      aria-label={property.alerts ? "Disable alerts" : "Enable alerts"}
+                      aria-pressed={property.alerts}
                     >
                       {property.alerts ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                     </button>
-                    <button className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-neutral-400 hover:text-white transition-colors">
+                    <button className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-neutral-400 hover:text-white transition-colors" aria-label="Share property">
                       <Share2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => removeProperty(property.id)}
                       className="w-8 h-8 rounded-lg bg-red-500/20 backdrop-blur-md flex items-center justify-center text-red-400 hover:bg-red-500/30 transition-colors"
+                      aria-label={`Remove ${property.title}`}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -260,37 +310,37 @@ export default function FavoritesPage() {
                 <Link href={`/listing/${property.id}`} className="block p-4">
                   <h3 className="font-medium text-white group-hover:text-indigo-400 transition-colors">{property.title}</h3>
                   <div className="flex items-center gap-1 text-xs text-neutral-500 mt-1">
-                    <MapPin className="w-3 h-3" />{property.location}
+                    <MapPin className="w-3 h-3" aria-hidden="true" />{property.location}
                   </div>
                   <div className="flex items-center justify-between mt-3">
                     <span className="text-lg font-medium text-white">{property.price}</span>
                     <div className="flex gap-3 text-xs text-neutral-500">
-                      <span className="flex items-center gap-1"><Bed className="w-3 h-3" />{property.beds}</span>
-                      <span className="flex items-center gap-1"><Bath className="w-3 h-3" />{property.baths}</span>
-                      <span className="flex items-center gap-1"><Square className="w-3 h-3" />{property.sqft}</span>
+                      <span className="flex items-center gap-1"><Bed className="w-3 h-3" aria-hidden="true" />{property.beds}</span>
+                      <span className="flex items-center gap-1"><Bath className="w-3 h-3" aria-hidden="true" />{property.baths}</span>
+                      <span className="flex items-center gap-1"><Square className="w-3 h-3" aria-hidden="true" />{property.sqft}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-[10px] text-neutral-600 mt-3">
-                    <Calendar className="w-3 h-3" />Saved {property.savedDate}
+                    <Calendar className="w-3 h-3" aria-hidden="true" />Saved {property.savedDate}
                   </div>
                 </Link>
-              </div>
+              </article>
             ))}
           </div>
         ) : (
           /* List View */
-          <div className="space-y-4">
+          <div className="space-y-4" role="list" aria-label="Saved properties list view">
             {properties.map((property) => (
               <div key={property.id} className="flex gap-4 p-4 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 transition-colors group">
                 <div className="w-32 h-24 rounded-lg overflow-hidden shrink-0">
-                  <img src={property.image} alt={property.title} className="w-full h-full object-cover" />
+                  <Image src={property.image} alt={property.title} width={128} height={96} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <Link href={`/listing/${property.id}`} className="font-medium text-white hover:text-indigo-400 transition-colors">{property.title}</Link>
                       <div className="flex items-center gap-1 text-xs text-neutral-500 mt-1">
-                        <MapPin className="w-3 h-3" />{property.location}
+                        <MapPin className="w-3 h-3" aria-hidden="true" />{property.location}
                       </div>
                     </div>
                     <div className="text-right">
@@ -310,17 +360,17 @@ export default function FavoritesPage() {
                       "bg-neutral-500/20 text-neutral-400"
                     }`}>{property.status}</span>
                     <span className="text-xs text-neutral-500">{property.beds} bed • {property.baths} bath • {property.sqft} sqft</span>
-                    <span className="text-xs text-neutral-600 flex items-center gap-1"><Calendar className="w-3 h-3" />Saved {property.savedDate}</span>
+                    <span className="text-xs text-neutral-600 flex items-center gap-1"><Calendar className="w-3 h-3" aria-hidden="true" />Saved {property.savedDate}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => toggleAlerts(property.id)} className={`p-2 rounded-lg transition-colors ${property.alerts ? "text-amber-400" : "text-neutral-500 hover:text-white"}`}>
+                  <button onClick={() => toggleAlerts(property.id)} className={`p-2 rounded-lg transition-colors ${property.alerts ? "text-amber-400" : "text-neutral-500 hover:text-white"}`} aria-pressed={property.alerts} aria-label="Toggle alerts">
                     {property.alerts ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                   </button>
-                  <button className="p-2 rounded-lg text-neutral-500 hover:text-white transition-colors">
+                  <Link href={`/listing/${property.id}`} className="p-2 rounded-lg text-neutral-500 hover:text-white transition-colors" aria-label={`View ${property.title}`}>
                     <ExternalLink className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => removeProperty(property.id)} className="p-2 rounded-lg text-red-400 hover:bg-red-500/20 transition-colors">
+                  </Link>
+                  <button onClick={() => removeProperty(property.id)} className="p-2 rounded-lg text-red-400 hover:bg-red-500/20 transition-colors" aria-label={`Remove ${property.title}`}>
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -331,7 +381,7 @@ export default function FavoritesPage() {
 
         {properties.length === 0 && (
           <div className="text-center py-20">
-            <Heart className="w-12 h-12 text-neutral-700 mx-auto mb-4" />
+            <Heart className="w-12 h-12 text-neutral-700 mx-auto mb-4" aria-hidden="true" />
             <h2 className="text-xl font-medium text-white mb-2">No saved properties</h2>
             <p className="text-neutral-500 text-sm mb-6">Start exploring and save properties you like.</p>
             <Link href="/search" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-black text-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors">
@@ -341,5 +391,17 @@ export default function FavoritesPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function FavoritesPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading favorites..." />}>
+          <FavoritesPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

@@ -4,25 +4,50 @@ import {
   BarChart2, Users, Shield, Zap, Heart, Coffee, Plane, DollarSign,
   Building, Globe,
 } from "lucide-react";
-import "@/styles/landing.css";
+import { Suspense } from "react";
+import { Shell } from "@/components/shell";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { PageLoader } from "@/components/page-loader";
 
-const benefits = [
+
+interface Benefit {
+  icon: typeof DollarSign;
+  title: string;
+  desc: string;
+}
+
+interface Department {
+  name: string;
+  count: number;
+  icon: typeof Code;
+}
+
+interface Job {
+  id: number;
+  title: string;
+  dept: string;
+  location: string;
+  type: string;
+  featured?: boolean;
+}
+
+const benefits: Benefit[] = [
   { icon: DollarSign, title: "Competitive Salary", desc: "Top-tier compensation with equity" },
   { icon: Heart, title: "Health & Wellness", desc: "Comprehensive medical, dental, vision" },
   { icon: Plane, title: "Unlimited PTO", desc: "Take the time you need" },
   { icon: Building, title: "Remote First", desc: "Work from anywhere in the world" },
   { icon: Coffee, title: "Learning Budget", desc: "$5,000/year for personal development" },
   { icon: Zap, title: "Latest Tech", desc: "MacBook Pro, monitors, whatever you need" },
-];
+] as const;
 
-const departments = [
+const departments: Department[] = [
   { name: "Engineering", count: 12, icon: Code },
   { name: "Design", count: 4, icon: Palette },
   { name: "Data Science", count: 6, icon: BarChart2 },
   { name: "Operations", count: 5, icon: Users },
-];
+] as const;
 
-const jobs = [
+const jobs: Job[] = [
   { id: 1, title: "Senior Full-Stack Engineer", dept: "Engineering", location: "Remote", type: "Full-time", featured: true },
   { id: 2, title: "ML Engineer - Real Estate AI", dept: "Data Science", location: "Sydney", type: "Full-time", featured: true },
   { id: 3, title: "Product Designer", dept: "Design", location: "Remote", type: "Full-time" },
@@ -31,24 +56,24 @@ const jobs = [
   { id: 6, title: "DevOps Engineer", dept: "Engineering", location: "Remote", type: "Full-time" },
   { id: 7, title: "Head of Growth", dept: "Operations", location: "Sydney", type: "Full-time", featured: true },
   { id: 8, title: "iOS Engineer", dept: "Engineering", location: "Remote", type: "Full-time" },
-];
+] as const;
 
-export default function Careers() {
+function CareersPageContent() {
   return (
     <div className="landing-page min-h-screen">
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl">
+      <nav className="sticky top-0 z-40 backdrop-blur-xl" aria-label="Main navigation">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mt-4 mb-3 rounded-2xl border border-white/10 bg-neutral-900/60 px-4 py-3 sm:px-6 flex items-center justify-between">
-            <Link href="/landing" className="inline-flex items-center gap-2">
+            <Link href="/landing-1" className="inline-flex items-center gap-2" aria-label="HAUS home">
               <div className="h-6 w-6 rounded-md bg-white/10 border border-white/10 flex items-center justify-center">
                 <Sparkles className="h-3.5 w-3.5 text-white/80" />
               </div>
               <span className="text-base font-semibold tracking-tight">HAUS</span>
             </Link>
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6" aria-label="Page navigation">
               <Link href="/about" className="text-sm font-medium text-neutral-300 hover:text-white transition">About</Link>
-              <span className="text-sm font-medium text-white">Careers</span>
+              <span className="text-sm font-medium text-white" aria-current="page">Careers</span>
               <Link href="/press" className="text-sm font-medium text-neutral-300 hover:text-white transition">Press</Link>
             </nav>
             <Link href="/search" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-gradient-to-r from-white/10 to-white/5 px-4 py-2 text-sm text-white hover:scale-[1.02] transition">
@@ -60,13 +85,13 @@ export default function Careers() {
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-20 pb-24 px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative pt-20 pb-24 px-4 sm:px-6 lg:px-8 text-center" aria-labelledby="careers-heading">
         <div className="mx-auto max-w-4xl">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 mb-8">
-            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" aria-hidden="true" />
             <span className="text-xs font-medium text-indigo-300">We're Hiring</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-display font-medium tracking-tight text-white leading-[0.95] mb-6">
+          <h1 id="careers-heading" className="text-5xl md:text-7xl font-display font-medium tracking-tight text-white leading-[0.95] mb-6">
             Build the Future<br />of Real Estate
           </h1>
           <p className="text-lg text-neutral-400 max-w-2xl mx-auto mb-10">
@@ -82,16 +107,17 @@ export default function Careers() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10" aria-labelledby="stats-heading">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <h2 id="stats-heading" className="sr-only">Company Statistics</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6" role="list" aria-label="Company stats">
             {[
               { value: "85+", label: "Team Members" },
               { value: "12", label: "Countries" },
               { value: "$42M", label: "Series B" },
               { value: "4.9", label: "Glassdoor Rating" },
             ].map((stat) => (
-              <div key={stat.label} className="text-center p-6 rounded-2xl border border-white/10 bg-white/5">
+              <div key={stat.label} className="text-center p-6 rounded-2xl border border-white/10 bg-white/5" role="listitem">
                 <div className="text-3xl font-medium text-white mb-1">{stat.value}</div>
                 <div className="text-sm text-neutral-500">{stat.label}</div>
               </div>
@@ -101,19 +127,19 @@ export default function Careers() {
       </section>
 
       {/* Benefits */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-white/10" aria-labelledby="benefits-heading">
         <div className="mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
               <span className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Benefits</span>
             </div>
-            <h2 className="font-display text-4xl font-medium tracking-tight text-white">Why Join HAUS</h2>
+            <h2 id="benefits-heading" className="font-display text-4xl font-medium tracking-tight text-white">Why Join HAUS</h2>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="Employee benefits">
             {benefits.map((benefit) => (
-              <div key={benefit.title} className="p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group">
-                <benefit.icon className="w-8 h-8 text-indigo-400 mb-4 group-hover:scale-110 transition-transform" />
+              <div key={benefit.title} className="p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group" role="listitem">
+                <benefit.icon className="w-8 h-8 text-indigo-400 mb-4 group-hover:scale-110 transition-transform" aria-hidden="true" />
                 <h3 className="text-lg font-medium text-white mb-2">{benefit.title}</h3>
                 <p className="text-sm text-neutral-500">{benefit.desc}</p>
               </div>
@@ -123,12 +149,13 @@ export default function Careers() {
       </section>
 
       {/* Departments */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10" aria-labelledby="departments-heading">
         <div className="mx-auto max-w-7xl">
-          <div className="flex flex-wrap justify-center gap-4">
+          <h2 id="departments-heading" className="sr-only">Open Departments</h2>
+          <div className="flex flex-wrap justify-center gap-4" role="list" aria-label="Hiring departments">
             {departments.map((dept) => (
-              <div key={dept.name} className="flex items-center gap-3 px-6 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
-                <dept.icon className="w-4 h-4 text-neutral-400" />
+              <div key={dept.name} className="flex items-center gap-3 px-6 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer" role="listitem">
+                <dept.icon className="w-4 h-4 text-neutral-400" aria-hidden="true" />
                 <span className="text-sm text-white">{dept.name}</span>
                 <span className="text-xs text-neutral-500 bg-white/10 px-2 py-0.5 rounded-full">{dept.count}</span>
               </div>
@@ -138,18 +165,18 @@ export default function Careers() {
       </section>
 
       {/* Job Listings */}
-      <section id="positions" className="py-24 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+      <section id="positions" className="py-24 px-4 sm:px-6 lg:px-8 border-t border-white/10" aria-labelledby="positions-heading">
         <div className="mx-auto max-w-4xl">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+              <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" aria-hidden="true" />
               <span className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Open Positions</span>
             </div>
-            <h2 className="font-display text-4xl font-medium tracking-tight text-white">Join Our Team</h2>
+            <h2 id="positions-heading" className="font-display text-4xl font-medium tracking-tight text-white">Join Our Team</h2>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-4" role="list" aria-label="Job openings">
             {jobs.map((job) => (
-              <div key={job.id} className="group p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer">
+              <a key={job.id} href={`#job-${job.id}`} className="group p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer" role="listitem">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
@@ -159,14 +186,14 @@ export default function Careers() {
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-500">
-                      <span className="flex items-center gap-1"><Shield className="w-3 h-3" />{job.dept}</span>
-                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{job.location}</span>
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{job.type}</span>
+                      <span className="flex items-center gap-1"><Shield className="w-3 h-3" aria-hidden="true" />{job.dept}</span>
+                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" aria-hidden="true" />{job.location}</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" aria-hidden="true" />{job.type}</span>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" />
+                  <ArrowUpRight className="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" aria-hidden="true" />
                 </div>
-              </div>
+              </a>
             ))}
           </div>
           <div className="mt-12 text-center">
@@ -182,7 +209,7 @@ export default function Careers() {
       <footer className="border-t border-white/10 py-8 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-neutral-500" />
+            <Globe className="w-4 h-4 text-neutral-500" aria-hidden="true" />
             <span className="text-xs text-neutral-500">HAUS Group Pty Ltd</span>
           </div>
           <div className="flex items-center gap-6">
@@ -193,5 +220,17 @@ export default function Careers() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function CareersPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading careers..." />}>
+          <CareersPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   );
 }

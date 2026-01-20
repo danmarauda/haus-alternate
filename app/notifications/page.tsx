@@ -16,17 +16,24 @@
  * - Quick actions for each notification
  */
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Link from "next/link"
 import {
   Sparkles, Bell, ArrowLeft, Check, CheckCheck, Trash2, Settings,
   TrendingDown, TrendingUp, Home, MessageSquare, Calendar, DollarSign,
   AlertCircle, Star,
 } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
+
+
+type NotificationType = "price_drop" | "price_increase" | "new_listing" | "message" | "viewing" | "offer" | "alert" | "review" | "system"
 
 type Notification = {
   id: string
-  type: "price_drop" | "price_increase" | "new_listing" | "message" | "viewing" | "offer" | "alert" | "review" | "system"
+  type: NotificationType
   title: string
   description: string
   time: string
@@ -109,9 +116,9 @@ const initialNotifications: Notification[] = [
     read: true,
     actionUrl: "/settings",
   },
-]
+] as const
 
-const getIcon = (type: Notification["type"]) => {
+const getIcon = (type: NotificationType) => {
   switch (type) {
     case "price_drop": return <TrendingDown className="w-4 h-4" />
     case "price_increase": return <TrendingUp className="w-4 h-4" />
@@ -126,7 +133,7 @@ const getIcon = (type: Notification["type"]) => {
   }
 }
 
-const getIconColor = (type: Notification["type"]) => {
+const getIconColor = (type: NotificationType) => {
   switch (type) {
     case "price_drop": return "text-emerald-400 bg-emerald-500/20"
     case "price_increase": return "text-red-400 bg-red-500/20"
@@ -141,94 +148,104 @@ const getIconColor = (type: Notification["type"]) => {
   }
 }
 
-export default function NotificationsPage() {
+function NotificationsPageContent() {
   const [notifications, setNotifications] = useState(initialNotifications)
   const [filter, setFilter] = useState<"all" | "unread">("all")
 
   const unreadCount = notifications.filter((n) => !n.read).length
   const filteredNotifications = filter === "unread" ? notifications.filter((n) => !n.read) : notifications
 
-  const markAsRead = (id: string) => {
+  const markAsRead = useCallback((id: string) => {
     setNotifications(notifications.map((n) => n.id === id ? { ...n, read: true } : n))
-  }
+  }, [])
 
-  const markAllAsRead = () => {
+  const markAllAsRead = useCallback(() => {
     setNotifications(notifications.map((n) => ({ ...n, read: true })))
-  }
+  }, [])
 
-  const deleteNotification = (id: string) => {
+  const deleteNotification = useCallback((id: string) => {
     setNotifications(notifications.filter((n) => n.id !== id))
-  }
+  }, [])
 
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     setNotifications([])
-  }
+  }, [])
+
+  const handleFilterChange = useCallback((newFilter: "all" | "unread") => {
+    setFilter(newFilter)
+  }, [])
 
   return (
     <div className="landing-page min-h-screen">
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10" role="navigation" aria-label="Notifications navigation">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors">
+            <Link href="/dashboard" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors" aria-label="Back to dashboard">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <Link href="/" className="inline-flex items-center gap-2">
+            <Link href="/" className="inline-flex items-center gap-2" aria-label="HAUS home">
               <div className="h-6 w-6 rounded-md bg-white/10 border border-white/10 flex items-center justify-center">
                 <Sparkles className="h-3.5 w-3.5 text-white/80" />
               </div>
               <span className="text-base font-semibold tracking-tight">HAUS</span>
             </Link>
           </div>
-          <Link href="/settings" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors">
+          <Link href="/settings" className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors" aria-label="Settings">
             <Settings className="w-5 h-5" />
           </Link>
         </div>
       </nav>
 
-      <main className="py-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+      <main className="py-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto" aria-labelledby="notifications-heading">
+        <h1 id="notifications-heading" className="sr-only">Notifications</h1>
+
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <header className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-display font-medium tracking-tight text-white flex items-center gap-3">
+            <h2 className="text-2xl font-display font-medium tracking-tight text-white flex items-center gap-3">
               Notifications
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-indigo-500 text-[10px] font-bold text-white">{unreadCount}</span>
+                <span className="px-2 py-0.5 rounded-full bg-indigo-500 text-[10px] font-bold text-white" aria-label={`${unreadCount} unread notifications`}>
+                  {unreadCount}
+                </span>
               )}
-            </h1>
+            </h2>
             <p className="text-neutral-500 text-sm mt-1">Stay updated on your property activity</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" role="group" aria-label="Bulk actions">
             {unreadCount > 0 && (
               <button onClick={markAllAsRead} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-indigo-400 hover:bg-indigo-500/10 transition-colors">
-                <CheckCheck className="w-3 h-3" />
+                <CheckCheck className="w-3 h-3" aria-hidden="true" />
                 Mark all read
               </button>
             )}
             {notifications.length > 0 && (
               <button onClick={clearAll} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                <Trash2 className="w-3 h-3" />
+                <Trash2 className="w-3 h-3" aria-hidden="true" />
                 Clear all
               </button>
             )}
           </div>
-        </div>
+        </header>
 
         {/* Filters */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6" role="group" aria-label="Filter notifications">
           <button
-            onClick={() => setFilter("all")}
+            onClick={() => handleFilterChange("all")}
             className={`px-4 py-2 rounded-lg text-xs font-medium transition-colors ${
               filter === "all" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
             }`}
+            aria-pressed={filter === "all"}
           >
             All
           </button>
           <button
-            onClick={() => setFilter("unread")}
+            onClick={() => handleFilterChange("unread")}
             className={`px-4 py-2 rounded-lg text-xs font-medium transition-colors flex items-center gap-2 ${
               filter === "unread" ? "bg-white/10 text-white" : "text-neutral-400 hover:text-white hover:bg-white/5"
             }`}
+            aria-pressed={filter === "unread"}
           >
             Unread
             {unreadCount > 0 && <span className="w-5 h-5 rounded-full bg-indigo-500 text-[10px] flex items-center justify-center">{unreadCount}</span>}
@@ -237,7 +254,7 @@ export default function NotificationsPage() {
 
         {/* Notifications List */}
         {filteredNotifications.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-2" role="list" aria-label="Notifications list">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
@@ -246,10 +263,11 @@ export default function NotificationsPage() {
                     ? "border-white/5 bg-white/[0.02] hover:bg-white/5"
                     : "border-white/10 bg-white/5 hover:bg-white/10"
                 }`}
+                role="listitem"
               >
                 <div className="flex gap-4">
                   {/* Icon */}
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${getIconColor(notification.type)}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${getIconColor(notification.type)}`} aria-hidden="true">
                     {getIcon(notification.type)}
                   </div>
 
@@ -273,8 +291,9 @@ export default function NotificationsPage() {
                           <button
                             onClick={() => markAsRead(notification.id)}
                             className="p-1.5 rounded-lg text-neutral-500 hover:text-white hover:bg-white/10 transition-colors"
+                            aria-label={`Mark ${notification.title} as read`}
                           >
-                            <Check className="w-3 h-3" />
+                            <Check className="w-3 h-3" aria-hidden="true" />
                           </button>
                         )}
                         {notification.actionUrl && (
@@ -288,8 +307,9 @@ export default function NotificationsPage() {
                         <button
                           onClick={() => deleteNotification(notification.id)}
                           className="p-1.5 rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          aria-label={`Delete ${notification.title}`}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-3 h-3" aria-hidden="true" />
                         </button>
                       </div>
                     </div>
@@ -301,7 +321,7 @@ export default function NotificationsPage() {
         ) : (
           <div className="text-center py-20">
             <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-              <Bell className="w-8 h-8 text-neutral-600" />
+              <Bell className="w-8 h-8 text-neutral-600" aria-hidden="true" />
             </div>
             <h2 className="text-lg font-medium text-white mb-2">
               {filter === "unread" ? "All caught up!" : "No notifications"}
@@ -315,9 +335,9 @@ export default function NotificationsPage() {
         )}
 
         {/* Notification Settings */}
-        <div className="mt-12 p-6 rounded-2xl border border-white/10 bg-white/5">
-          <h3 className="font-medium text-white mb-4">Notification Preferences</h3>
-          <div className="space-y-4">
+        <div className="mt-12 p-6 rounded-2xl border border-white/10 bg-white/5" aria-labelledby="preferences-heading">
+          <h3 id="preferences-heading" className="font-medium text-white mb-4">Notification Preferences</h3>
+          <div className="space-y-4" role="list" aria-label="Notification preferences">
             {[
               { label: "Price drop alerts", desc: "Get notified when saved properties reduce in price", enabled: true },
               { label: "New listing matches", desc: "Receive alerts for properties matching your criteria", enabled: true },
@@ -329,18 +349,30 @@ export default function NotificationsPage() {
                   <div className="text-sm text-white">{pref.label}</div>
                   <div className="text-xs text-neutral-500">{pref.desc}</div>
                 </div>
-                <button className={`w-10 h-6 rounded-full transition-colors ${pref.enabled ? "bg-indigo-500" : "bg-white/10"}`}>
-                  <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${pref.enabled ? "translate-x-5" : "translate-x-1"}`} />
+                <button className={`w-10 h-6 rounded-full transition-colors ${pref.enabled ? "bg-indigo-500" : "bg-white/10"}`} aria-pressed={pref.enabled} aria-label={`${pref.label} ${pref.enabled ? "enabled" : "disabled"}`}>
+                  <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${pref.enabled ? "translate-x-5" : "translate-x-1"}`} aria-hidden="true" />
                 </button>
               </div>
             ))}
           </div>
           <Link href="/settings" className="inline-flex items-center gap-1 mt-6 text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
-            <Settings className="w-3 h-3" />
+            <Settings className="w-3 h-3" aria-hidden="true" />
             Manage all notification settings
           </Link>
         </div>
       </main>
     </div>
+  )
+}
+
+export default function NotificationsPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading notifications..." />}>
+          <NotificationsPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

@@ -723,14 +723,14 @@ export default function HausV2PRDPage() {
                         key={item.label}
                         className={cn(
                           "rounded-xl bg-black/20 p-3",
-                          item.highlight &&
+                          "highlight" in item && item.highlight &&
                             "bg-sky-500/5 ring-1 ring-sky-500/10 text-sky-200"
                         )}
                       >
                         <div
                           className={cn(
                             "text-[10px] uppercase tracking-wider font-semibold",
-                            item.highlight ? "text-sky-400/80" : "text-neutral-500"
+                            "highlight" in item && item.highlight ? "text-sky-400/80" : "text-neutral-500"
                           )}
                         >
                           {item.label}
@@ -738,7 +738,7 @@ export default function HausV2PRDPage() {
                         <div
                           className={cn(
                             "text-xs mt-1",
-                            item.highlight ? "text-sky-200" : "text-neutral-300"
+                            "highlight" in item && item.highlight ? "text-sky-200" : "text-neutral-300"
                           )}
                         >
                           {item.value}

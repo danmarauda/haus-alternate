@@ -1,8 +1,17 @@
 import Link from "next/link";
 import { Sparkles, ArrowLeft, FileText, Calendar } from "lucide-react";
-import "@/styles/landing.css";
+import { Suspense } from "react";
+import { Shell } from "@/components/shell";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { PageLoader } from "@/components/page-loader";
 
-const sections = [
+
+interface Section {
+  title: string;
+  content: string;
+}
+
+const sections: Section[] = [
   {
     title: "1. Acceptance of Terms",
     content: `By accessing and using the HAUS platform ("Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this Service.
@@ -78,21 +87,21 @@ Australia
 
 Email: legal@haus.com`
   },
-];
+] as const;
 
-export default function Terms() {
+function TermsPageContent() {
   return (
     <div className="landing-page min-h-screen">
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10" aria-label="Main navigation">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/landing" className="inline-flex items-center gap-2">
+          <Link href="/landing-1" className="inline-flex items-center gap-2" aria-label="HAUS home">
             <div className="h-6 w-6 rounded-md bg-white/10 border border-white/10 flex items-center justify-center">
               <Sparkles className="h-3.5 w-3.5 text-white/80" />
             </div>
             <span className="text-base font-semibold tracking-tight">HAUS</span>
           </Link>
-          <Link href="/landing" className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors">
+          <Link href="/landing-1" className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors" aria-label="Go back">
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
@@ -104,12 +113,12 @@ export default function Terms() {
           {/* Header */}
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-4 h-4 text-neutral-500" />
+              <FileText className="w-4 h-4 text-neutral-500" aria-hidden="true" />
               <span className="text-xs font-medium text-neutral-500 uppercase tracking-widest">Legal</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-display font-medium tracking-tight text-white mb-4">Terms of Service</h1>
             <div className="flex items-center gap-2 text-sm text-neutral-500">
-              <Calendar className="w-4 h-4" />
+              <Calendar className="w-4 h-4" aria-hidden="true" />
               Last updated: October 24, 2025
             </div>
           </div>
@@ -147,5 +156,17 @@ export default function Terms() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function TermsPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading terms of service..." />}>
+          <TermsPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   );
 }

@@ -1,7 +1,29 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+/**
+ * New Home Listing Page
+ *
+ * @description
+ * Comprehensive property detail page with AI-powered market intelligence,
+ * property features, floor plans, comparable listings, and agent information.
+ *
+ * @features
+ * - Framer Motion animations for smooth transitions
+ * - Property image gallery with zoom and modal view
+ * - AI-powered market analysis and value estimates
+ * - Property DNA with building, land, and legal details
+ * - Neighborhood insights and demographics
+ * - Concierge services marketplace
+ * - Floor plan preview
+ * - Comparable listings carousel
+ * - Agent profile with contact options
+ * - Sticky sidebar with price and actions
+ */
+
+import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { motion, useAnimation } from "framer-motion"
+import Image from "next/image"
+import Link from "next/link"
 import {
   BedDouble,
   Bath,
@@ -58,6 +80,10 @@ import {
   Check,
   ChevronDown
 } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 
 // Types
 interface Property {
@@ -113,7 +139,7 @@ interface PropertyIntelligence {
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
-}
+} as const
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -123,7 +149,7 @@ const staggerContainer = {
       staggerChildren: 0.1
     }
   }
-}
+} as const
 
 // Components
 const PropertyBadge = ({ children, variant = "default" }: { children: React.ReactNode; variant?: "default" | "success" | "commercial" }) => {
@@ -163,8 +189,8 @@ const IconPill = ({ icon: Icon, label, value, highlight = false }: {
   </div>
 )
 
-// Main Component
-export default function NewHomeListingPage() {
+// Main Component Content
+function NewHomeListingPageContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [scrollY, setScrollY] = useState(0)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
@@ -246,7 +272,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
       suburbPerformance: [40, 45, 35, 50, 60, 55, 85, 75],
       targetPrice: 36000000
     }
-  }
+  } as const
 
   const comparableProperties = [
     {
@@ -279,7 +305,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
       cars: 3,
       image: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&q=80&w=800"
     }
-  ]
+  ] as const
 
   const conciergeServices = [
     {
@@ -298,7 +324,29 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
       responseTime: "Same Day",
       verified: true
     }
-  ]
+  ] as const
+
+  // Callbacks
+  const handleFavoriteToggle = useCallback(() => {
+    setIsFavorited((prev) => !prev)
+  }, [])
+
+  const handleImageModalOpen = useCallback((index: number) => {
+    setSelectedImageIndex(index)
+    setIsImageModalOpen(true)
+  }, [])
+
+  const handleImageModalClose = useCallback(() => {
+    setIsImageModalOpen(false)
+  }, [])
+
+  const formatPrice = useCallback((price: number) => {
+    return new Intl.NumberFormat("en-AU", {
+      style: "currency",
+      currency: "AUD",
+      minimumFractionDigits: 0
+    }).format(price)
+  }, [])
 
   // Handle scroll
   useEffect(() => {
@@ -314,17 +362,9 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
     }
   }, [])
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-AU", {
-      style: "currency",
-      currency: "AUD",
-      minimumFractionDigits: 0
-    }).format(price)
-  }
-
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950" role="status" aria-live="polite" aria-label="Loading property">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -360,6 +400,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
           backgroundSize: "40px 40px",
           maskImage: "radial-gradient(circle at center, black 40%, transparent 100%)"
         }}
+        aria-hidden="true"
       />
 
       {/* Navigation */}
@@ -367,36 +408,38 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrollY > 50 ? "bg-zinc-950/80 backdrop-blur-xl border-b border-white/5" : "bg-transparent"}`}
+        role="navigation"
+        aria-label="Main navigation"
       >
         <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-10">
-            <a href="#" className="w-8 h-8 bg-white text-black flex items-center justify-center font-bold tracking-tighter hover:scale-95 transition-transform rounded-sm">
+            <Link href="/" className="w-8 h-8 bg-white text-black flex items-center justify-center font-bold tracking-tighter hover:scale-95 transition-transform rounded-sm" aria-label="HAUS home">
               H.
-            </a>
-            <div className="hidden md:flex items-center gap-6">
-              <a href="#" className="text-xs font-medium text-white">Residential</a>
+            </Link>
+            <nav className="hidden md:flex items-center gap-6" aria-label="Site navigation">
+              <Link href="/search" className="text-xs font-medium text-white">Residential</Link>
               <a href="#" className="text-xs font-medium text-neutral-500 hover:text-white transition-colors">
                 Warehaus
                 <span className="text-[9px] align-top text-blue-400 ml-1">COMMERCIAL</span>
               </a>
               <a href="#" className="text-xs font-medium text-neutral-500 hover:text-white transition-colors">Marketplace</a>
               <a href="#" className="text-xs font-medium text-neutral-500 hover:text-white transition-colors">Intelligence</a>
-            </div>
+            </nav>
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center bg-white/5 border border-white/10 rounded-full px-3 py-1.5 w-72 gap-2 focus-within:bg-white/10 focus-within:border-white/20 transition-all group cursor-pointer">
-              <Mic className="w-3.5 h-3.5 text-neutral-500 group-hover:text-white transition-colors" />
-              <input type="text" placeholder="Ask HAUS about school districts..." className="bg-transparent border-none text-xs text-white placeholder-neutral-500 focus:outline-none w-full font-mono h-5" />
-              <div className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center">
+              <Mic className="w-3.5 h-3.5 text-neutral-500 group-hover:text-white transition-colors" aria-hidden="true" />
+              <input type="text" placeholder="Ask HAUS about school districts..." className="bg-transparent border-none text-xs text-white placeholder-neutral-500 focus:outline-none w-full font-mono h-5" aria-label="Ask HAUS AI assistant" />
+              <div className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center" aria-hidden="true">
                 <span className="text-[8px] text-neutral-400">/</span>
               </div>
             </div>
-            <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors relative">
+            <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors relative" aria-label="Notifications">
               <Bell className="w-3.5 h-3.5" />
-              <div className="absolute top-1.5 right-2 w-1.5 h-1.5 bg-red-500 rounded-full border border-black" />
+              <div className="absolute top-1.5 right-2 w-1.5 h-1.5 bg-red-500 rounded-full border border-black" aria-hidden="true" />
             </button>
-            <button className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 border border-white/10 flex items-center justify-center text-white overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="Profile" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition" />
+            <button className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 border border-white/10 flex items-center justify-center text-white overflow-hidden" aria-label="User profile">
+              <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="Profile" width={32} height={32} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition" />
             </button>
           </div>
         </div>
@@ -415,32 +458,34 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
               <div className="flex items-center gap-2">
                 <PropertyBadge>Property ID: {property.id}</PropertyBadge>
                 <PropertyBadge variant="success">
-                  <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
                   For Sale
                 </PropertyBadge>
               </div>
-              <h1 className="font-display text-4xl md:text-6xl text-white font-medium tracking-tight leading-[0.9]">
+              <h1 id="property-title" className="font-display text-4xl md:text-6xl text-white font-medium tracking-tight leading-[0.9]">
                 {property.title}
                 <span className="text-neutral-600">.</span>
               </h1>
               <div className="flex items-center gap-2 text-neutral-400">
-                <MapPin className="w-3.5 h-3.5" />
+                <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
                 <span className="text-sm font-medium">{property.suburb}, {property.state} {property.postcode}</span>
               </div>
             </div>
 
             <div className="flex flex-col items-start md:items-end gap-3">
               <div className="flex gap-3">
-                <button className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black hover:bg-neutral-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                <button className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black hover:bg-neutral-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]" aria-label="Book a property inspection">
                   <span className="text-xs font-bold uppercase tracking-wider">Book Inspection</span>
                   <CalendarCheck className="w-3.5 h-3.5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
-                <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-white/5 transition-colors">
+                <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-white/5 transition-colors" aria-label="Share this property">
                   <Share2 className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => setIsFavorited(!isFavorited)}
+                  onClick={handleFavoriteToggle}
                   className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center transition-colors"
+                  aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+                  aria-pressed={isFavorited}
                 >
                   <Heart className={`w-4 h-4 ${isFavorited ? "text-red-400 fill-red-400" : "text-neutral-400 hover:text-red-400"}`} />
                 </button>
@@ -450,7 +495,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                   Prestige Collection
                 </span>
                 <div className="flex items-center gap-1 text-[10px] text-neutral-500 font-mono">
-                  <Eye className="w-3 h-3" />
+                  <Eye className="w-3 h-3" aria-hidden="true" />
                   24 watching now
                 </div>
               </div>
@@ -464,23 +509,27 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
           initial="hidden"
           animate="visible"
           className="max-w-[1400px] mx-auto px-6 mb-16"
+          aria-labelledby="property-gallery"
         >
+          <h2 className="sr-only">Property Gallery</h2>
           <motion.div variants={fadeInUp} className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 md:h-[600px] gap-3 rounded-2xl overflow-hidden">
             {/* Main Image */}
             <div className="md:col-span-2 md:row-span-2 relative group cursor-zoom-in overflow-hidden bg-neutral-900">
-              <img
+              <Image
                 src={property.images[0]}
-                alt="Facade"
+                alt="Facade - Waterfront view of the property"
+                width={800}
+                height={600}
                 className="w-full h-full object-cover transition duration-1000 ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500" aria-hidden="true" />
               <div className="absolute top-4 left-4 z-20">
                 <span className="bg-black/50 backdrop-blur border border-white/10 px-2 py-1 rounded text-[10px] text-white font-mono uppercase">
                   Waterfront
                 </span>
               </div>
               <div className="absolute bottom-6 left-6 z-20">
-                <button className="flex items-center gap-3 bg-black/30 hover:bg-black/50 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full transition group">
+                <button className="flex items-center gap-3 bg-black/30 hover:bg-black/50 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full transition group" aria-label="Watch property video tour">
                   <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center group-hover:scale-110 transition">
                     <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
                   </div>
@@ -488,11 +537,11 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                 </button>
               </div>
               <div className="absolute top-4 right-4 z-20 flex gap-2">
-                <button className="bg-black/50 backdrop-blur border border-white/10 px-3 py-1.5 rounded-full text-[10px] text-white font-medium hover:bg-white hover:text-black transition flex items-center gap-2 shadow-lg">
+                <button className="bg-black/50 backdrop-blur border border-white/10 px-3 py-1.5 rounded-full text-[10px] text-white font-medium hover:bg-white hover:text-black transition flex items-center gap-2 shadow-lg" aria-label="View 3D virtual tour">
                   <Box className="w-3 h-3" />
                   3D Tour
                 </button>
-                <button className="bg-black/50 backdrop-blur border border-white/10 px-3 py-1.5 rounded-full text-[10px] text-white font-medium hover:bg-white hover:text-black transition flex items-center gap-2 shadow-lg">
+                <button className="bg-black/50 backdrop-blur border border-white/10 px-3 py-1.5 rounded-full text-[10px] text-white font-medium hover:bg-white hover:text-black transition flex items-center gap-2 shadow-lg" aria-label="View floor plans">
                   <Layers className="w-3 h-3" />
                   Floor Plans
                 </button>
@@ -502,23 +551,33 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
             {/* Sub Images */}
             {property.images.slice(1, 4).map((image, index) => (
               <div key={index} className="relative group cursor-pointer overflow-hidden bg-neutral-900">
-                <img
-                  src={image}
-                  alt={`View ${index + 2}`}
-                  className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
-                />
+                <button
+                  onClick={() => handleImageModalOpen(index + 1)}
+                  aria-label={`View image ${index + 2} in full screen`}
+                  className="w-full h-full"
+                >
+                  <Image
+                    src={image}
+                    alt={`Property view ${index + 2}`}
+                    fill
+                    className="object-cover transition duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 25vw"
+                  />
+                </button>
               </div>
             ))}
 
             {/* View All */}
             <div className="relative group cursor-pointer overflow-hidden bg-neutral-900">
-              <img
+              <Image
                 src={property.images[4]}
-                alt="All images"
-                className="w-full h-full object-cover opacity-60 transition duration-700 group-hover:scale-105 group-hover:opacity-80"
+                alt="All property images gallery"
+                fill
+                className="object-cover opacity-60 transition duration-700 group-hover:scale-105 group-hover:opacity-80"
+                sizes="(max-width: 768px) 100vw, 25vw"
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <button className="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2 hover:bg-white hover:text-black transition">
+                <button className="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2 hover:bg-white hover:text-black transition" aria-label="View all 42 property images">
                   <Grid3x3 className="w-3 h-3" />
                   View All 42
                 </button>
@@ -536,22 +595,24 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
               initial="hidden"
               animate="visible"
               className="lg:col-span-8 space-y-16"
+              role="main"
+              aria-labelledby="property-title"
             >
               {/* Core Specs */}
               <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-between border-y border-white/10 py-8 gap-6">
                 <IconPill icon={BedDouble} label="Master Retreat" value={`${property.beds} Bed`} />
-                <div className="w-px h-10 bg-white/10 hidden sm:block" />
+                <div className="w-px h-10 bg-white/10 hidden sm:block" aria-hidden="true" />
                 <IconPill icon={Bath} label="Heated Floors" value={`${property.baths} Bath`} />
-                <div className="w-px h-10 bg-white/10 hidden sm:block" />
+                <div className="w-px h-10 bg-white/10 hidden sm:block" aria-hidden="true" />
                 <IconPill icon={CarFront} label="Turntable" value={`${property.cars} Car`} />
-                <div className="w-px h-10 bg-white/10 hidden sm:block" />
+                <div className="w-px h-10 bg-white/10 hidden sm:block" aria-hidden="true" />
                 <IconPill icon={Scaling} label="Internal" value={`${property.internalSize}m²`} />
               </motion.div>
 
               {/* Description */}
               <motion.div variants={fadeInUp} className="space-y-6">
                 <h3 className="text-xs font-mono text-neutral-500 uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/20" aria-hidden="true" />
                   Overview
                 </h3>
                 <div className="prose prose-invert prose-lg max-w-none text-neutral-300 font-light leading-relaxed">
@@ -565,12 +626,12 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
               <motion.div variants={fadeInUp}>
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xs font-mono text-neutral-500 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/20" aria-hidden="true" />
                     Property DNA
                   </h3>
                   <div className="flex gap-4 text-[10px] font-mono text-neutral-500">
                     <span className="flex items-center gap-1 text-white">
-                      <CheckCircle className="w-3 h-3 text-emerald-500" />
+                      <CheckCircle className="w-3 h-3 text-emerald-500" aria-hidden="true" />
                       Verified
                     </span>
                     <span>Updated 2h ago</span>
@@ -602,7 +663,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                   </div>
                   <div className="bg-white/5 p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
                       <span className="text-xs text-neutral-300">Ready for immediate settlement</span>
                     </div>
                     <button className="text-[10px] font-bold uppercase tracking-wider text-white border border-white/20 px-3 py-1.5 rounded hover:bg-white hover:text-black transition">
@@ -614,7 +675,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
 
               {/* HAUS Intelligence */}
               <motion.div variants={fadeInUp} className="bg-neutral-900/50 border border-white/10 rounded-2xl p-1 overflow-hidden relative group">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none group-hover:bg-indigo-500/20 transition duration-1000" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none group-hover:bg-indigo-500/20 transition duration-1000" aria-hidden="true" />
                 <div className="bg-black/40 backdrop-blur rounded-xl p-8 border border-white/5 relative z-10">
                   <div className="flex justify-between items-start mb-8">
                     <div className="flex items-center gap-5">
@@ -654,12 +715,12 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                           {formatPrice(property.intelligence.estimatedValue.max)}
                         </div>
                         <div className="text-[10px] text-indigo-400 mt-2 flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3" />
+                          <TrendingUp className="w-3 h-3" aria-hidden="true" />
                           Confidence Level: {property.intelligence.confidence}% (High)
                         </div>
-                        <div className="w-full bg-neutral-800 h-2 rounded-full mt-6 overflow-hidden relative">
+                        <div className="w-full bg-neutral-800 h-2 rounded-full mt-6 overflow-hidden relative" role="progressbar" aria-valuenow={85} aria-valuemin={0} aria-valuemax={100} aria-label="Value estimate confidence">
                           <div className="bg-gradient-to-r from-indigo-600 to-purple-500 h-full rounded-full relative" style={{ width: "85%" }}>
-                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-indigo-500 rounded-full shadow-lg" />
+                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-indigo-500 rounded-full shadow-lg" aria-hidden="true" />
                           </div>
                         </div>
                         <div className="flex justify-between text-[10px] text-neutral-500 font-mono mt-3 uppercase">
@@ -685,7 +746,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                         <span>Suburb Performance (12 Mo)</span>
                         <span className="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">+12.5%</span>
                       </div>
-                      <div className="h-40 flex items-end justify-between gap-3">
+                      <div className="h-40 flex items-end justify-between gap-3" role="img" aria-label="Suburb performance chart showing 12 month trend">
                         {property.intelligence.suburbPerformance.map((height, index) => (
                           <div
                             key={index}
@@ -695,6 +756,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                                 : "bg-white/5 hover:bg-indigo-500/40"
                             }`}
                             style={{ height: `${height}%` }}
+                            aria-label={`Month ${index + 1}: ${height}%`}
                           >
                             {index === 6 && (
                               <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-2 py-1 rounded opacity-0 hover:opacity-100 transition">
@@ -721,7 +783,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
               <motion.div variants={fadeInUp} className="mb-16">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xs font-mono text-neutral-500 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/20" aria-hidden="true" />
                     Neighborhood Insights
                   </h3>
                 </div>
@@ -731,7 +793,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                       <Users className="w-4 h-4 text-neutral-400" />
                       Demographics
                     </h4>
-                    <div className="space-y-4">
+                    <div className="space-y-4" role="list" aria-label="Demographic statistics">
                       {[
                         { label: "Families", value: 72 },
                         { label: "Professionals", value: 85 },
@@ -742,8 +804,8 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                             <span>{stat.label}</span>
                             <span>{stat.value}%</span>
                           </div>
-                          <div className="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-white rounded-full" style={{ width: `${stat.value}%` }} />
+                          <div className="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden" role="progressbar" aria-valuenow={stat.value} aria-valuemin={0} aria-valuemax={100} aria-label={`${stat.label}: ${stat.value}%`}>
+                            <div className="h-full bg-white rounded-full" style={{ width: `${stat.value}%` }} aria-hidden="true" />
                           </div>
                         </div>
                       ))}
@@ -755,7 +817,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                       <ShieldCheck className="w-4 h-4 text-neutral-400" />
                       Safety & Lifestyle
                     </h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4" role="list" aria-label="Safety and lifestyle scores">
                       {[
                         { label: "Safety Score", value: "9.8", color: "text-emerald-400" },
                         { label: "Walk Score", value: "92", color: "text-white" },
@@ -776,7 +838,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
               <motion.div variants={fadeInUp}>
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xs font-mono text-neutral-500 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/20" aria-hidden="true" />
                     Concierge Services
                   </h3>
                   <a href="#" className="text-[10px] text-neutral-400 hover:text-white transition">
@@ -784,7 +846,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                   </a>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4" role="list" aria-label="Available concierge services">
                   {conciergeServices.map((service, index) => (
                     <GlassCard key={index} className="p-4 hover:border-white/10 transition group">
                       <div className="flex items-center justify-between">
@@ -792,7 +854,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                           <div className="w-12 h-12 rounded-lg bg-neutral-800 border border-white/5 flex items-center justify-center text-white relative">
                             {index === 0 ? <Scale className="w-6 h-6 text-neutral-400" /> : <SearchCheck className="w-6 h-6 text-neutral-400" />}
                             {service.verified && (
-                              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center border border-neutral-900">
+                              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center border border-neutral-900" aria-hidden="true">
                                 <Check className="w-2.5 h-2.5 text-white" />
                               </div>
                             )}
@@ -806,11 +868,11 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                             </h4>
                             <div className="flex items-center gap-3 mt-1 text-[10px] text-neutral-500 font-mono">
                               <span className="flex items-center gap-1">
-                                <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                                <Star className="w-3 h-3 text-yellow-500 fill-current" aria-hidden="true" />
                                 {service.rating} ({service.reviews})
                               </span>
                               <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
+                                <Clock className="w-3 h-3" aria-hidden="true" />
                                 {service.responseTime}
                               </span>
                             </div>
@@ -830,7 +892,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
               {/* Floor Plan */}
               <motion.div variants={fadeInUp}>
                 <h3 className="text-xs font-mono text-neutral-500 uppercase tracking-widest flex items-center gap-2 mb-6">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/20" aria-hidden="true" />
                   Floor Plan
                 </h3>
                 <GlassCard className="p-6 hover:border-white/10 transition group">
@@ -842,6 +904,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                           backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
                           backgroundSize: "20px 20px"
                         }}
+                        aria-hidden="true"
                       />
                       <div className="text-neutral-600 font-mono text-xs text-center p-4">
                         <Map className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -859,7 +922,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                         <div className="text-xs text-neutral-500">Total Internal Area: {property.internalSize}m²</div>
                         <div className="text-xs text-neutral-500">External Terraces: 215m²</div>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-2" role="list" aria-label="Floor plan downloads">
                         {["Ground Floor", "Level 1 (Bedrooms)"].map((floor) => (
                           <a
                             key={floor}
@@ -880,26 +943,28 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
               <motion.div variants={fadeInUp} className="border-t border-white/10 pt-10 mt-10">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-xs font-mono text-neutral-500 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/20" aria-hidden="true" />
                     Comparable Listings
                   </h3>
                   <div className="flex gap-2">
-                    <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition">
+                    <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition" aria-label="Previous comparable listing">
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition">
+                    <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition" aria-label="Next comparable listing">
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6" role="list" aria-label="Comparable properties in Point Piper">
                   {comparableProperties.map((comp, index) => (
                     <div key={index} className="group relative bg-neutral-900 border border-white/5 rounded-xl overflow-hidden hover:border-white/20 transition cursor-pointer">
                       <div className="h-48 overflow-hidden relative">
-                        <img
+                        <Image
                           src={comp.image}
                           alt={comp.address}
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+                          fill
+                          className="object-cover group-hover:scale-105 transition duration-700"
+                          sizes="(max-width: 768px) 100vw, 33vw"
                         />
                         <div className={`absolute top-3 right-3 backdrop-blur px-2 py-1 rounded text-[10px] text-white font-mono uppercase ${
                           comp.status.includes("Sold") ? "bg-black/50" : "bg-emerald-500/90"
@@ -917,15 +982,15 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                         </div>
                         <div className="flex gap-3 text-[10px] text-neutral-400 border-t border-white/5 pt-3">
                           <span className="flex items-center gap-1">
-                            <BedDouble className="w-3 h-3" />
+                            <BedDouble className="w-3 h-3" aria-hidden="true" />
                             {comp.beds}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Bath className="w-3 h-3" />
+                            <Bath className="w-3 h-3" aria-hidden="true" />
                             {comp.baths}
                           </span>
                           <span className="flex items-center gap-1">
-                            <CarFront className="w-3 h-3" />
+                            <CarFront className="w-3 h-3" aria-hidden="true" />
                             {comp.cars}
                           </span>
                         </div>
@@ -937,7 +1002,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
             </motion.div>
 
             {/* Right Column - Sticky Sidebar */}
-            <div className="lg:col-span-4 relative">
+            <aside className="lg:col-span-4 relative" aria-label="Property details sidebar">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -946,7 +1011,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
               >
                 {/* Price Card */}
                 <GlassCard className="p-6 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" aria-hidden="true" />
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <div className="text-[10px] font-mono text-neutral-500 uppercase mb-1">Guide Price</div>
@@ -955,15 +1020,15 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white hover:text-black transition">
+                      <button className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white hover:text-black transition" aria-label="Calculate mortgage">
                         <DollarSign className="w-4 h-4" />
                       </button>
-                      <button className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                      <button className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20" aria-label="Place auction bid">
                         <Gavel className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
-                  <div className="bg-white/5 rounded-lg p-1 mb-4 grid grid-cols-2 gap-1">
+                  <div className="bg-white/5 rounded-lg p-1 mb-4 grid grid-cols-2 gap-1" role="group" aria-label="Property intent">
                     <button className="text-[10px] font-bold uppercase py-1.5 rounded bg-white text-black shadow">
                       Buy
                     </button>
@@ -983,7 +1048,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                     <div className="flex items-center justify-between text-xs py-2 border-b border-white/5">
                       <span className="text-neutral-400">Market Interest</span>
                       <span className="text-white font-medium flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" aria-hidden="true" />
                         High
                       </span>
                     </div>
@@ -1004,10 +1069,10 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                   <div className="flex items-center gap-4 mb-6">
                     <div className="relative">
                       <div className="w-16 h-16 rounded-full bg-neutral-800 border border-white/10 overflow-hidden">
-                        <img src={property.agent.avatar} alt={property.agent.name} className="w-full h-full object-cover" />
+                        <Image src={property.agent.avatar} alt={property.agent.name} width={64} height={64} className="w-full h-full object-cover" />
                       </div>
                       {property.agent.online && (
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-black rounded-full flex items-center justify-center border border-white/10">
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-black rounded-full flex items-center justify-center border border-white/10" aria-hidden="true">
                           <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                         </div>
                       )}
@@ -1019,7 +1084,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                       </div>
                       <div className="text-xs text-neutral-500 mb-2">{property.agent.title} • {property.agent.company}</div>
                       <div className="flex items-center gap-2">
-                        <div className="flex text-yellow-500">
+                        <div className="flex text-yellow-500" aria-label={`${property.agent.rating} star rating`}>
                           {[...Array(property.agent.rating)].map((_, i) => (
                             <Star key={i} className="w-3 h-3 fill-current" />
                           ))}
@@ -1050,7 +1115,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                     <ConciergeBell className="w-3 h-3" />
                     Concierge
                   </h4>
-                  <ul className="space-y-3">
+                  <ul className="space-y-3" role="list" aria-label="Concierge services">
                     {[
                       { icon: Truck, label: "Moving Services" },
                       { icon: Hammer, label: "Renovation Quotes" },
@@ -1069,7 +1134,7 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
 
                 {/* Warehaus Commercial */}
                 <div className="bg-gradient-to-br from-neutral-900 to-[#0d1117] border border-blue-900/30 rounded-xl p-5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-3 opacity-20">
+                  <div className="absolute top-0 right-0 p-3 opacity-20" aria-hidden="true">
                     <Building2 className="w-12 h-12 text-blue-500" />
                   </div>
                   <div className="flex items-center gap-2 mb-3">
@@ -1081,26 +1146,26 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                   </h4>
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-8 h-8 rounded bg-neutral-800 border border-white/5 overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=100&q=80" alt="Commercial" className="w-full h-full object-cover" />
+                      <Image src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=100&q=80" alt="Commercial property" width={32} height={32} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <div className="text-[10px] text-white">142 New South Head Rd</div>
                       <div className="text-[10px] text-neutral-500">Retail • 6% Yield</div>
                     </div>
                   </div>
-                  <a href="#" className="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 transition">
+                  <Link href="#" className="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 transition">
                     View Commercial Listing
                     <ArrowRight className="w-3 h-3" />
-                  </a>
+                  </Link>
                 </div>
               </motion.div>
-            </div>
+            </aside>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-[#020202] pt-16 pb-8 relative z-10">
+      <footer className="border-t border-white/10 bg-[#020202] pt-16 pb-8 relative z-10" role="contentinfo">
         <div className="max-w-[1400px] mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
             <div className="col-span-2">
@@ -1111,51 +1176,51 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
                 Redefining luxury real estate with data-driven insights and world-class design. Experience the future of property.
               </p>
             </div>
-            <div>
-              <h5 className="text-white font-medium text-xs mb-4">Marketplace</h5>
+            <nav aria-labelledby="footer-marketplace">
+              <h5 id="footer-marketplace" className="text-white font-medium text-xs mb-4">Marketplace</h5>
               <ul className="space-y-3 text-xs text-neutral-500">
                 <li><a href="#" className="hover:text-white transition">Find Buyers Agent</a></li>
                 <li><a href="#" className="hover:text-white transition">Get Conveyancing Quote</a></li>
                 <li><a href="#" className="hover:text-white transition">Building Inspectors</a></li>
               </ul>
-            </div>
-            <div>
-              <h5 className="text-white font-medium text-xs mb-4">Warehaus</h5>
+            </nav>
+            <nav aria-labelledby="footer-warehaus">
+              <h5 id="footer-warehaus" className="text-white font-medium text-xs mb-4">Warehaus</h5>
               <ul className="space-y-3 text-xs text-neutral-500">
                 <li><a href="#" className="hover:text-white transition">Commercial For Sale</a></li>
                 <li><a href="#" className="hover:text-white transition">Lease Opportunities</a></li>
                 <li><a href="#" className="hover:text-white transition">Industrial Zoning</a></li>
               </ul>
-            </div>
-            <div>
-              <h5 className="text-white font-medium text-xs mb-4">Social</h5>
+            </nav>
+            <nav aria-labelledby="footer-social">
+              <h5 id="footer-social" className="text-white font-medium text-xs mb-4">Social</h5>
               <div className="flex gap-4">
-                <a href="#" className="text-neutral-500 hover:text-white transition">
+                <a href="#" className="text-neutral-500 hover:text-white transition" aria-label="Instagram">
                   <Instagram className="w-4 h-4" />
                 </a>
-                <a href="#" className="text-neutral-500 hover:text-white transition">
+                <a href="#" className="text-neutral-500 hover:text-white transition" aria-label="Twitter">
                   <Twitter className="w-4 h-4" />
                 </a>
-                <a href="#" className="text-neutral-500 hover:text-white transition">
+                <a href="#" className="text-neutral-500 hover:text-white transition" aria-label="LinkedIn">
                   <Linkedin className="w-4 h-4" />
                 </a>
               </div>
-            </div>
+            </nav>
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 gap-4">
             <div className="text-[10px] text-neutral-600 font-mono">
               © 2025 HAUS Real Estate Group.
             </div>
-            <div className="flex gap-6 text-[10px] text-neutral-600 font-mono">
+            <nav className="flex gap-6 text-[10px] text-neutral-600 font-mono" aria-label="Legal links">
               <a href="#" className="hover:text-white transition">Privacy Policy</a>
               <a href="#" className="hover:text-white transition">Terms of Service</a>
-            </div>
+            </nav>
           </div>
         </div>
       </footer>
 
       {/* Mobile Action Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-zinc-950/90 backdrop-blur-xl border-t border-white/10 p-4 flex gap-3">
+      <div className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-zinc-950/90 backdrop-blur-xl border-t border-white/10 p-4 flex gap-3" role="complementary" aria-label="Mobile quick actions">
         <button className="flex-1 bg-white text-black font-bold uppercase tracking-wider py-3 rounded-lg text-xs">
           Make Offer
         </button>
@@ -1164,5 +1229,17 @@ Spanning four expansive levels connected by a commercial-grade lift, the residen
         </button>
       </div>
     </div>
+  )
+}
+
+export default function NewHomeListingPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading property details..." />}>
+          <NewHomeListingPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

@@ -490,7 +490,7 @@ export default function MyTeamPage() {
                             <div className={`p-2 ${colorClasses[service.color as keyof typeof colorClasses]} rounded-lg border`}>
                               <Icon className="w-4 h-4" />
                             </div>
-                            <div className={`h-2 w-2 rounded-full ${statusColors[service.status]}`} />
+                            <div className={`h-2 w-2 rounded-full ${statusColors[service.status as keyof typeof statusColors]}`} />
                           </div>
                           <h4 className="text-xs font-medium text-white mb-1">{service.title}</h4>
                           <p className="text-[10px] text-neutral-500 mb-3">{service.description}</p>

@@ -25,22 +25,22 @@ export const listProperties = query({
     limit: v.optional(v.number()),
     cursor: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const { status, suburb, agentId, isPrestige, limit = 20, cursor } = args
 
     let query = ctx.db.query("properties")
 
-    if (status) query = query.filter(q => q.eq("status", status))
-    if (suburb) query = query.filter(q => q.eq("suburb", suburb))
-    if (agentId) query = query.filter(q => q.eq("agentId", agentId))
-    if (isPrestige !== undefined) query = query.filter(q => q.eq("isPrestige", isPrestige))
+    if (status) query = query.filter((q: any) => q.eq("status", status))
+    if (suburb) query = query.filter((q: any) => q.eq("suburb", suburb))
+    if (agentId) query = query.filter((q: any) => q.eq("agentId", agentId))
+    if (isPrestige !== undefined) query = query.filter((q: any) => q.eq("isPrestige", isPrestige))
 
     query = query.order("desc", "createdAt")
 
     if (cursor) {
       const cursorDoc = await ctx.db.get(cursor as any)
       if (!cursorDoc) throw new Error("Cursor not found")
-      query = query.filter(q => q.lt("createdAt", cursorDoc.createdAt))
+      query = query.filter((q: any) => q.lt("createdAt", cursorDoc.createdAt))
     }
 
     const properties = await query.take(limit).collect()
@@ -60,10 +60,10 @@ export const listProperties = query({
  */
 export const getPropertyBySlug = query({
   args: { slug: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const property = await ctx.db
       .query("properties")
-      .filter(q => q.eq("slug", args.slug))
+      .filter((q: any) => q.eq("slug", args.slug))
       .first()
 
     if (!property) return null
@@ -102,7 +102,7 @@ export const createProperty = mutation({
     agentId: v.id("agents"),
     slug: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const now = Date.now()
 
     const propertyId = await ctx.db.insert("properties", {
@@ -128,7 +128,7 @@ export const toggleSaveProperty = mutation({
     userId: v.id("users"),
     save: v.boolean(), // true to save, false to unsave
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const user = await ctx.db.get(args.userId)
     if (!user) throw new Error("User not found")
 
@@ -141,7 +141,7 @@ export const toggleSaveProperty = mutation({
       })
     } else if (!args.save && isSaved) {
       await ctx.db.patch(args.userId, {
-        savedProperties: currentSaved.filter(id => id !== args.propertyId),
+        savedProperties: currentSaved.filter((id: any) => id !== args.propertyId),
       })
     }
 
@@ -156,10 +156,10 @@ export const toggleSaveProperty = mutation({
  */
 export const getUserByEmail = query({
   args: { email: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq("email", args.email))
+      .filter((q: any) => q.eq("email", args.email))
       .first()
 
     return user
@@ -177,10 +177,10 @@ export const upsertUser = mutation({
     image: v.optional(v.string()),
     role: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const existing = await ctx.db
       .query("users")
-      .filter(q => q.eq("email", args.email))
+      .filter((q: any) => q.eq("email", args.email))
       .first()
 
     const now = Date.now()
@@ -220,14 +220,14 @@ export const getMarketData = query({
     month: v.optional(v.string()),
     year: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const now = new Date()
     const month = args.month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
     const year = args.year || now.getFullYear()
 
     const marketData = await ctx.db
       .query("marketData")
-      .filter(q =>
+      .filter((q: any) =>
         q.eq("suburb", args.suburb)
           .eq("month", month)
           .eq("year", year)
@@ -246,7 +246,7 @@ export const getTopSuburbs = query({
     state: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     let query = ctx.db.query("marketData")
       .order("desc", "yearlyGrowth")
 
@@ -274,17 +274,17 @@ export const searchProperties = query({
     })),
     limit: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const limit = args.limit || 20
     const { query: searchQuery, filters } = args
 
     // Full-text search would be implemented here
     // For now, we'll filter by basic criteria
-    let dbQuery = ctx.db.query("properties").filter(q => q.eq("status", "active"))
+    let dbQuery = ctx.db.query("properties").filter((q: any) => q.eq("status", "active"))
 
     if (filters?.suburb && filters.suburb.length > 0) {
       // Would use a more sophisticated search in production
-      dbQuery = dbQuery.filter(q => q.eq("suburb", filters.suburb[0]))
+      dbQuery = dbQuery.filter((q: any) => q.eq("suburb", filters.suburb[0]))
     }
 
     const properties = await dbQuery.take(limit).collect()
@@ -303,12 +303,12 @@ export const getInsights = query({
     userId: v.id("users"),
     limit: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const limit = args.limit || 10
 
     const insights = await ctx.db
       .query("insights")
-      .filter(q => q.eq("userId", args.userId))
+      .filter((q: any) => q.eq("userId", args.userId))
       .order("desc", "createdAt")
       .take(limit)
       .collect()
@@ -324,7 +324,7 @@ export const markInsightRead = mutation({
   args: {
     insightId: v.id("insights"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     await ctx.db.patch(args.insightId, {
       read: true,
     })
@@ -346,7 +346,7 @@ export const submitEnquiry = mutation({
     message: v.optional(v.string()),
     userId: v.optional(v.id("users")),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const property = await ctx.db.get(args.propertyId)
     if (!property) throw new Error("Property not found")
 
@@ -394,7 +394,7 @@ export const trackEvent = mutation({
     page: v.string(),
     referrer: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     await ctx.db.insert("analytics", {
       ...args,
       createdAt: Date.now(),

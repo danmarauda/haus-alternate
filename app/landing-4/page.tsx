@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Link from "next/link"
 import {
   Megaphone,
@@ -17,102 +17,129 @@ import {
   ArrowRight,
   Menu,
   Star,
+  Home,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { HausLogo } from "@/components/haus-logo"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 import { cn } from "@/lib/utils"
+import { Suspense } from "react"
 
-/**
- * Landing Page 4 - Spline Particles
- *
- * Dark-themed landing with animated particle background
- * Features intelligent search, AI assistant, and modern card-based layout
- *
- * @example
- * ```tsx
- * import LandingPage4 from './landing-4/page'
- * <LandingPage4 />
- * ```
- */
-export default function LandingPage4() {
+
+interface Stat {
+  value: string
+  label: string
+  change?: string
+  icon: typeof Grid
+}
+
+interface Feature {
+  icon: typeof Mic | typeof Bot
+  title: string
+  description: string
+  color: string
+  bgColor: string
+  borderColor: string
+  items: string[]
+}
+
+interface TrustFeature {
+  icon: typeof Shield
+  title: string
+  description: string
+  items: string[]
+}
+
+const stats: Stat[] = [
+  { value: "12k+", label: "Active Listings", icon: Grid },
+  { value: "98%", label: "Accuracy Rate", icon: Star },
+  { value: "$1B+", label: "Market Volume", icon: Zap },
+] as const
+
+const features: Feature[] = [
+  {
+    icon: Mic,
+    title: "Voice-First Property Search",
+    description: "98% accuracy",
+    color: "text-blue-300",
+    bgColor: "bg-blue-500/20",
+    borderColor: "border-blue-500/30",
+    items: [
+      "Family home with courtyard near parks",
+      "Investment property with high yield in Brisbane",
+      "Waterfront apartment with city views",
+      "Rural acreage with solar power and bore",
+    ],
+  },
+  {
+    icon: Bot,
+    title: "AI Property Assistant",
+    description: "Personalized insights",
+    color: "text-purple-300",
+    bgColor: "bg-purple-500/20",
+    borderColor: "border-purple-500/30",
+    items: [
+      "24/7 availability",
+      "Market analysis",
+      "Investment advice",
+      "Property comparisons",
+    ],
+  },
+] as const
+
+const trustFeatures: TrustFeature[] = [
+  {
+    icon: Shield,
+    title: "Fair Play Protocol",
+    description: "Ethical AI",
+    items: [
+      "No underquoting guarantees",
+      "Verified agent ratings",
+      "Transparent pricing",
+      "Plain English contracts",
+    ],
+  },
+] as const
+
+function LandingPage4Content() {
   const [email, setEmail] = useState("")
 
-  const stats = [
-    { value: "12k+", label: "Active Listings", icon: Grid },
-    { value: "98%", label: "Accuracy Rate", icon: Star },
-    { value: "$1B+", label: "Market Volume", icon: Zap },
-  ]
-
-  const features = [
-    {
-      icon: Mic,
-      title: "Voice-First Property Search",
-      description: "98% accuracy",
-      color: "text-blue-300",
-      bgColor: "bg-blue-500/20",
-      borderColor: "border-blue-500/30",
-      items: [
-        "Family home with courtyard near parks",
-        "Investment property with high yield in Brisbane",
-        "Waterfront apartment with city views",
-        "Rural acreage with solar power and bore",
-      ],
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault()
+      // Handle form submission
+      console.log("Email submitted:", email)
     },
-    {
-      icon: Bot,
-      title: "AI Property Assistant",
-      description: "Personalized insights",
-      color: "text-purple-300",
-      bgColor: "bg-purple-500/20",
-      borderColor: "border-purple-500/30",
-      items: [
-        "24/7 availability",
-        "Market analysis",
-        "Investment advice",
-        "Property comparisons",
-      ],
-    },
-  ]
-
-  const trustFeatures = [
-    {
-      icon: Shield,
-      title: "Fair Play Protocol",
-      description: "Ethical AI",
-      items: [
-        "No underquoting guarantees",
-        "Verified agent ratings",
-        "Transparent pricing",
-        "Plain English contracts",
-      ],
-    },
-  ]
+    [email]
+  )
 
   return (
     <div className="min-h-screen bg-neutral-950 font-inter text-neutral-400 antialiased selection:bg-neutral-800 selection:text-neutral-100">
       {/* Animated Background */}
-      <div className="fixed inset-0 -z-10 opacity-60">
+      <div className="fixed inset-0 -z-10 opacity-60" aria-hidden="true">
         <iframe
           src="https://my.spline.design/particlesmoment-kW3xyVny6weIhXJ3vbs2M2bB"
           frameBorder="0"
           className="w-full h-full"
-          title="Particle animation"
+          title="Particle animation background"
         />
       </div>
 
       {/* Navigation */}
       <header className="sticky top-0 z-20 backdrop-blur bg-neutral-950/60 border-b border-neutral-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/landing-1" className="flex items-center gap-3" aria-label="HAUS home">
             <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-neutral-200 to-neutral-400 text-neutral-900 flex items-center justify-center ring-1 ring-neutral-700/60">
               <Home className="w-4 h-4" />
             </div>
             <span className="text-neutral-200 text-lg font-medium tracking-tight">HAUS</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-6" aria-label="Page navigation">
             <a className="text-neutral-300 hover:text-neutral-100 transition-colors text-sm" href="#explore">
               EXPLORE
             </a>
@@ -150,7 +177,7 @@ export default function LandingPage4() {
               <Grid className="w-4 h-4" />
               Explore Products
             </Button>
-            <Button variant="ghost" size="icon" className="md:hidden">
+            <Button variant="ghost" size="icon" className="md:hidden" aria-label="Menu">
               <Menu className="w-5 h-5" />
             </Button>
           </div>
@@ -158,18 +185,18 @@ export default function LandingPage4() {
       </header>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 md:pt-14">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 md:pt-14" aria-labelledby="hero-heading">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Left: Content */}
           <div>
             {/* Badge */}
             <div className="inline-flex items-center gap-2 text-xs text-neutral-400 mb-3">
-              <Megaphone className="w-4 h-4 text-neutral-300" />
+              <Megaphone className="w-4 h-4 text-neutral-300" aria-hidden="true" />
               EARLY ACCESS
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl tracking-tight text-neutral-100 font-semibold leading-tight">
+            <h1 id="hero-heading" className="text-3xl sm:text-4xl lg:text-5xl tracking-tight text-neutral-100 font-semibold leading-tight">
               A Revolution in Real Estate
             </h1>
 
@@ -181,7 +208,7 @@ export default function LandingPage4() {
 
             {/* Trust Badge */}
             <div className="mt-2 text-emerald-300/90 text-sm inline-flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4" />
+              <ShieldCheck className="w-4 h-4" aria-hidden="true" />
               Don't put up with dodgy agent tactics.
             </div>
 
@@ -201,18 +228,19 @@ export default function LandingPage4() {
             </div>
 
             {/* Feature Cards */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3" role="list" aria-label="Key features">
               {features.map((feature, index) => {
                 const Icon = feature.icon
                 return (
                   <Card
                     key={index}
                     className="p-4 rounded-2xl bg-neutral-900/70 backdrop-blur ring-1 ring-neutral-800/60 hover:ring-neutral-700/60 transition-all"
+                    role="listitem"
                   >
                     <CardContent className="p-0">
                       <div className="flex items-center gap-3">
                         <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", feature.bgColor, feature.borderColor, "ring-1")}>
-                          <Icon className={cn("w-4 h-4", feature.color)} />
+                          <Icon className={cn("w-4 h-4", feature.color)} aria-hidden="true" />
                         </div>
                         <div>
                           <p className="text-neutral-200 text-sm font-medium">{feature.title}</p>
@@ -227,13 +255,13 @@ export default function LandingPage4() {
           </div>
 
           {/* Right: Feature Cards Stack */}
-          <div className="grid gap-4">
+          <div className="grid gap-4" aria-label="Feature demonstrations">
             {/* Voice Search Card */}
             <Card className="w-full rounded-2xl bg-neutral-900/80 ring-1 ring-neutral-800/60 backdrop-blur shadow-2xl">
               <div className="flex items-center justify-between p-5 border-b border-neutral-800/60">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-neutral-800/60 ring-1 ring-neutral-700 flex items-center justify-center">
-                    <Mic className="w-4 h-4 text-blue-300" />
+                    <Mic className="w-4 h-4 text-blue-300" aria-hidden="true" />
                   </div>
                   <h2 className="text-neutral-200 font-medium tracking-tight">Voice‑First Property Search</h2>
                 </div>
@@ -243,7 +271,7 @@ export default function LandingPage4() {
                 <Card className="rounded-xl bg-neutral-900 ring-1 ring-neutral-800 p-4">
                   <CardContent className="p-0 space-y-4">
                     <div className="flex items-center gap-3">
-                      <Button size="icon" variant="ghost" className="w-10 h-10 rounded-lg bg-neutral-800/70 ring-1 ring-neutral-700 flex items-center justify-center text-neutral-300 hover:bg-neutral-800 transition">
+                      <Button size="icon" variant="ghost" className="w-10 h-10 rounded-lg bg-neutral-800/70 ring-1 ring-neutral-700 flex items-center justify-center text-neutral-300 hover:bg-neutral-800 transition" aria-label="Voice search">
                         <Mic className="w-4 h-4" />
                       </Button>
                       <div className="flex-1">
@@ -251,11 +279,12 @@ export default function LandingPage4() {
                         <p className="text-xs text-neutral-500">AI-powered voice search will be available once deployed</p>
                       </div>
                     </div>
-                    <div className="grid sm:grid-cols-2 gap-2">
+                    <div className="grid sm:grid-cols-2 gap-2" role="list" aria-label="Example voice searches">
                       {features[0].items.map((item, index) => (
                         <div
                           key={index}
                           className="p-3 rounded-lg bg-neutral-800/40 ring-1 ring-neutral-800 text-xs text-neutral-300"
+                          role="listitem"
                         >
                           "{item}"
                         </div>
@@ -285,7 +314,7 @@ export default function LandingPage4() {
               <div className="flex items-center justify-between p-5 border-b border-neutral-800/60">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-neutral-800/60 ring-1 ring-neutral-700 flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-purple-300" />
+                    <Bot className="w-4 h-4 text-purple-300" aria-hidden="true" />
                   </div>
                   <h2 className="text-neutral-200 font-medium tracking-tight">AI Property Assistant</h2>
                 </div>
@@ -296,20 +325,21 @@ export default function LandingPage4() {
                   <CardContent className="p-0">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 rounded-lg bg-neutral-800/70 ring-1 ring-neutral-700 flex items-center justify-center">
-                        <Bot className="w-4 h-4 text-purple-300" />
+                        <Bot className="w-4 h-4 text-purple-300" aria-hidden="true" />
                       </div>
                       <div className="flex-1">
                         <p className="text-neutral-300 text-sm">Property Chat Assistant — Coming Soon</p>
                         <p className="text-xs text-neutral-500">AI-powered property chat will be available once deployed</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2" role="list" aria-label="AI capabilities">
                       {features[1].items.map((item, index) => (
                         <div
                           key={index}
                           className="p-2 rounded-lg bg-neutral-800/40 text-xs text-neutral-300 flex items-center gap-2"
+                          role="listitem"
                         >
-                          <div className="w-1 h-1 rounded-full bg-purple-400" />
+                          <div className="w-1 h-1 rounded-full bg-purple-400" aria-hidden="true" />
                           {item}
                         </div>
                       ))}
@@ -323,7 +353,9 @@ export default function LandingPage4() {
       </section>
 
       {/* Stats & Trust Features */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 grid lg:grid-cols-4 gap-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 grid lg:grid-cols-4 gap-6" aria-labelledby="stats-heading">
+        <h2 id="stats-heading" className="sr-only">Platform Statistics</h2>
+
         {/* Stats */}
         {stats.map((stat, index) => {
           const Icon = stat.icon
@@ -331,9 +363,10 @@ export default function LandingPage4() {
             <Card
               key={index}
               className="rounded-2xl bg-neutral-900/80 ring-1 ring-neutral-800/60 backdrop-blur shadow-2xl"
+              role="listitem"
             >
               <CardContent className="p-6 text-center">
-                <Icon className="w-8 h-8 text-neutral-400 mx-auto mb-3" />
+                <Icon className="w-8 h-8 text-neutral-400 mx-auto mb-3" aria-hidden="true" />
                 <div className="text-3xl tracking-tight text-neutral-100 mb-1">{stat.value}</div>
                 <div className="text-xs text-neutral-500">{stat.label}</div>
               </CardContent>
@@ -348,21 +381,22 @@ export default function LandingPage4() {
             <Card
               key={index}
               className="rounded-2xl bg-neutral-900/80 ring-1 ring-neutral-800/60 backdrop-blur shadow-2xl"
+              role="listitem"
             >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-neutral-800/60 ring-1 ring-neutral-700 flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-emerald-300" />
+                      <Icon className="w-4 h-4 text-emerald-300" aria-hidden="true" />
                     </div>
                     <h3 className="text-neutral-200 font-medium tracking-tight">{feature.title}</h3>
                   </div>
                   <span className="text-xs text-neutral-500">{feature.description}</span>
                 </div>
-                <ul className="space-y-2">
+                <ul className="space-y-2" role="list">
                   {feature.items.map((item, itemIndex) => (
                     <li key={itemIndex} className="flex items-center gap-2 text-xs text-neutral-400">
-                      <div className="w-1 h-1 rounded-full bg-emerald-400" />
+                      <div className="w-1 h-1 rounded-full bg-emerald-400" aria-hidden="true" />
                       {item}
                     </li>
                   ))}
@@ -374,7 +408,8 @@ export default function LandingPage4() {
       </section>
 
       {/* CTA Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pb-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pb-12" aria-labelledby="cta-heading">
+        <h2 id="cta-heading" className="sr-only">Call to Action</h2>
         <Card className="rounded-3xl border border-neutral-800/60 bg-neutral-900/60 backdrop-blur p-6 sm:p-10">
           <CardContent className="p-0">
             <div className="grid gap-8 lg:grid-cols-2 items-center">
@@ -383,8 +418,10 @@ export default function LandingPage4() {
                 <p className="mt-2 max-w-lg text-sm text-neutral-300">
                   Join early access and be among the first to experience AI-powered real estate search.
                 </p>
-                <form className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <form className="mt-6 flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
+                  <label htmlFor="email-cta" className="sr-only">Email address</label>
                   <input
+                    id="email-cta"
                     type="email"
                     required
                     placeholder="you@company.com"
@@ -393,7 +430,7 @@ export default function LandingPage4() {
                     className="w-full rounded-xl border border-neutral-700 bg-neutral-950/60 px-4 py-3 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-300/30 focus:border-neutral-400/40"
                   />
                   <Button
-                    type="button"
+                    type="submit"
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-700 bg-neutral-100 px-5 py-3 text-sm text-neutral-900 hover:bg-white transition font-medium"
                   >
                     Get Early Access
@@ -406,13 +443,13 @@ export default function LandingPage4() {
               </div>
               <div className="relative">
                 <div className="relative h-56 w-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10" aria-hidden="true" />
                   <div className="absolute bottom-4 left-4 inline-flex items-center rounded-full border border-neutral-700 bg-neutral-900/50 px-3 py-1.5 text-xs backdrop-blur text-neutral-300">
-                    <ShieldCheck className="mr-2 h-4 w-4 text-emerald-400" />
+                    <ShieldCheck className="mr-2 h-4 w-4 text-emerald-400" aria-hidden="true" />
                     Enterprise-grade security
                   </div>
                   <div className="absolute top-4 right-4 inline-flex items-center rounded-full border border-neutral-700 bg-neutral-900/50 px-3 py-1.5 text-xs backdrop-blur text-neutral-300">
-                    <Star className="mr-2 h-4 w-4 text-amber-400" />
+                    <Star className="mr-2 h-4 w-4 text-amber-400" aria-hidden="true" />
                     98% Satisfaction
                   </div>
                 </div>
@@ -439,48 +476,26 @@ export default function LandingPage4() {
             </div>
             <div>
               <h4 className="text-sm font-medium text-neutral-200 mb-4 uppercase tracking-wide">Platform</h4>
-              <ul className="space-y-3 text-sm">
-                <li>
-                  <a className="text-neutral-400 hover:text-neutral-200 transition" href="#search">
-                    Search
-                  </a>
-                </li>
-                <li>
-                  <a className="text-neutral-400 hover:text-neutral-200 transition" href="#deephaus">
-                    DeepHAUS
-                  </a>
-                </li>
-                <li>
-                  <a className="text-neutral-400 hover:text-neutral-200 transition" href="#admin">
-                    Admin
-                  </a>
-                </li>
+              <ul className="space-y-3 text-sm" role="list">
+                <li><a className="text-neutral-400 hover:text-neutral-200 transition" href="#search">Search</a></li>
+                <li><a className="text-neutral-400 hover:text-neutral-200 transition" href="#deephaus">DeepHAUS</a></li>
+                <li><a className="text-neutral-400 hover:text-neutral-200 transition" href="#admin">Admin</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-sm font-medium text-neutral-200 mb-4 uppercase tracking-wide">Company</h4>
-              <ul className="space-y-3 text-sm">
-                <li>
-                  <a className="text-neutral-400 hover:text-neutral-200 transition" href="#about">
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a className="text-neutral-400 hover:text-neutral-200 transition" href="#careers">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a className="text-neutral-400 hover:text-neutral-200 transition" href="#press">
-                    Press
-                  </a>
-                </li>
+              <ul className="space-y-3 text-sm" role="list">
+                <li><a className="text-neutral-400 hover:text-neutral-200 transition" href="#about">About</a></li>
+                <li><a className="text-neutral-400 hover:text-neutral-200 transition" href="#careers">Careers</a></li>
+                <li><a className="text-neutral-400 hover:text-neutral-200 transition" href="#press">Press</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-sm font-medium text-neutral-200 mb-4 uppercase tracking-wide">Stay Updated</h4>
               <form className="flex flex-col sm:flex-row gap-3">
+                <label htmlFor="email-footer" className="sr-only">Email for newsletter</label>
                 <input
+                  id="email-footer"
                   type="email"
                   placeholder="email@domain.com"
                   className="flex-1 rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-300/30"
@@ -498,12 +513,8 @@ export default function LandingPage4() {
           <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex flex-wrap items-center gap-6 text-xs text-neutral-500">
               <span>© 2025 HAUS. All rights reserved.</span>
-              <a href="#" className="hover:text-neutral-300 transition">
-                Privacy
-              </a>
-              <a href="#" className="hover:text-neutral-300 transition">
-                Terms
-              </a>
+              <Link href="#" className="hover:text-neutral-300 transition">Privacy</Link>
+              <Link href="#" className="hover:text-neutral-300 transition">Terms</Link>
             </div>
             <div className="flex items-center gap-4 text-xs text-neutral-500">
               <span className="inline-flex items-center gap-2">
@@ -522,20 +533,14 @@ export default function LandingPage4() {
   )
 }
 
-// Home icon component
-function Home({ className }: { className?: string }) {
+export default function LandingPage4() {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m3 9 9-6 6 6-6" />
-      <path d="m3 3 0 0 1 0 0h18a2 2 0 0 1 0 0v10a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z" />
-    </svg>
+    <ErrorBoundary>
+      <Shell variant="landing">
+        <Suspense fallback={<PageLoader text="Loading page..." />}>
+          <LandingPage4Content />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

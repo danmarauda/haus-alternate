@@ -7,24 +7,35 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { useProperties } from "@/hooks/useConvex"
 import { PropertyCard } from "@/components/properties/PropertyCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Search, Grid3X3, List, SlidersHorizontal, Loader2, Home, Building2, LandPlot } from "lucide-react"
+import { Search, Grid3X3, List, SlidersHorizontal, Loader2, Home, Building2, LandPlot, Sparkles } from "lucide-react"
 import { useSearchParams } from "next/navigation"
-import { PropertyFilters } from "@/lib/convex"
+import { PropertyFilters, Property } from "@/lib/convex"
 import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 
-function PropertyListingsContent() {
-  const searchParams = useSearchParams()
 
+interface PropertyTypeOption {
+  label: string
+  value: string
+  icon: typeof Home
+}
+
+interface PropertyListingsContentProps {
+  searchParams: URLSearchParams
+}
+
+function PropertyListingsContent({ searchParams }: PropertyListingsContentProps) {
   // Parse URL params to filters
   const initialFilters: PropertyFilters = useMemo(() => {
     return {
@@ -48,29 +59,38 @@ function PropertyListingsContent() {
   // Fetch properties with filters
   const { properties, isLoading, error } = useProperties(filters, 24)
 
-  // Update filters
-  const updateFilter = (key: keyof PropertyFilters, value: any) => {
+  // Update filters with useCallback
+  const updateFilter = useCallback((key: keyof PropertyFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }))
-  }
+  }, [])
 
-  // Clear all filters
-  const clearFilters = () => {
+  // Clear all filters with useCallback
+  const clearFilters = useCallback(() => {
     setFilters({ status: "active" })
     setSearchQuery("")
-  }
+  }, [])
 
   // Filter by search query (client-side for now)
   const filteredProperties = useMemo(() => {
     if (!searchQuery) return properties
 
     const query = searchQuery.toLowerCase()
-    return properties.filter(p =>
+    return properties.filter((p: any) =>
       p.title.toLowerCase().includes(query) ||
       p.suburb.toLowerCase().includes(query) ||
       p.description?.toLowerCase().includes(query) ||
       p.address.toLowerCase().includes(query)
     )
   }, [properties, searchQuery])
+
+  // Property type options with const assertion
+  const propertyTypeOptions: PropertyTypeOption[] = [
+    { label: "House", value: "house", icon: Home },
+    { label: "Apartment", value: "apartment", icon: Building2 },
+    { label: "Townhouse", value: "townhouse", icon: Home },
+    { label: "Land", value: "land", icon: LandPlot },
+    { label: "Commercial", value: "commercial", icon: Building2 },
+  ] as const
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
@@ -86,11 +106,13 @@ function PropertyListingsContent() {
             </div>
 
             {/* View Toggle */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" role="group" aria-label="View mode">
               <Button
                 variant={viewMode === "grid" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setViewMode("grid")}
+                aria-label="Grid view"
+                aria-pressed={viewMode === "grid"}
               >
                 <Grid3X3 className="w-4 h-4" />
               </Button>
@@ -98,6 +120,8 @@ function PropertyListingsContent() {
                 variant={viewMode === "list" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setViewMode("list")}
+                aria-label="List view"
+                aria-pressed={viewMode === "list"}
               >
                 <List className="w-4 h-4" />
               </Button>
@@ -106,6 +130,8 @@ function PropertyListingsContent() {
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
                 className="ml-2"
+                aria-expanded={showFilters}
+                aria-controls="filters-sidebar"
               >
                 <SlidersHorizontal className="w-4 h-4 mr-2" />
                 Filters
@@ -116,8 +142,10 @@ function PropertyListingsContent() {
           {/* Search Bar */}
           <div className="mt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+              <label htmlFor="property-search" className="sr-only">Search properties</label>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" aria-hidden="true" />
               <Input
+                id="property-search"
                 type="text"
                 placeholder="Search by suburb, address, or keywords..."
                 value={searchQuery}
@@ -133,7 +161,7 @@ function PropertyListingsContent() {
         <div className="flex gap-8">
           {/* Filters Sidebar */}
           {showFilters && (
-            <aside className="w-64 flex-shrink-0">
+            <aside id="filters-sidebar" className="w-64 flex-shrink-0" aria-label="Property filters">
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
@@ -146,14 +174,8 @@ function PropertyListingsContent() {
                   {/* Property Type */}
                   <div className="mb-6">
                     <Label className="mb-3">Property Type</Label>
-                    <div className="space-y-2">
-                      {[
-                        { label: "House", value: "house", icon: Home },
-                        { label: "Apartment", value: "apartment", icon: Building2 },
-                        { label: "Townhouse", value: "townhouse", icon: Home },
-                        { label: "Land", value: "land", icon: LandPlot },
-                        { label: "Commercial", value: "commercial", icon: Building2 },
-                      ].map(({ label, value, icon: Icon }) => (
+                    <div className="space-y-2" role="group" aria-label="Property types">
+                      {propertyTypeOptions.map(({ label, value, icon: Icon }) => (
                         <div key={value} className="flex items-center space-x-2">
                           <Checkbox
                             id={value}
@@ -223,7 +245,7 @@ function PropertyListingsContent() {
                   {/* Bedrooms */}
                   <div className="mb-6">
                     <Label className="mb-3">Bedrooms</Label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" role="group" aria-label="Bedrooms">
                       {[1, 2, 3, 4, 5].map(beds => (
                         <Button
                           key={beds}
@@ -231,6 +253,7 @@ function PropertyListingsContent() {
                           size="sm"
                           onClick={() => updateFilter("bedrooms", filters.bedrooms === beds ? undefined : beds)}
                           className="flex-1"
+                          aria-pressed={filters.bedrooms === beds}
                         >
                           {beds}+
                         </Button>
@@ -241,7 +264,7 @@ function PropertyListingsContent() {
                   {/* Bathrooms */}
                   <div className="mb-6">
                     <Label className="mb-3">Bathrooms</Label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" role="group" aria-label="Bathrooms">
                       {[1, 2, 3, 4].map(baths => (
                         <Button
                           key={baths}
@@ -249,6 +272,7 @@ function PropertyListingsContent() {
                           size="sm"
                           onClick={() => updateFilter("bathrooms", filters.bathrooms === baths ? undefined : baths)}
                           className="flex-1"
+                          aria-pressed={filters.bathrooms === baths}
                         >
                           {baths}+
                         </Button>
@@ -277,16 +301,17 @@ function PropertyListingsContent() {
           {/* Property Grid */}
           <div className="flex-1">
             {isLoading ? (
-              <div className="flex items-center justify-center py-20">
+              <div className="flex items-center justify-center py-20" role="status" aria-live="polite">
                 <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+                <span className="sr-only">Loading properties...</span>
               </div>
             ) : error ? (
               <Card>
                 <CardContent className="p-12 text-center">
                   <p className="text-zinc-600 dark:text-zinc-400">Error loading properties. Please try again.</p>
-                <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-                  Retry
-                </Button>
+                  <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+                    Retry
+                  </Button>
                 </CardContent>
               </Card>
             ) : filteredProperties.length === 0 ? (
@@ -302,13 +327,15 @@ function PropertyListingsContent() {
               </Card>
             ) : (
               <div
+                role="list"
+                aria-label="Property listings"
                 className={
                   viewMode === "grid"
                     ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     : "space-y-6"
                 }
               >
-                {filteredProperties.map(property => (
+                {filteredProperties.map((property: any) => (
                   <PropertyCard
                     key={property._id}
                     property={property}
@@ -324,10 +351,19 @@ function PropertyListingsContent() {
   )
 }
 
+function PropertyListingsPageWrapper() {
+  const searchParams = useSearchParams()
+  return <PropertyListingsContent searchParams={searchParams} />
+}
+
 export default function PropertyListingsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-      <PropertyListingsContent />
-    </Suspense>
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading properties..." />}>
+          <PropertyListingsPageWrapper />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

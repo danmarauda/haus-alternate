@@ -25,7 +25,7 @@
  * ```
  */
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -55,6 +55,10 @@ import {
   Settings,
   Printer
 } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -78,6 +82,7 @@ import type {
   ValuationMethod
 } from "@/types/appraisal"
 
+
 // Zod schema for property search form
 const propertySearchSchema = z.object({
   address: z.string().min(1, "Address is required"),
@@ -89,6 +94,7 @@ const propertySearchSchema = z.object({
 })
 
 type PropertySearchForm = z.infer<typeof propertySearchSchema>
+type Period = "1m" | "3m" | "6m" | "1y" | "all"
 
 // Mock data - in production, fetch from API
 const MOCK_VALUATION: Valuation = {
@@ -144,7 +150,7 @@ const MOCK_VALUATION: Valuation = {
     averageDaysOnMarket: 28,
     monthsOfInventory: 2.1
   }
-}
+} as const
 
 const MOCK_COMPARABLES: ComparableSale[] = [
   {
@@ -214,7 +220,7 @@ const MOCK_COMPARABLES: ComparableSale[] = [
     ],
     adjustedPrice: 3023000
   }
-]
+] as const
 
 const MOCK_MARKET_TRENDS: MarketTrend[] = [
   { period: "2019", medianPrice: 2100000, averagePrice: 2150000, pricePerSquareFoot: 525, numberOfSales: 142, averageDaysOnMarket: 35 },
@@ -223,10 +229,10 @@ const MOCK_MARKET_TRENDS: MarketTrend[] = [
   { period: "2022", medianPrice: 2600000, averagePrice: 2650000, pricePerSquareFoot: 620, numberOfSales: 148, averageDaysOnMarket: 30 },
   { period: "2023", medianPrice: 2700000, averagePrice: 2780000, pricePerSquareFoot: 650, numberOfSales: 135, averageDaysOnMarket: 31 },
   { period: "2024", medianPrice: 2850000, averagePrice: 2900000, pricePerSquareFoot: 685, numberOfSales: 124, averageDaysOnMarket: 28 }
-]
+] as const
 
-export default function AppraisalReportPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState<"1m" | "3m" | "6m" | "1y" | "all">("6m")
+function AppraisalReportPageContent() {
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>("6m")
   const [selectedMethod, setSelectedMethod] = useState<ValuationMethod | "all">("all")
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -259,23 +265,37 @@ export default function AppraisalReportPage() {
     }
   }, [])
 
-  const handleExport = async (format: "pdf" | "excel") => {
+  // Memoized handlers
+  const handleExport = useCallback(async (format: "pdf" | "excel") => {
     setIsLoading(true)
     // Simulate export - in production, call actual API
     await new Promise(resolve => setTimeout(resolve, 2000))
     setIsLoading(false)
     setShowExportMenu(false)
-  }
+  }, [])
 
-  const onSubmit = async (data: PropertySearchForm) => {
+  const handleToggleExportMenu = useCallback(() => {
+    setShowExportMenu(prev => !prev)
+  }, [])
+
+  const handlePeriodChange = useCallback((period: Period) => {
+    setSelectedPeriod(period)
+  }, [])
+
+  const handleMethodChange = useCallback((method: ValuationMethod | "all") => {
+    setSelectedMethod(method)
+  }, [])
+
+  const onSubmit = useCallback(async (data: PropertySearchForm) => {
     console.log("Search submitted:", data)
     // In production, call API to get property data
-  }
+  }, [])
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="landing-page min-h-screen">
       {/* Noise Overlay */}
-      <div className="fixed inset-0 z-0 w-full h-full pointer-events-none opacity-20"
+      <div
+        className="fixed inset-0 z-0 w-full h-full pointer-events-none opacity-20"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
@@ -284,366 +304,388 @@ export default function AppraisalReportPage() {
           backgroundSize: "50px 50px",
           maskImage: "radial-gradient(circle at center, black 40%, transparent 100%)"
         }}
+        aria-hidden="true"
       />
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <a href="/" className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group">
+      <nav className="fixed top-0 w-full px-6 py-4 md:px-12 md:py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/10" role="navigation" aria-label="Appraisal navigation">
+        <a href="/" className="font-display text-lg font-medium tracking-tight flex items-center gap-2 group" aria-label="HAUS home">
           <div className="w-8 h-8 bg-white text-black flex items-center justify-center font-bold tracking-tighter group-hover:scale-90 transition-transform duration-300">
             H
           </div>
         </a>
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#" className="text-xs font-mono text-white/60 hover:text-white transition-colors">DASHBOARD</a>
-          <a href="#" className="text-xs font-mono text-white/60 hover:text-white transition-colors">VALUATIONS</a>
-          <a href="#" className="text-xs font-mono text-white border-b border-white transition-colors">REPORTS</a>
+        <div className="hidden md:flex items-center gap-8" role="list" aria-label="Page navigation">
+          <a href="#" className="text-xs font-mono text-white/60 hover:text-white transition-colors">Dashboard</a>
+          <a href="#" className="text-xs font-mono text-white/60 hover:text-white transition-colors">Valuations</a>
+          <span className="text-xs font-mono text-white border-b border-white transition-colors" aria-current="page">Reports</span>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" className="border-white/20 hover:bg-white hover:text-black">
-            <FileText className="w-4 h-4 mr-2" />
+            <FileText className="w-4 h-4 mr-2" aria-hidden="true" />
             New Report
           </Button>
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 pt-32 pb-24">
-        <div className="px-6 md:px-12 max-w-[1920px] mx-auto">
+      <main className="relative z-10 pt-32 pb-24 px-6 md:px-12 max-w-[1920px] mx-auto" aria-labelledby="report-heading">
+        <h1 id="report-heading" className="sr-only">Property Appraisal Report</h1>
 
-          {/* Header */}
-          <header className="mb-12">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="px-2 py-0.5 rounded border border-white/20 bg-white/5 text-[10px] uppercase tracking-widest text-indigo-300 font-medium">
-                    Property Valuation
-                  </span>
-                  <span className="text-[10px] text-neutral-500 font-mono">RPT-2024-08921</span>
-                </div>
-                <h1 className="font-display text-4xl md:text-5xl font-medium tracking-tight text-white mb-3">
-                  2847 Pacific Coast Hwy
-                </h1>
-                <div className="flex items-center gap-4 text-sm text-neutral-400">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    Malibu, CA 90265
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    Nov 14, 2024
-                  </span>
-                </div>
+        {/* Header */}
+        <header className="mb-12">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="px-2 py-0.5 rounded border border-white/20 bg-white/5 text-[10px] uppercase tracking-widest text-indigo-300 font-medium">
+                  Property Valuation
+                </span>
+                <span className="text-[10px] text-neutral-500 font-mono">RPT-2024-08921</span>
               </div>
-
-              {/* Main Valuation Display */}
-              <div className="flex items-start gap-6">
-                <div className="text-right">
-                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Estimated Value</div>
-                  <div className="font-display text-4xl font-medium text-white mb-1">
-                    $2,850,000
-                  </div>
-                  <div className="text-sm text-neutral-400">
-                    $685/sqft
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Value Range</div>
-                  <div className="font-display text-2xl font-medium text-white mb-1">
-                    $2.7M - $3.0M
-                  </div>
-                  <div className="text-sm text-emerald-500 flex items-center justify-end gap-1">
-                    <Activity className="w-3 h-3" />
-                    High confidence
-                  </div>
-                </div>
+              <h2 className="font-display text-4xl md:text-5xl font-medium tracking-tight text-white mb-3">
+                2847 Pacific Coast Hwy
+              </h2>
+              <div className="flex items-center gap-4 text-sm text-neutral-400">
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4" aria-hidden="true" />
+                  Malibu, CA 90265
+                </span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" aria-hidden="true" />
+                  Nov 14, 2024
+                </span>
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="flex items-center gap-3">
+            {/* Main Valuation Display */}
+            <div className="flex items-start gap-6">
+              <div className="text-right">
+                <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Estimated Value</div>
+                <div className="font-display text-4xl font-medium text-white mb-1">
+                  $2,850,000
+                </div>
+                <div className="text-sm text-neutral-400">
+                  $685/sqft
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Value Range</div>
+                <div className="font-display text-2xl font-medium text-white mb-1">
+                  $2.7M - $3.0M
+                </div>
+                <div className="text-sm text-emerald-500 flex items-center justify-end gap-1">
+                  <Activity className="w-3 h-3" aria-hidden="true" />
+                  High confidence
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleToggleExportMenu}
+              aria-expanded={showExportMenu}
+              aria-haspopup="menu"
+              className="border-white/20 hover:bg-white hover:text-black"
+            >
+              <Download className="w-4 h-4 mr-2" aria-hidden="true" />
+              Export Report
+            </Button>
+            <Button variant="outline" size="sm" className="border-white/20 hover:bg-white/5">
+              <Printer className="w-4 h-4 mr-2" aria-hidden="true" />
+              Print
+            </Button>
+            <Button variant="outline" size="sm" className="border-white/20 hover:bg-white/5">
+              <Settings className="w-4 h-4 mr-2" aria-hidden="true" />
+              Settings
+            </Button>
+          </div>
+
+          {/* Export Menu */}
+          {showExportMenu && (
+            <div className="absolute top-48 right-12 bg-[#0A0A0A] border border-white/10 rounded-lg p-2 shadow-xl z-50" role="menu" aria-label="Export options">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                onClick={() => setShowExportMenu(!showExportMenu)}
-                className="border-white/20 hover:bg-white hover:text-black"
+                onClick={() => handleExport("pdf")}
+                disabled={isLoading}
+                className="w-full justify-start hover:bg-white/5"
+                role="menuitem"
               >
-                <Download className="w-4 h-4 mr-2" />
-                Export Report
+                <FileText className="w-4 h-4 mr-2" aria-hidden="true" />
+                Export as PDF
               </Button>
-              <Button variant="outline" size="sm" className="border-white/20 hover:bg-white/5">
-                <Printer className="w-4 h-4 mr-2" />
-                Print
-              </Button>
-              <Button variant="outline" size="sm" className="border-white/20 hover:bg-white/5">
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleExport("excel")}
+                disabled={isLoading}
+                className="w-full justify-start hover:bg-white/5"
+                role="menuitem"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" aria-hidden="true" />
+                Export to Excel
               </Button>
             </div>
+          )}
+        </header>
 
-            {/* Export Menu */}
-            {showExportMenu && (
-              <div className="absolute top-48 right-12 bg-[#0A0A0A] border border-white/10 rounded-lg p-2 shadow-xl z-50">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleExport("pdf")}
-                  disabled={isLoading}
-                  className="w-full justify-start hover:bg-white/5"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Export as PDF
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleExport("excel")}
-                  disabled={isLoading}
-                  className="w-full justify-start hover:bg-white/5"
-                >
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Export to Excel
-                </Button>
+        {/* Property Details */}
+        <section className="mb-8" aria-labelledby="property-details-heading">
+          <h2 id="property-details-heading" className="sr-only">Property Details</h2>
+          <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
+              <Home className="w-5 h-5 text-indigo-400" aria-hidden="true" />
+              Property Details
+            </h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              <div>
+                <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Type</div>
+                <div className="text-sm text-white">Single Family</div>
               </div>
-            )}
-          </header>
-
-          {/* Property Details */}
-          <section className="mb-8">
-            <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
-              <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
-                <Home className="w-5 h-5 text-indigo-400" />
-                Property Details
-              </h2>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                <div>
-                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Type</div>
-                  <div className="text-sm text-white">Single Family</div>
+              <div>
+                <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                  <Bed className="w-3 h-3" aria-hidden="true" />
+                  Bedrooms
                 </div>
-                <div>
-                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
-                    <Bed className="w-3 h-3" />
-                    Bedrooms
-                  </div>
-                  <div className="text-sm text-white">5</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
-                    <Bath className="w-3 h-3" />
-                    Bathrooms
-                  </div>
-                  <div className="text-sm text-white">4</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
-                    <Car className="w-3 h-3" />
-                    Parking
-                  </div>
-                  <div className="text-sm text-white">3 Cars</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
-                    <Maximize className="w-3 h-3" />
-                    Living Area
-                  </div>
-                  <div className="text-sm text-white">4,160 sqft</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
-                    <Ruler className="w-3 h-3" />
-                    Lot Size
-                  </div>
-                  <div className="text-sm text-white">8,400 sqft</div>
-                </div>
+                <div className="text-sm text-white">5</div>
               </div>
+              <div>
+                <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                  <Bath className="w-3 h-3" aria-hidden="true" />
+                  Bathrooms
+                </div>
+                <div className="text-sm text-white">4</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                  <Car className="w-3 h-3" aria-hidden="true" />
+                  Parking
+                </div>
+                <div className="text-sm text-white">3 Cars</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                  <Maximize className="w-3 h-3" aria-hidden="true" />
+                  Living Area
+                </div>
+                <div className="text-sm text-white">4,160 sqft</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                  <Ruler className="w-3 h-3" aria-hidden="true" />
+                  Lot Size
+                </div>
+                <div className="text-sm text-white">8,400 sqft</div>
+              </div>
+            </div>
 
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div>
-                    <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Year Built</div>
-                    <div className="text-sm text-white">2015</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Condition</div>
-                    <div className="text-sm text-white">Excellent</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Quality</div>
-                    <div className="text-sm text-white">Above Average</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Zoning</div>
-                    <div className="text-sm text-white">R-1</div>
-                  </div>
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div>
+                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Year Built</div>
+                  <div className="text-sm text-white">2015</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Condition</div>
+                  <div className="text-sm text-white">Excellent</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Quality</div>
+                  <div className="text-sm text-white">Above Average</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Zoning</div>
+                  <div className="text-sm text-white">R-1</div>
                 </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Valuation Methods */}
-          <section className="mb-8">
-            <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
-              <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
-                <PieChart className="w-5 h-5 text-indigo-400" />
-                Valuation Methods Breakdown
-              </h2>
+        {/* Valuation Methods */}
+        <section className="mb-8" aria-labelledby="valuation-heading">
+          <h2 id="valuation-heading" className="sr-only">Valuation Methods</h2>
+          <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
+              <PieChart className="w-5 h-5 text-indigo-400" aria-hidden="true" />
+              Valuation Methods Breakdown
+            </h3>
 
-              <div className="space-y-4">
-                {MOCK_VALUATION.methods.map((method, idx) => (
-                  <div key={idx} className="border border-white/5 rounded-lg p-4 hover:border-white/10 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="text-sm font-medium text-white capitalize">
-                            {method.method.replace("-", " ")}
-                          </h3>
-                          <span className="px-2 py-0.5 rounded bg-white/5 text-[10px] text-neutral-400 border border-white/5">
-                            {Math.round(method.weight * 100)}% weight
-                          </span>
-                        </div>
-                        <p className="text-xs text-neutral-500">{method.notes}</p>
+            <div className="space-y-4" role="list" aria-label="Valuation methods">
+              {MOCK_VALUATION.methods.map((method, idx) => (
+                <div key={idx} className="border border-white/5 rounded-lg p-4 hover:border-white/10 transition-colors" role="listitem">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <h4 className="text-sm font-medium text-white capitalize">
+                          {method.method.replace("-", " ")}
+                        </h4>
+                        <span className="px-2 py-0.5 rounded bg-white/5 text-[10px] text-neutral-400 border border-white/5">
+                          {Math.round(method.weight * 100)}% weight
+                        </span>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-medium text-white">
-                          ${(method.adjustedValue / 1000).toFixed(0)}K
-                        </div>
-                        <div className="text-xs text-neutral-500">
-                          of ${method.value.toLocaleString()}
-                        </div>
+                      <p className="text-xs text-neutral-500">{method.notes}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-medium text-white">
+                        ${(method.adjustedValue / 1000).toFixed(0)}K
+                      </div>
+                      <div className="text-xs text-neutral-500">
+                        of ${method.value.toLocaleString()}
                       </div>
                     </div>
+                  </div>
 
-                    {/* Progress bar */}
-                    <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
-                      <div
-                        className="absolute top-0 left-0 h-full bg-indigo-500 rounded-full transition-all duration-500"
-                        style={{ width: `${method.weight * 100}%` }}
-                      />
-                    </div>
+                  {/* Progress bar */}
+                  <div className="relative h-2 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={method.weight * 100} aria-valuemin={0} aria-valuemax={100} aria-label={`${method.method} weight`}>
+                    <div
+                      className="absolute top-0 left-0 h-full bg-indigo-500 rounded-full transition-all duration-500"
+                      style={{ width: `${method.weight * 100}%` }}
+                      aria-hidden="true"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Adjustments Summary */}
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <h4 className="text-sm font-medium text-white mb-4">Valuation Adjustments</h4>
+              <div className="space-y-2">
+                {MOCK_VALUATION.adjustments.map((adj, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-400">{adj.category}</span>
+                    <span className={cn(
+                      "font-mono",
+                      adj.amount > 0 ? "text-emerald-500" : "text-red-500"
+                    )}>
+                      {adj.amount > 0 ? "+" : ""}${adj.amount.toLocaleString()}
+                    </span>
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
 
-              {/* Adjustments Summary */}
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <h3 className="text-sm font-medium text-white mb-4">Valuation Adjustments</h3>
-                <div className="space-y-2">
-                  {MOCK_VALUATION.adjustments.map((adj, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-sm">
-                      <span className="text-neutral-400">{adj.category}</span>
-                      <span className={cn(
-                        "font-mono",
-                        adj.amount > 0 ? "text-emerald-500" : "text-red-500"
-                      )}>
-                        {adj.amount > 0 ? "+" : ""}${adj.amount.toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+        {/* Comparable Sales */}
+        <section className="mb-8" aria-labelledby="comparables-heading">
+          <h2 id="comparables-heading" className="sr-only">Comparable Sales</h2>
+          <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-medium text-white flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-indigo-400" aria-hidden="true" />
+                Comparable Sales
+              </h3>
+              <div className="flex items-center gap-2 text-xs text-neutral-500">
+                <span>Avg: ${(avgComparablePrice / 1000).toFixed(0)}K</span>
+                <span aria-hidden="true">•</span>
+                <span>Range: ${(priceRange.min / 1000).toFixed(0)}K - ${(priceRange.max / 1000).toFixed(0)}K</span>
               </div>
             </div>
-          </section>
 
-          {/* Comparable Sales */}
-          <section className="mb-8">
-            <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-medium text-white flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-indigo-400" />
-                  Comparable Sales
-                </h2>
-                <div className="flex items-center gap-2 text-xs text-neutral-500">
-                  <span>Avg: ${(avgComparablePrice / 1000).toFixed(0)}K</span>
-                  <span>•</span>
-                  <span>Range: ${(priceRange.min / 1000).toFixed(0)}K - ${(priceRange.max / 1000).toFixed(0)}K</span>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="text-[10px] text-neutral-400 font-mono uppercase tracking-wider border-b border-white/10">
-                      <th className="text-left pb-3 pl-4">Property</th>
-                      <th className="text-left pb-3">Sale Price</th>
-                      <th className="text-left pb-3">$/Sqft</th>
-                      <th className="text-left pb-3">Details</th>
-                      <th className="text-left pb-3">Similarity</th>
-                      <th className="text-right pb-3 pr-4">Adjusted</th>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-[10px] text-neutral-400 font-mono uppercase tracking-wider border-b border-white/10">
+                    <th className="text-left pb-3 pl-4" scope="col">Property</th>
+                    <th className="text-left pb-3" scope="col">Sale Price</th>
+                    <th className="text-left pb-3" scope="col">$/Sqft</th>
+                    <th className="text-left pb-3" scope="col">Details</th>
+                    <th className="text-left pb-3" scope="col">Similarity</th>
+                    <th className="text-right pb-3 pr-4" scope="col">Adjusted</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {MOCK_COMPARABLES.map((comp) => (
+                    <tr key={comp.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td className="py-4 pl-4">
+                        <div className="text-white font-medium">{comp.address}</div>
+                        <div className="text-[10px] text-neutral-500">
+                          {comp.distance}mi • Sold {comp.saleDate.toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="py-4 text-white font-mono">
+                        ${comp.salePrice.toLocaleString()}
+                      </td>
+                      <td className="py-4 text-neutral-300 font-mono">
+                        ${comp.pricePerSquareFoot}
+                      </td>
+                      <td className="py-4">
+                        <div className="text-[10px] text-neutral-400 space-y-0.5">
+                          <div>{comp.bedrooms}bd • {comp.bathrooms}ba • {comp.squareFootage.toLocaleString()}sqft</div>
+                          <div>Built {comp.yearBuilt} • {comp.condition}</div>
+                        </div>
+                      </td>
+                      <td className="py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden" role="progressbar" aria-valuenow={comp.similarity * 100} aria-valuemin={0} aria-valuemax={100} aria-label={`${comp.address} similarity`}>
+                            <div
+                              className="h-full bg-emerald-500 rounded-full"
+                              style={{ width: `${comp.similarity * 100}%` }}
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <span className="text-xs text-neutral-400">{Math.round(comp.similarity * 100)}%</span>
+                        </div>
+                      </td>
+                      <td className="py-4 text-right font-mono text-white pr-4">
+                        ${comp.adjustedPrice.toLocaleString()}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="text-sm">
-                    {MOCK_COMPARABLES.map((comp) => (
-                      <tr key={comp.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <td className="py-4 pl-4">
-                          <div className="text-white font-medium">{comp.address}</div>
-                          <div className="text-[10px] text-neutral-500">
-                            {comp.distance}mi • Sold {comp.saleDate.toLocaleDateString()}
-                          </div>
-                        </td>
-                        <td className="py-4 text-white font-mono">
-                          ${comp.salePrice.toLocaleString()}
-                        </td>
-                        <td className="py-4 text-neutral-300 font-mono">
-                          ${comp.pricePerSquareFoot}
-                        </td>
-                        <td className="py-4">
-                          <div className="text-[10px] text-neutral-400 space-y-0.5">
-                            <div>{comp.bedrooms}bd • {comp.bathrooms}ba • {comp.squareFootage.toLocaleString()}sqft</div>
-                            <div>Built {comp.yearBuilt} • {comp.condition}</div>
-                          </div>
-                        </td>
-                        <td className="py-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-emerald-500 rounded-full"
-                                style={{ width: `${comp.similarity * 100}%` }}
-                              />
-                            </div>
-                            <span className="text-xs text-neutral-400">{Math.round(comp.similarity * 100)}%</span>
-                          </div>
-                        </td>
-                        <td className="py-4 text-right font-mono text-white pr-4">
-                          ${comp.adjustedPrice.toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Market Trends */}
-          <section>
-            <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
-              <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-indigo-400" />
-                Market Trends (5 Years)
-              </h2>
+        {/* Market Trends */}
+        <section aria-labelledby="trends-heading">
+          <h2 id="trends-heading" className="sr-only">Market Trends</h2>
+          <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-indigo-400" aria-hidden="true" />
+              Market Trends (5 Years)
+            </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                {MOCK_MARKET_TRENDS.map((trend, idx) => (
-                  <div key={idx} className="border border-white/5 rounded-lg p-4 hover:border-white/10 transition-colors">
-                    <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2">{trend.period}</div>
-                    <div className="text-lg font-medium text-white mb-1">
-                      ${(trend.medianPrice / 1000000).toFixed(2)}M
-                    </div>
-                    <div className="text-xs text-neutral-500 mb-2">
-                      ${trend.pricePerSquareFoot}/sqft
-                    </div>
-                    <div className="flex items-center gap-1 text-[10px] text-neutral-400">
-                      <Activity className="w-3 h-3" />
-                      {trend.numberOfSales} sales
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4" role="list" aria-label="Market trends by year">
+              {MOCK_MARKET_TRENDS.map((trend, idx) => (
+                <div key={idx} className="border border-white/5 rounded-lg p-4 hover:border-white/10 transition-colors" role="listitem">
+                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2">{trend.period}</div>
+                  <div className="text-lg font-medium text-white mb-1">
+                    ${(trend.medianPrice / 1000000).toFixed(2)}M
                   </div>
-                ))}
-              </div>
+                  <div className="text-xs text-neutral-500 mb-2">
+                    ${trend.pricePerSquareFoot}/sqft
+                  </div>
+                  <div className="flex items-center gap-1 text-[10px] text-neutral-400">
+                    <Activity className="w-3 h-3" aria-hidden="true" />
+                    {trend.numberOfSales} sales
+                  </div>
+                </div>
+              ))}
             </div>
-          </section>
+          </div>
+        </section>
 
-        </div>
-      </div>
+      </main>
     </div>
+  )
+}
+
+export default function AppraisalReportPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading appraisal report..." />}>
+          <AppraisalReportPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

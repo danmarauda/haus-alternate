@@ -226,7 +226,7 @@ export default function MobileStoryboardPage() {
                   <MobileStoryboard
                     screens={screens}
                     theme={theme}
-                    device={device}
+                    defaultDevice={device}
                     showDeviceSelector={false}
                   />
                 </div>

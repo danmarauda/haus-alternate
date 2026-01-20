@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import {
   Signal,
   Wifi,
@@ -14,6 +14,11 @@ import {
   Lightbulb,
   CheckCircle,
 } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
+
 
 /**
  * Mobile Voice Assistant Page
@@ -47,7 +52,86 @@ interface StudioScreen {
   dotColor: string
 }
 
-export default function MobileAssistantPage() {
+const todayConversations: Conversation[] = [
+  {
+    id: "1",
+    title: "Draft follow-up email",
+    description: "Summarize yesterday's call and propose next steps for the Q4 launch timeline...",
+    time: "2 hours ago",
+    messageCount: 23,
+    color: "bg-cyan-400",
+    textColor: "text-cyan-400",
+  },
+  {
+    id: "2",
+    title: "Code review and optimization",
+    description: "Scan for unnecessary renders, suggest memoization, and refine effects dependencies.",
+    time: "4 hours ago",
+    messageCount: 18,
+    color: "bg-blue-500",
+    textColor: "text-blue-400",
+  },
+] as const
+
+const yesterdayConversations: Conversation[] = [
+  {
+    id: "3",
+    title: "Design system documentation",
+    description: "Generate usage guidelines, props tables, and accessibility notes for core components.",
+    time: "Yesterday",
+    messageCount: 31,
+    color: "bg-sky-400",
+    textColor: "text-sky-400",
+  },
+  {
+    id: "4",
+    title: "Business plan draft",
+    description: "Outline target market, pricing, GTM channels, and 12-month milestones.",
+    time: "Yesterday",
+    messageCount: 45,
+    color: "bg-indigo-400",
+    textColor: "text-indigo-400",
+  },
+] as const
+
+const quickActions: QuickAction[] = [
+  {
+    icon: <Image className="w-4 h-4 text-cyan-400" aria-hidden="true" />,
+    label: "Image",
+    gradient: "from-cyan-400/10 to-cyan-400/5",
+    borderColor: "border-cyan-400/20 hover:border-cyan-400/30",
+    textColor: "text-cyan-400",
+  },
+  {
+    icon: <FileText className="w-4 h-4 text-blue-400" aria-hidden="true" />,
+    label: "Text",
+    gradient: "from-blue-400/10 to-blue-400/5",
+    borderColor: "border-blue-400/20 hover:border-blue-400/30",
+    textColor: "text-blue-400",
+  },
+  {
+    icon: <Code className="w-4 h-4 text-sky-400" aria-hidden="true" />,
+    label: "Code",
+    gradient: "from-sky-400/10 to-sky-400/5",
+    borderColor: "border-sky-400/20 hover:border-sky-400/30",
+    textColor: "text-sky-400",
+  },
+  {
+    icon: <Lightbulb className="w-4 h-4 text-indigo-400" aria-hidden="true" />,
+    label: "Ideas",
+    gradient: "from-indigo-400/10 to-indigo-400/5",
+    borderColor: "border-indigo-400/20 hover:border-indigo-400/30",
+    textColor: "text-indigo-400",
+  },
+] as const
+
+const studioScreens: StudioScreen[] = [
+  { name: "Onboarding", dotColor: "bg-cyan-400" },
+  { name: "Home", dotColor: "bg-blue-400" },
+  { name: "Live Listening", dotColor: "bg-sky-400" },
+] as const
+
+function MobileAssistantPageContent() {
   const [animatedText, setAnimatedText] = useState("")
   const [isListening] = useState(true)
   const animationRef = useRef<NodeJS.Timeout | null>(null)
@@ -81,89 +165,6 @@ export default function MobileAssistantPage() {
       }
     }
   }, [])
-
-  const todayConversations: Conversation[] = [
-    {
-      id: "1",
-      title: "Draft follow-up email",
-      description:
-        "Summarize yesterday's call and propose next steps for the Q4 launch timeline...",
-      time: "2 hours ago",
-      messageCount: 23,
-      color: "bg-cyan-400",
-      textColor: "text-cyan-400",
-    },
-    {
-      id: "2",
-      title: "Code review and optimization",
-      description:
-        "Scan for unnecessary renders, suggest memoization, and refine effects dependencies.",
-      time: "4 hours ago",
-      messageCount: 18,
-      color: "bg-blue-500",
-      textColor: "text-blue-400",
-    },
-  ]
-
-  const yesterdayConversations: Conversation[] = [
-    {
-      id: "3",
-      title: "Design system documentation",
-      description:
-        "Generate usage guidelines, props tables, and accessibility notes for core components.",
-      time: "Yesterday",
-      messageCount: 31,
-      color: "bg-sky-400",
-      textColor: "text-sky-400",
-    },
-    {
-      id: "4",
-      title: "Business plan draft",
-      description:
-        "Outline target market, pricing, GTM channels, and 12-month milestones.",
-      time: "Yesterday",
-      messageCount: 45,
-      color: "bg-indigo-400",
-      textColor: "text-indigo-400",
-    },
-  ]
-
-  const quickActions: QuickAction[] = [
-    {
-      icon: <Image className="w-4 h-4 text-cyan-400" />,
-      label: "Image",
-      gradient: "from-cyan-400/10 to-cyan-400/5",
-      borderColor: "border-cyan-400/20 hover:border-cyan-400/30",
-      textColor: "text-cyan-400",
-    },
-    {
-      icon: <FileText className="w-4 h-4 text-blue-400" />,
-      label: "Text",
-      gradient: "from-blue-400/10 to-blue-400/5",
-      borderColor: "border-blue-400/20 hover:border-blue-400/30",
-      textColor: "text-blue-400",
-    },
-    {
-      icon: <Code className="w-4 h-4 text-sky-400" />,
-      label: "Code",
-      gradient: "from-sky-400/10 to-sky-400/5",
-      borderColor: "border-sky-400/20 hover:border-sky-400/30",
-      textColor: "text-sky-400",
-    },
-    {
-      icon: <Lightbulb className="w-4 h-4 text-indigo-400" />,
-      label: "Ideas",
-      gradient: "from-indigo-400/10 to-indigo-400/5",
-      borderColor: "border-indigo-400/20 hover:border-indigo-400/30",
-      textColor: "text-indigo-400",
-    },
-  ]
-
-  const studioScreens: StudioScreen[] = [
-    { name: "Onboarding", dotColor: "bg-cyan-400" },
-    { name: "Home", dotColor: "bg-blue-400" },
-    { name: "Live Listening", dotColor: "bg-sky-400" },
-  ]
 
   return (
     <div
@@ -221,14 +222,17 @@ export default function MobileAssistantPage() {
         }
       `}</style>
 
-      <main className="min-h-screen w-full flex flex-col items-center justify-start">
+      <main className="min-h-screen w-full flex flex-col items-center justify-start" aria-labelledby="mobile-assistant-heading">
+        <h1 id="mobile-assistant-heading" className="sr-only">Mobile Voice Assistant Showcase</h1>
+
         {/* Backdrop */}
-        <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
           <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-cyan-400/20 via-blue-500/10 to-cyan-500/20 blur-3xl rounded-full" />
         </div>
 
         {/* Phones Section */}
-        <section className="mx-auto max-w-[1400px] px-4 sm:px-8 py-8">
+        <section className="mx-auto max-w-[1400px] px-4 sm:px-8 py-8" aria-labelledby="phones-section-heading">
+          <h2 id="phones-section-heading" className="sr-only">Phone Screens</h2>
           <div className="grid gap-8 xl:gap-10 grid-cols-1 lg:grid-cols-3 place-items-center">
             {/* Screen 1 - Onboarding */}
             <div className="w-[390px] max-w-full entrance-animation-1">
@@ -237,7 +241,7 @@ export default function MobileAssistantPage() {
                 <div className="relative flex flex-col h-full pt-12 pr-8 pb-8 pl-8">
                   {/* Video orb */}
                   <div className="relative mx-auto mt-12 w-72 h-72 rounded-full overflow-hidden">
-                    <span className="absolute inset-0 ring-[40px] ring-cyan-400/20 z-10 rounded-full" />
+                    <span className="absolute inset-0 ring-[40px] ring-cyan-400/20 z-10 rounded-full" aria-hidden="true" />
                     <video
                       autoPlay
                       loop
@@ -266,11 +270,11 @@ export default function MobileAssistantPage() {
                     </p>
 
                     {/* Pager dots */}
-                    <div className="mt-8 flex items-center gap-2">
-                      <span className="w-8 h-1.5 rounded-full bg-cyan-400/80" />
-                      <span className="w-2 h-1.5 rounded-full bg-neutral-700" />
-                      <span className="w-2 h-1.5 rounded-full bg-neutral-700" />
-                      <span className="w-2 h-1.5 rounded-full bg-neutral-700" />
+                    <div className="mt-8 flex items-center gap-2" aria-label="Screens navigation">
+                      <span className="w-8 h-1.5 rounded-full bg-cyan-400/80" aria-current="page" />
+                      <span className="w-2 h-1.5 rounded-full bg-neutral-700" aria-hidden="true" />
+                      <span className="w-2 h-1.5 rounded-full bg-neutral-700" aria-hidden="true" />
+                      <span className="w-2 h-1.5 rounded-full bg-neutral-700" aria-hidden="true" />
                     </div>
                   </div>
 
@@ -303,7 +307,6 @@ export default function MobileAssistantPage() {
                     </button>
                   </div>
 
-                  {/* Home indicator */}
                   <HomeIndicator />
                 </div>
               </PhoneFrame>
@@ -321,7 +324,7 @@ export default function MobileAssistantPage() {
                         <img
                           src="https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=300&auto=format&fit=crop"
                           className="h-8 w-8 rounded-full object-cover"
-                          alt="Profile"
+                          alt="User avatar"
                         />
                       </div>
                       <div>
@@ -330,7 +333,7 @@ export default function MobileAssistantPage() {
                         </h2>
                       </div>
                     </div>
-                    <button className="size-8 rounded-full bg-neutral-900/60 border border-white/10 flex items-center justify-center">
+                    <button className="size-8 rounded-full bg-neutral-900/60 border border-white/10 flex items-center justify-center" aria-label="New conversation">
                       <Plus className="w-4 h-4 text-neutral-300" />
                     </button>
                   </div>
@@ -372,11 +375,12 @@ export default function MobileAssistantPage() {
                     <h4 className="text-xs text-neutral-400 mb-3 px-1">
                       Quick actions
                     </h4>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-2" role="list" aria-label="Quick actions">
                       {quickActions.map((action, index) => (
                         <button
                           key={index}
                           className={`p-3 rounded-xl bg-gradient-to-b ${action.gradient} border ${action.borderColor} flex flex-col items-center gap-1.5 transition-colors`}
+                          aria-label={action.label}
                         >
                           {action.icon}
                           <span className={`text-xs ${action.textColor}`}>
@@ -389,33 +393,33 @@ export default function MobileAssistantPage() {
 
                   {/* Voice Command Button */}
                   <div className="relative mb-6">
-                    <div className="absolute inset-0 -z-10 blur-xl bg-gradient-to-r from-blue-400/30 via-cyan-400/25 to-sky-500/30 rounded-2xl scale-110" />
-                    <div className="absolute inset-0 -z-10 blur-sm bg-gradient-to-r from-cyan-400/20 via-blue-400/15 to-sky-400/20 rounded-2xl" />
+                    <div className="absolute inset-0 -z-10 blur-xl bg-gradient-to-r from-blue-400/30 via-cyan-400/25 to-sky-500/30 rounded-2xl scale-110" aria-hidden="true" />
+                    <div className="absolute inset-0 -z-10 blur-sm bg-gradient-to-r from-cyan-400/20 via-blue-400/15 to-sky-400/20 rounded-2xl" aria-hidden="true" />
 
                     <button
                       className="group relative w-full h-14 rounded-2xl bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-sky-500/10 border-2 border-cyan-400/40 text-white text-[15px] flex items-center justify-center gap-3 hover:border-cyan-400/70 hover:from-cyan-500/15 hover:via-blue-500/15 hover:to-sky-500/15 transition-all duration-300 overflow-hidden shadow-lg shadow-cyan-400/20"
                       style={{ backdropFilter: "blur(12px)" }}
+                      aria-label="Tap to speak with HAUS voice assistant"
                     >
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-cyan-400/8 via-blue-400/12 to-sky-400/8" />
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-cyan-400/8 via-blue-400/12 to-sky-400/8" aria-hidden="true" />
                       <div className="relative z-10 p-1.5 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 group-hover:scale-110 transition-transform duration-300">
-                        <Mic className="w-4 h-4 text-white" />
+                        <Mic className="w-4 h-4 text-white" aria-hidden="true" />
                       </div>
                       <span className="relative z-10 group-hover:text-cyan-100">
                         Tap to speak with HAUS
                       </span>
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/8 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/8 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" aria-hidden="true" />
                     </button>
                   </div>
 
                   {/* Status */}
-                  <div className="flex items-center justify-center gap-2 mb-8">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
+                  <div className="flex items-center justify-center gap-2 mb-8" role="status" aria-live="polite">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" aria-hidden="true" />
                     <span className="text-xs text-neutral-400">
                       HAUS is ready
                     </span>
                   </div>
 
-                  {/* Home indicator */}
                   <HomeIndicator />
                 </div>
               </PhoneFrame>
@@ -428,10 +432,10 @@ export default function MobileAssistantPage() {
                 <div className="relative px-8 pb-8 pt-6 flex flex-col h-full">
                   {/* Top bar */}
                   <div className="flex items-center justify-between">
-                    <button className="size-10 rounded-full bg-neutral-900/70 border border-white/10 flex items-center justify-center">
+                    <button className="size-10 rounded-full bg-neutral-900/70 border border-white/10 flex items-center justify-center" aria-label="Go back">
                       <ChevronLeft className="w-5 h-5 text-neutral-300" />
                     </button>
-                    <button className="size-10 rounded-full bg-gradient-to-b from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_24px_4px_rgba(34,211,238,0.35)]">
+                    <button className="size-10 rounded-full bg-gradient-to-b from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_24px_4px_rgba(34,211,238,0.35)]" aria-label="Open settings">
                       <Sparkles className="w-5 h-5 text-white" />
                     </button>
                   </div>
@@ -466,13 +470,12 @@ export default function MobileAssistantPage() {
                     </div>
                   </div>
 
-                  <div className="text-center mb-8">
+                  <div className="text-center mb-8" role="status" aria-live="polite">
                     <p className="animate-pulse text-sm text-neutral-400">
                       {isListening ? "Listening..." : "Paused"}
                     </p>
                   </div>
 
-                  {/* Home indicator */}
                   <HomeIndicator />
                 </div>
               </PhoneFrame>
@@ -481,7 +484,8 @@ export default function MobileAssistantPage() {
         </section>
 
         {/* Studio Section */}
-        <section className="mx-auto max-w-[1400px] w-full px-4 sm:px-8 pb-16">
+        <section className="mx-auto max-w-[1400px] w-full px-4 sm:px-8 pb-16" aria-labelledby="studio-section-heading">
+          <h2 id="studio-section-heading" className="sr-only">Studio Screens</h2>
           <div className="flex items-end justify-between pt-6 mt-2 border-t border-white/10">
             <div>
               <h2 className="text-[22px] tracking-tight text-white/90">
@@ -493,7 +497,7 @@ export default function MobileAssistantPage() {
             </div>
             <div className="text-xs text-neutral-400">3 items</div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6" role="list" aria-label="Studio screen previews">
             {studioScreens.map((screen, index) => (
               <StudioCard key={screen.name} screen={screen} index={index} />
             ))}
@@ -508,7 +512,7 @@ export default function MobileAssistantPage() {
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative rounded-[3rem] p-[2px] bg-gradient-to-b from-cyan-400/60 via-blue-500/40 to-cyan-500/60 shadow-[0_20px_80px_-12px_rgba(6,182,212,0.4)]">
-      <div className="rounded-[2.9rem] bg-black overflow-hidden h-[844px] relative neon-border">
+      <div className="rounded-[2.9rem] bg-black overflow-hidden h-[844px] relative neon-border" role="img" aria-label="iPhone frame">
         {children}
       </div>
     </div>
@@ -518,15 +522,15 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
 // Status Bar Component
 function StatusBar() {
   return (
-    <div className="flex items-center justify-between px-8 pt-4 pb-2">
+    <div className="flex items-center justify-between px-8 pt-4 pb-2" role="status" aria-label="Phone status bar">
       <div className="text-white text-sm">9:41</div>
-      <div className="w-6 h-5 rounded-full bg-neutral-800/70" />
-      <div className="flex items-center gap-1 text-white">
-        <Signal className="w-4 h-4" strokeWidth={1.5} />
-        <Wifi className="w-4 h-4" strokeWidth={1.5} />
-        <div className="w-6 h-3 rounded-sm border border-white/60 relative">
-          <div className="absolute inset-0.5 bg-white rounded-[1px]" />
-          <div className="absolute -right-0.5 top-1 w-0.5 h-1 bg-white/60 rounded-r-sm" />
+      <div className="w-6 h-5 rounded-full bg-neutral-800/70" aria-hidden="true" />
+      <div className="flex items-center gap-1 text-white" aria-label="Connectivity">
+        <Signal className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
+        <Wifi className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
+        <div className="w-6 h-3 rounded-sm border border-white/60 relative" aria-label="Battery">
+          <div className="absolute inset-0.5 bg-white rounded-[1px]" aria-hidden="true" />
+          <div className="absolute -right-0.5 top-1 w-0.5 h-1 bg-white/60 rounded-r-sm" aria-hidden="true" />
         </div>
       </div>
     </div>
@@ -535,16 +539,17 @@ function StatusBar() {
 
 // Home Indicator Component
 function HomeIndicator() {
-  return <div className="w-36 h-1 bg-white/30 rounded-full mx-auto" />
+  return <div className="w-36 h-1 bg-white/30 rounded-full mx-auto" role="presentation" />
 }
 
 // Conversation Card Component
 function ConversationCard({ conversation }: { conversation: Conversation }) {
   return (
-    <div className="p-3 rounded-xl bg-neutral-900/40 border border-white/5 hover:border-cyan-400/20 transition-colors">
+    <div className="p-3 rounded-xl bg-neutral-900/40 border border-white/5 hover:border-cyan-400/20 transition-colors" role="listitem">
       <div className="flex items-start gap-3">
         <div
           className={`size-2 rounded-full ${conversation.color} mt-2 flex-shrink-0`}
+          aria-hidden="true"
         />
         <div className="flex-1 min-w-0">
           <p className="text-[13px] text-neutral-200 line-clamp-1">
@@ -574,14 +579,14 @@ function StudioCard({
   index: number
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-neutral-900/40 p-3">
+    <div className="rounded-2xl border border-white/10 bg-neutral-900/40 p-3" role="listitem">
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
-          <span className={`w-1.5 h-1.5 rounded-full ${screen.dotColor}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${screen.dotColor}`} aria-hidden="true" />
           <span className="text-sm text-neutral-200">{screen.name}</span>
         </div>
         <div className="inline-flex items-center gap-1 text-xs text-cyan-400">
-          <CheckCircle className="w-4 h-4" strokeWidth={1.5} />
+          <CheckCircle className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
           Added
         </div>
       </div>
@@ -595,7 +600,7 @@ function StudioCard({
           }}
         >
           {/* Placeholder content for studio preview */}
-          <div className="h-[844px] bg-gradient-to-b from-neutral-900 to-black rounded-[2.9rem] flex items-center justify-center">
+          <div className="h-[844px] bg-gradient-to-b from-neutral-900 to-black rounded-[2.9rem] flex items-center justify-center" aria-hidden="true">
             <div className="text-neutral-600 text-sm">
               {screen.name} Preview
             </div>
@@ -603,5 +608,17 @@ function StudioCard({
         </div>
       </div>
     </div>
+  )
+}
+
+export default function MobileAssistantPage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading mobile assistant..." />}>
+          <MobileAssistantPageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }

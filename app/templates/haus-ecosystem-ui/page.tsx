@@ -40,14 +40,17 @@ export default function HausEcosystemUIPage() {
   useEffect(() => {
     // Add smooth scrolling behavior for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function (e) {
+      anchor.addEventListener("click", function (this: HTMLAnchorElement, e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute("href"));
-        if (target) {
-          target.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
+        const href = this.getAttribute("href");
+        if (href) {
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
         }
       });
     });
@@ -407,7 +410,7 @@ export default function HausEcosystemUIPage() {
                 >
                   <div className="flex items-center gap-4 mb-6">
                     <div
-                      className={`w-12 h-12 bg-gradient-to-br ${colorClasses[module.color].split(" ")[0]} ${colorClasses[module.color].split(" ")[1]} rounded-xl flex items-center justify-center`}
+                      className={`w-12 h-12 bg-gradient-to-br ${colorClasses[module.color as keyof typeof colorClasses].split(" ")[0]} ${colorClasses[module.color as keyof typeof colorClasses].split(" ")[1]} rounded-xl flex items-center justify-center`}
                     >
                       <Icon className="w-6 h-6 text-white" />
                     </div>
@@ -425,14 +428,14 @@ export default function HausEcosystemUIPage() {
                     {module.tags.map((tag, tagIndex) => (
                       <span
                         key={tagIndex}
-                        className={`px-3 py-1 ${bgClasses[module.color]} rounded-full text-xs`}
+                        className={`px-3 py-1 ${bgClasses[module.color as keyof typeof bgClasses]} rounded-full text-xs`}
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
                   <button
-                    className={`${colorClasses[module.color].split(" ").slice(2).join(" ")} text-sm font-medium flex items-center gap-2 transition-colors`}
+                    className={`${colorClasses[module.color as keyof typeof colorClasses].split(" ").slice(2).join(" ")} text-sm font-medium flex items-center gap-2 transition-colors`}
                   >
                     Explore Module
                     <ArrowRight className="w-4 h-4" />
@@ -487,7 +490,7 @@ export default function HausEcosystemUIPage() {
                           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/40 border border-white/10 rounded-2xl p-8 backdrop-blur-lg">
                             <div className="flex items-center gap-4 mb-6">
                               <div
-                                className={`w-12 h-12 bg-gradient-to-br ${colorClasses[step.color].split(" ").slice(0, 2).join(" ")} rounded-full flex items-center justify-center`}
+                                className={`w-12 h-12 bg-gradient-to-br ${colorClasses[step.color as keyof typeof colorClasses].split(" ").slice(0, 2).join(" ")} rounded-full flex items-center justify-center`}
                               >
                                 <span className="text-white font-bold">
                                   {step.step}
@@ -509,7 +512,7 @@ export default function HausEcosystemUIPage() {
                               {step.tags.map((tag, tagIndex) => (
                                 <span
                                   key={tagIndex}
-                                  className={`px-3 py-1 ${colorClasses[step.color].split(" ").slice(2).join(" ")} rounded-full text-xs`}
+                                  className={`px-3 py-1 ${colorClasses[step.color as keyof typeof colorClasses].split(" ").slice(2).join(" ")} rounded-full text-xs`}
                                 >
                                   {tag}
                                 </span>
@@ -532,7 +535,7 @@ export default function HausEcosystemUIPage() {
                           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/40 border border-white/10 rounded-2xl p-8 backdrop-blur-lg">
                             <div className="flex items-center gap-4 mb-6">
                               <div
-                                className={`w-12 h-12 bg-gradient-to-br ${colorClasses[step.color].split(" ").slice(0, 2).join(" ")} rounded-full flex items-center justify-center`}
+                                className={`w-12 h-12 bg-gradient-to-br ${colorClasses[step.color as keyof typeof colorClasses].split(" ").slice(0, 2).join(" ")} rounded-full flex items-center justify-center`}
                               >
                                 <span className="text-white font-bold">
                                   {step.step}
@@ -554,7 +557,7 @@ export default function HausEcosystemUIPage() {
                               {step.tags.map((tag, tagIndex) => (
                                 <span
                                   key={tagIndex}
-                                  className={`px-3 py-1 ${colorClasses[step.color].split(" ").slice(2).join(" ")} rounded-full text-xs`}
+                                  className={`px-3 py-1 ${colorClasses[step.color as keyof typeof colorClasses].split(" ").slice(2).join(" ")} rounded-full text-xs`}
                                 >
                                   {tag}
                                 </span>
@@ -623,11 +626,11 @@ export default function HausEcosystemUIPage() {
                     return (
                       <button
                         key={index}
-                        className={`text-left p-4 bg-neutral-900/60 border border-white/10 rounded-xl transition-all duration-300 ${borderColors[example.color]}`}
+                        className={`text-left p-4 bg-neutral-900/60 border border-white/10 rounded-xl transition-all duration-300 ${borderColors[example.color as keyof typeof borderColors]}`}
                       >
                         <div className="flex items-start gap-3">
                           <div
-                            className={`w-8 h-8 ${iconColors[example.color]} rounded-lg flex items-center justify-center flex-shrink-0 mt-1`}
+                            className={`w-8 h-8 ${iconColors[example.color as keyof typeof iconColors]} rounded-lg flex items-center justify-center flex-shrink-0 mt-1`}
                           >
                             <Icon className="w-4 h-4" />
                           </div>

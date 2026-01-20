@@ -453,7 +453,7 @@ const MobilePhone = () => (
             return (
               <div key={index} className="flex items-start gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 shadow-sm shrink-0">
-                  <Icon className="w-4 h-4" strokeWidth={1.5} />
+                  <Icon className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">

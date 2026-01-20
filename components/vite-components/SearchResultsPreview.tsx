@@ -101,8 +101,8 @@ export const SearchResultsPreview = ({ isVisible, searchQuery }: SearchResultsPr
           >
             {/* Image */}
             <div className="relative h-32 overflow-hidden">
-              <img 
-                src={property.image} 
+              <img
+                src={typeof property.image === 'string' ? property.image : property.image.src}
                 alt={property.title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />

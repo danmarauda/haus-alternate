@@ -273,16 +273,20 @@ export default function FabricaHomePage() {
                   asChild
                   className="gap-2 bg-white text-black hover:bg-zinc-200 rounded-full"
                 >
-                  <a href="#contact">Get Started</a>
-                  <ArrowRight className="h-4 w-4" />
+                  <a href="#contact">
+                    Get Started
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
                 </Button>
                 <Button
                   asChild
                   variant="outline"
                   className="gap-2 border-white/20 text-white hover:bg-white/10 rounded-full"
                 >
-                  <a href="#projects">View Projects</a>
-                  <Play className="h-4 w-4" />
+                  <a href="#projects">
+                    View Projects
+                    <Play className="h-4 w-4" />
+                  </a>
                 </Button>
               </div>
 
@@ -515,8 +519,10 @@ export default function FabricaHomePage() {
                 asChild
                 className="gap-2 bg-white text-black hover:bg-zinc-200 rounded-full"
               >
-                <Play className="h-4 w-4" />
-                Watch showreel
+                <a href="#showreel">
+                  <Play className="h-4 w-4" />
+                  Watch showreel
+                </a>
               </Button>
             </div>
           </div>
@@ -587,8 +593,10 @@ export default function FabricaHomePage() {
               asChild
               className="gap-2 bg-white text-black hover:bg-zinc-200 rounded-full"
             >
-              <a href="#contact">Get started</a>
-              <ArrowRight className="h-4 w-4" />
+              <a href="#contact">
+                Get started
+                <ArrowRight className="h-4 w-4" />
+              </a>
             </Button>
           </div>
         </div>
@@ -670,8 +678,10 @@ export default function FabricaHomePage() {
                       asChild
                       className="w-full gap-2 bg-white text-black hover:bg-zinc-200 rounded-full"
                     >
-                      <a href="#contact">Get in touch</a>
-                      <ArrowRight className="h-4 w-4" />
+                      <a href="#contact">
+                        Get in touch
+                        <ArrowRight className="h-4 w-4" />
+                      </a>
                     </Button>
                   </div>
                   <div>
@@ -722,7 +732,7 @@ export default function FabricaHomePage() {
                   </div>
                   <div className="flex gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill="currentColor" />
+                      <Star key={i} className="h-4 w-4" fill="currentColor" />
                     ))}
                   </div>
                 </div>
@@ -763,7 +773,7 @@ export default function FabricaHomePage() {
                   <div className="p-6">
                     <div className="flex gap-1 mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill="currentColor" />
+                        <Star key={i} className="h-4 w-4" fill="currentColor" />
                       ))}
                     </div>
                     <p className="text-base text-neutral-700">{testimonial.content}</p>
@@ -797,8 +807,10 @@ export default function FabricaHomePage() {
                 asChild
                 className="gap-2 bg-white text-black hover:bg-zinc-200 rounded-full"
               >
-                <a href="#contact">Apply now</a>
-                <ArrowRight className="h-4 w-4" />
+                <a href="#contact">
+                  Apply now
+                  <ArrowRight className="h-4 w-4" />
+                </a>
               </Button>
             </div>
           </div>
@@ -914,8 +926,10 @@ export default function FabricaHomePage() {
               variant="outline"
               className="gap-2 border-white/20 text-white hover:bg-white/10 rounded-full"
             >
-              <a href="#blog">See all</a>
-              <ArrowRight className="h-4 w-4" />
+              <a href="#blog">
+                See all
+                <ArrowRight className="h-4 w-4" />
+              </a>
             </Button>
           </div>
 

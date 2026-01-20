@@ -3,13 +3,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Building2, DollarSign, Bed, Search, Car, Sparkles, Trees, Waves } from "lucide-react";
 import heroImage from "@/assets/hero-home.jpg";
-import { VoiceSearchButton } from "@/components/VoiceSearchButton";
+import { VoiceSearchButton } from "@/components/vite-components/VoiceSearchButton";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useState } from "react";
-import { AnimatedGradientMesh } from "@/components/AnimatedGradientMesh";
-import { AnimatedStat } from "@/components/AnimatedStats";
-import { SearchAutocomplete } from "@/components/SearchAutocomplete";
-import { SearchResultsPreview } from "@/components/SearchResultsPreview";
+import { AnimatedGradientMesh } from "@/components/vite-components/AnimatedGradientMesh";
+import { AnimatedStat } from "@/components/vite-components/AnimatedStats";
+import { SearchAutocomplete } from "@/components/vite-components/SearchAutocomplete";
+import { SearchResultsPreview } from "@/components/vite-components/SearchResultsPreview";
 import { cn } from "@/lib/utils";
 
 export const SearchSection = () => {
@@ -24,7 +24,7 @@ export const SearchSection = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const { voiceState, startVoiceSearch, stopVoiceSearch } = useRealtimeVoice({
-    apiKey: import.meta.env.VITE_OPENAI_API_KEY || "",
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || "",
     onSearchData: (data) => {
       setSearchForm(prev => ({
         ...prev,
@@ -112,7 +112,7 @@ export const SearchSection = () => {
           <div className="mt-8 relative rounded-2xl overflow-hidden border border-glass-border group">
             <div className="relative w-full h-[52vh] sm:h-[60vh] overflow-hidden">
               <img
-                src={heroImage}
+                src={heroImage.src}
                 alt="Modern home exterior at sunset"
                 className="w-full h-full object-cover transition-transform ease-linear group-hover:scale-110"
                 style={{ transitionDuration: '20000ms' }}

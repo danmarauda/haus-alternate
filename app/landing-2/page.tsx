@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Link from "next/link"
 import {
   Mic,
@@ -17,62 +17,75 @@ import {
   Heart,
   Star,
   ArrowRight,
+  Home,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { HausLogo } from "@/components/haus-logo"
 import { cn } from "@/lib/utils"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 
-/**
- * Landing Page 2 - Geist Font
- *
- * Voice-first AI real estate platform with modern iOS-style mockups
- * Features conversational property search, AI assistant, and mobile-first design
- *
- * @example
- * ```tsx
- * import LandingPage2 from './landing-2/page'
- * <LandingPage2 />
- * ```
- */
-export default function LandingPage2() {
+
+interface Feature {
+  icon: typeof Mic
+  title: string
+  description: string
+  emoji: string
+}
+
+interface VoiceQuery {
+  text: string
+}
+
+interface VoiceQueryOption {
+  label: string
+  value: string
+}
+
+const voiceQueries: VoiceQueryOption[] = [
+  { label: "Family home with courtyard near parks", value: "Family home with courtyard near parks" },
+  { label: "Investment property with high yield in Brisbane", value: "Investment property with high yield in Brisbane" },
+  { label: "Waterfront apartment with city views", value: "Waterfront apartment with city views" },
+  { label: "Rural acreage with solar power and bore", value: "Rural acreage with solar power and bore" },
+]
+
+const features: Feature[] = [
+  {
+    icon: Mic,
+    title: "Voice-First Search",
+    description: "Ask naturally. No more checkbox hell.",
+    emoji: "🎤",
+  },
+  {
+    icon: Scale,
+    title: "Fair Play Protocol",
+    description: "No underquoting or dodgy tactics.",
+    emoji: "⚖️",
+  },
+  {
+    icon: Layers,
+    title: "Transparency by Design",
+    description: "Every fee disclosed. Plain English.",
+    emoji: "🏗️",
+  },
+] as const
+
+function LandingPage2Content() {
   const [activeDemo, setActiveDemo] = useState<"voice" | "chat" | "transparency">("voice")
+  const [selectedQuery, setSelectedQuery] = useState(voiceQueries[0].value)
+  const [earlyAccessCount] = useState(1)
 
-  const voiceQueries = [
-    "Family home with courtyard near parks",
-    "Investment property with high yield in Brisbane",
-    "Waterfront apartment with city views",
-    "Rural acreage with solar power and bore",
-  ]
-
-  const features = [
-    {
-      icon: Mic,
-      title: "Voice-First Search",
-      description: "Ask naturally. No more checkbox hell.",
-      emoji: "🎤",
-    },
-    {
-      icon: Scale,
-      title: "Fair Play Protocol",
-      description: "No underquoting or dodgy tactics.",
-      emoji: "⚖️",
-    },
-    {
-      icon: Layers,
-      title: "Transparency by Design",
-      description: "Every fee disclosed. Plain English.",
-      emoji: "🏗️",
-    },
-  ]
-
-  const earlyAccessCount = 1
+  const handleQuerySelect = useCallback((query: string) => {
+    setSelectedQuery(query)
+  }, [])
 
   return (
-    <div className="min-h-screen antialiased font-geist bg-black text-white selection:bg-white/10 selection:text-white">
+    <div className="landing-page min-h-screen font-geist bg-black text-white selection:bg-white/10 selection:text-white">
       {/* Background Gradient */}
-      <div className="fixed inset-0 -z-10">
+      <div className="fixed inset-0 -z-10" aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_80%_-10%,rgba(59,130,246,0.2),transparent),radial-gradient(800px_400px_at_20%_10%,rgba(168,85,247,0.18),transparent),radial-gradient(900px_500px_at_50%_120%,rgba(16,185,129,0.14),transparent)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
         <div className="pointer-events-none absolute inset-0 backdrop-blur-[1px]" />
@@ -82,14 +95,14 @@ export default function LandingPage2() {
       <header className="sticky top-0 z-40 backdrop-blur-md bg-black/40 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3" aria-label="HAUS home">
               <div className="h-8 w-8 rounded-md bg-white/10 ring-1 ring-white/10 flex items-center justify-center">
                 <Heart className="w-4 h-4 text-white/90" />
               </div>
               <span className="text-base sm:text-lg tracking-tight font-semibold">HAUS</span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6 text-sm">
+            <nav className="hidden md:flex items-center gap-6 text-sm" aria-label="Main navigation">
               <a href="#explore" className="text-white/80 hover:text-white transition">
                 EXPLORE
               </a>
@@ -118,7 +131,7 @@ export default function LandingPage2() {
                   </Badge>
                 )}
               </Button>
-              <Button variant="ghost" size="icon" className="md:hidden rounded-lg">
+              <Button variant="ghost" size="icon" className="md:hidden rounded-lg" aria-label="Open menu">
                 <Menu className="w-4.5 h-4.5" />
               </Button>
             </div>
@@ -137,7 +150,7 @@ export default function LandingPage2() {
                 <div className="inline-flex items-center gap-2 text-xs text-white/70 bg-white/5 border border-white/10 rounded-full px-2.5 py-1 w-fit mb-4">
                   <Mic className="w-3.5 h-3.5 text-white/80" />
                   <span>Voice‑first. Compliance‑ready.</span>
-                  <span className="h-3 w-px bg-white/10" />
+                  <span className="h-3 w-px bg-white/10" aria-hidden="true" />
                   <span>Built for Australians</span>
                 </div>
 
@@ -148,12 +161,13 @@ export default function LandingPage2() {
 
                 {/* Description */}
                 <p className="mt-4 text-base sm:text-lg leading-relaxed text-white/70">
-                  Search, invest, buy, and manage in one AI‑native platform. Voice‑first. Compliance‑ready. Built for Australians.
+                  Search, invest, buy, and manage in one AI‑native platform. Voice‑first.
+                  Compliance‑ready. Built for Australians.
                 </p>
 
                 {/* Warning */}
                 <p className="mt-3 text-base text-rose-300/90 flex items-center gap-2">
-                  <Scale className="w-4 h-4" />
+                  <Scale className="w-4 h-4" aria-hidden="true" />
                   Don't put up with dodgy agent tactics.
                 </p>
 
@@ -176,46 +190,43 @@ export default function LandingPage2() {
                 </div>
 
                 {/* Feature Cards */}
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {features.map((feature, index) => {
-                    const Icon = feature.icon
-                    return (
-                      <Card key={index} className="rounded-lg border border-white/10 bg-white/5 p-4">
-                        <CardContent className="p-0">
-                          <div className="flex items-center gap-2 text-sm font-medium mb-2">
-                            <span className="text-xl">{feature.emoji}</span>
-                            <span className="text-white">{feature.title}</span>
-                          </div>
-                          <p className="text-sm text-white/70">{feature.description}</p>
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3" role="list" aria-label="Platform features">
+                  {features.map((feature) => (
+                    <Card key={feature.title} className="rounded-lg border border-white/10 bg-white/5 p-4" role="listitem">
+                      <CardContent className="p-0">
+                        <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                          <span className="text-xl" aria-hidden="true">{feature.emoji}</span>
+                          <span className="text-white">{feature.title}</span>
+                        </div>
+                        <p className="text-sm text-white/70">{feature.description}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               </div>
 
               {/* Right: Phone Mockups */}
               <div className="relative">
                 {/* Background Glow */}
-                <div className="absolute -top-8 -right-8 -z-10 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl" />
+                <div className="absolute -top-8 -right-8 -z-10 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl" aria-hidden="true" />
 
                 {/* Phone 1: Voice Search */}
-                <Card className="relative w-[300px] sm:w-[340px] h-[620px] bg-black border border-white/10 rounded-[36px] shadow-2xl overflow-hidden">
+                <Card className="relative w-[300px] sm:w-[340px] h-[620px] bg-black border border-white/10 rounded-[36px] shadow-2xl overflow-hidden" aria-labelledby="voice-search-title">
                   <CardContent className="p-0 h-full">
                     <div className="w-full h-full overflow-hidden relative bg-neutral-950 rounded-[30px] ring-1 ring-white/10">
                       {/* Status Bar */}
                       <div className="flex justify-between items-center px-5 pt-3 pb-2">
                         <div className="text-white/90 text-xs font-medium">9:41</div>
                         <div className="flex items-center gap-1 text-white/70">
-                          <div className="w-4 h-4" />
-                          <div className="w-4 h-4" />
+                          <div className="w-4 h-4" aria-hidden="true" />
+                          <div className="w-4 h-4" aria-hidden="true" />
                         </div>
                       </div>
 
                       {/* Header */}
                       <div className="px-5 pb-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="tracking-tight font-semibold text-xl text-white">Voice Search</h3>
+                          <h3 id="voice-search-title" className="tracking-tight font-semibold text-xl text-white">Voice Search</h3>
                           <Badge variant="outline" className="text-[10px] text-amber-300/90 bg-amber-400/10 border-amber-400/20 rounded-full px-2 py-0.5">
                             Coming Soon
                           </Badge>
@@ -227,11 +238,14 @@ export default function LandingPage2() {
                       <div className="px-5">
                         <div className="relative">
                           <input
+                            type="text"
                             placeholder="Ask for your perfect property…"
                             className="w-full text-sm placeholder-white/40 bg-white/5 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-white/20 text-white"
+                            aria-label="Property search input"
+                            aria-describedby="voice-search-description"
                           />
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                            <Search className="w-4.5 h-4.5 text-white/60" />
+                            <Search className="w-4.5 h-4.5 text-white/60" aria-hidden="true" />
                           </div>
                           <button className="absolute inset-y-0 right-0 pr-3 flex items-center">
                             <div className="h-8 w-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
@@ -244,12 +258,20 @@ export default function LandingPage2() {
                       {/* Suggestions */}
                       <div className="px-5 mt-4">
                         <p className="text-xs text-white/50 mb-2">Try these queries</p>
-                        <div className="space-y-1.5 text-sm">
+                        <div role="list" aria-label="Example voice queries">
                           {voiceQueries.map((query, index) => (
-                            <div key={index} className="flex items-center gap-2 text-white/80">
-                              <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
-                              {query}
-                            </div>
+                            <button
+                              key={query.value}
+                              onClick={() => handleQuerySelect(query.value)}
+                              className={cn(
+                                "w-full text-left flex items-center gap-2 text-white/80 text-sm py-1.5 rounded-md hover:bg-white/10 transition-colors",
+                                selectedQuery === query.value && "bg-white/10"
+                              )}
+                              aria-label={`Use query: ${query.label}`}
+                            >
+                              <span className="h-1.5 w-1.5 rounded-full bg-white/40" aria-hidden="true" />
+                              {query.label}
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -261,7 +283,7 @@ export default function LandingPage2() {
                             <div className="flex items-center gap-2 text-xs text-emerald-300/90">
                               <MessageCircle className="w-3.5 h-3.5" />
                               <span>Recognized:</span>
-                              <span className="text-white/80">"3 bedroom house in Melbourne with good transport links"</span>
+                              <span className="text-white/80">"3 bedroom house in Melbourne..."</span>
                             </div>
                             <div className="flex items-center gap-2 text-xs text-white/70">
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -278,7 +300,7 @@ export default function LandingPage2() {
                       </div>
 
                       {/* Home Indicator */}
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-28 h-1 bg-white/25 rounded-full" />
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-28 h-1 bg-white/25 rounded-full" aria-hidden="true" />
                     </div>
                   </CardContent>
                 </Card>
@@ -319,7 +341,7 @@ export default function LandingPage2() {
                   </div>
                   <h3 className="text-lg font-semibold mb-2">Fair Play</h3>
                   <p className="text-sm text-white/60">
-                    No underquoting. No hidden fees. Every property verified with complete disclosure.
+                    No underquoting. No hidden fees. Every property is verified and priced accurately.
                   </p>
                 </CardContent>
               </Card>
@@ -354,10 +376,10 @@ export default function LandingPage2() {
                     </p>
                     <Button
                       size="lg"
-                      className="bg-white text-black hover:bg-white/90 rounded-full"
+                      className="bg-white text-black hover:bg-neutral-100 rounded-full"
                     >
                       Get Started
-                      <ArrowRight className="ml-2 w-4 h-4" />
+                      <ArrowRight className="ml-2 w-4 h-4" aria-hidden="true" />
                     </Button>
                   </div>
                   <div className="flex justify-center">
@@ -387,7 +409,7 @@ export default function LandingPage2() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-white/10 py-12">
+        <footer className="border-t border-white/10 py-12" role="contentinfo">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-2">
@@ -397,20 +419,24 @@ export default function LandingPage2() {
                 <span className="text-white/60 text-sm">© 2025 HAUS. All rights reserved.</span>
               </div>
               <div className="flex items-center gap-6 text-xs text-white/40">
-                <Link href="#privacy" className="hover:text-white/60 transition">
-                  Privacy
-                </Link>
-                <Link href="#terms" className="hover:text-white/60 transition">
-                  Terms
-                </Link>
-                <Link href="#contact" className="hover:text-white/60 transition">
-                  Contact
-                </Link>
+                <Link href="/privacy" className="hover:text-white/60 transition">Privacy</Link>
+                <Link href="/terms" className="hover:text-white/60 transition">Terms</Link>
+                <Link href="/contact" className="hover:text-white/60 transition">Contact</Link>
               </div>
             </div>
           </div>
         </footer>
       </main>
     </div>
+  )
+}
+
+export default function LandingPage2() {
+  return (
+    <ErrorBoundary>
+      <Shell variant="landing">
+        <LandingPage2Content />
+      </Shell>
+    </ErrorBoundary>
   )
 }

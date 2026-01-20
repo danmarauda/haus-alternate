@@ -14,7 +14,7 @@ import {
   Mail,
   MessageCircle,
   Play,
-  ShieldUser,
+  ShieldCheck,
   Star,
   Wand2,
   Zap,
@@ -306,7 +306,7 @@ export default function MobileSalesDashboardPage() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/20 px-2.5 py-1.5 mb-4 backdrop-blur-sm">
                 <div className="h-5 w-5 grid place-items-center rounded-lg bg-emerald-500/10 text-emerald-400">
-                  <ShieldUser className="h-3 w-3" />
+                  <ShieldCheck className="h-3 w-3" />
                 </div>
                 <span className="text-xs text-white/70">Live interactive hero</span>
               </div>
@@ -328,7 +328,7 @@ export default function MobileSalesDashboardPage() {
               {/* Feature chips */}
               <div className="flex flex-wrap gap-2 mb-5">
                 {[
-                  { icon: ShieldUser, label: "GPU-smooth" },
+                  { icon: ShieldCheck, label: "GPU-smooth" },
                   { icon: Activity, label: "Glass UI" },
                   { icon: Wand2, label: "Hover trails" },
                 ].map((chip, idx) => {

@@ -420,26 +420,26 @@ export default function MarketIntelligencePage() {
             <div className="space-y-4">
               <h3 className="text-xs font-mono uppercase tracking-widest text-neutral-500 font-semibold">Asset Class</h3>
               <div className="space-y-2">
-                {(["Residential", "Commercial", "Land"] as AssetClass[]).map((asset) => (
+                {(["residential", "commercial", "land"] as const).map((asset) => (
                   <label key={asset} className="flex items-center gap-3 cursor-pointer group">
                     <Checkbox
-                      checked={filters.assetClass.includes(asset.toLowerCase() as AssetClass)}
+                      checked={filters.assetClass.includes(asset as AssetClass)}
                       onChange={(checked) => {
                         if (checked) {
                           setFilters(prev => ({
                             ...prev,
-                            assetClass: [...prev.assetClass, asset.toLowerCase() as AssetClass]
+                            assetClass: [...prev.assetClass, asset as AssetClass]
                           }))
                         } else {
                           setFilters(prev => ({
                             ...prev,
-                            assetClass: prev.assetClass.filter(a => a !== asset.toLowerCase())
+                            assetClass: prev.assetClass.filter(a => a !== asset)
                           }))
                         }
                       }}
                     />
                     <span className="text-sm text-neutral-300 group-hover:text-white transition-colors">
-                      {asset}
+                      {asset.charAt(0).toUpperCase() + asset.slice(1)}
                     </span>
                   </label>
                 ))}
@@ -450,26 +450,26 @@ export default function MarketIntelligencePage() {
             <div className="space-y-4">
               <h3 className="text-xs font-mono uppercase tracking-widest text-neutral-500 font-semibold">Region</h3>
               <div className="space-y-2">
-                {(["North America", "EMEA", "APAC"] as MarketRegion[]).map((region) => (
+                {(["north-america", "emea", "apac"] as const).map((region) => (
                   <label key={region} className="flex items-center gap-3 cursor-pointer group">
                     <Checkbox
-                      checked={filters.region.includes(region.toLowerCase().replace(" ", "-") as MarketRegion)}
+                      checked={filters.region.includes(region as MarketRegion)}
                       onChange={(checked) => {
                         if (checked) {
                           setFilters(prev => ({
                             ...prev,
-                            region: [...prev.region, region.toLowerCase().replace(" ", "-") as MarketRegion]
+                            region: [...prev.region, region as MarketRegion]
                           }))
                         } else {
                           setFilters(prev => ({
                             ...prev,
-                            region: prev.region.filter(r => r !== region.toLowerCase().replace(" ", "-"))
+                            region: prev.region.filter(r => r !== region)
                           }))
                         }
                       }}
                     />
                     <span className="text-sm text-neutral-300 group-hover:text-white transition-colors">
-                      {region}
+                      {region === "north-america" ? "North America" : region.toUpperCase()}
                     </span>
                   </label>
                 ))}

@@ -1,7 +1,12 @@
 import Link from "next/link"
 import { ArrowRight, LayoutGrid, Sparkles } from "lucide-react"
+import { Suspense } from "react"
+import { Shell } from "@/components/shell"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PageLoader } from "@/components/page-loader"
 
-export default function HomePage() {
+
+function HomePageContent() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 flex items-center justify-center">
       <div className="text-center space-y-8 max-w-2xl px-4">
@@ -22,18 +27,18 @@ export default function HomePage() {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/showcase"
+            href="/search"
             className="inline-flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-lg font-medium shadow-lg shadow-indigo-500/25 group"
           >
             <Sparkles className="w-5 h-5" />
-            View Showcase
+            Explore Platform
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
-            href="/advisory"
+            href="/about"
             className="inline-flex items-center gap-2 px-8 py-4 bg-zinc-800 text-white rounded-lg hover:bg-zinc-700 transition-colors text-lg font-medium border border-zinc-700"
           >
-            Advisory Network
+            Learn More
           </Link>
         </div>
 
@@ -41,7 +46,7 @@ export default function HomePage() {
         <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-neutral-500 pt-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800/50 border border-zinc-700">
             <LayoutGrid className="w-4 h-4" />
-            11+ Pages
+            90+ Pages
           </span>
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800/50 border border-zinc-700">
             <Sparkles className="w-4 h-4" />
@@ -53,5 +58,17 @@ export default function HomePage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <ErrorBoundary>
+      <Shell>
+        <Suspense fallback={<PageLoader text="Loading home..." />}>
+          <HomePageContent />
+        </Suspense>
+      </Shell>
+    </ErrorBoundary>
   )
 }
