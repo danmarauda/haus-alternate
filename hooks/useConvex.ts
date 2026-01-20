@@ -3,6 +3,7 @@
  *
  * Type-safe hooks for common Convex operations.
  * These hooks wrap Convex's useQuery and useMutation with proper error handling.
+ * All hooks fall back to mock data when Convex is not configured.
  */
 
 import { useQuery, useMutation, useAction } from "convex/react"
@@ -49,13 +50,7 @@ import { useCallback, useState, useEffect } from "react"
 export function useProperties(filters?: PropertyFilters, limit = 20) {
   const [mockProperties] = useState<Property[]>([])
 
-  // Try Convex query, fallback to mock data
-  const result = useQuery(
-    api.functions.listProperties,
-    api.functions.listProperties ? { ...filters, limit } : undefined
-  )
-
-  // Return mock data for now when Convex isn't ready
+  // Check BEFORE calling useQuery - prevents TypeError
   if (!api.functions.listProperties) {
     return {
       properties: mockProperties,
@@ -65,6 +60,9 @@ export function useProperties(filters?: PropertyFilters, limit = 20) {
       hasMore: false,
     }
   }
+
+  // Only call useQuery if function exists
+  const result = useQuery(api.functions.listProperties, { ...filters, limit })
 
   return {
     ...result,
@@ -78,15 +76,12 @@ export function useProperties(filters?: PropertyFilters, limit = 20) {
  * Hook for fetching a single property by slug
  */
 export function useProperty(slug: string) {
-  const result = useQuery(
-    api.functions.getPropertyBySlug,
-    api.functions.getPropertyBySlug ? { slug } : undefined
-  )
-
+  // Check BEFORE calling useQuery
   if (!api.functions.getPropertyBySlug) {
     return { data: null, isLoading: false, error: null }
   }
 
+  const result = useQuery(api.functions.getPropertyBySlug, { slug })
   return result
 }
 
@@ -94,15 +89,12 @@ export function useProperty(slug: string) {
  * Hook for searching properties
  */
 export function usePropertySearch(query: string, filters?: PropertyFilters) {
-  const result = useQuery(
-    api.functions.searchProperties,
-    api.functions.searchProperties ? { query, filters } : undefined
-  )
-
+  // Check BEFORE calling useQuery
   if (!api.functions.searchProperties) {
     return { data: [], isLoading: false, error: null, results: [] }
   }
 
+  const result = useQuery(api.functions.searchProperties, { query, filters })
   return {
     ...result,
     results: result.data || [],
@@ -115,11 +107,14 @@ export function usePropertySearch(query: string, filters?: PropertyFilters) {
 export function useSaveProperty() {
   const [isSaving, setIsSaving] = useState(false)
 
-  const saveProperty = useMutation(api.functions.toggleSaveProperty)
+  // Only create mutation if function exists
+  const saveProperty = api.functions.toggleSaveProperty
+    ? useMutation(api.functions.toggleSaveProperty)
+    : null
 
   const toggleSave = useCallback(
     async (propertyId: Id<"properties">, userId: Id<"users">, save: boolean) => {
-      if (!api.functions.toggleSaveProperty) {
+      if (!api.functions.toggleSaveProperty || !saveProperty) {
         console.warn("Convex toggleSaveProperty not configured")
         return { success: false }
       }
@@ -157,15 +152,12 @@ export function usePrestigeProperties(limit = 10) {
  * Hook for fetching user by email
  */
 export function useUserByEmail(email: string) {
-  const result = useQuery(
-    api.functions.getUserByEmail,
-    api.functions.getUserByEmail ? { email } : undefined
-  )
-
+  // Check BEFORE calling useQuery
   if (!api.functions.getUserByEmail) {
     return { data: null, isLoading: false, error: null }
   }
 
+  const result = useQuery(api.functions.getUserByEmail, { email })
   return result
 }
 
@@ -174,7 +166,11 @@ export function useUserByEmail(email: string) {
  */
 export function useUpsertUser() {
   const [isUpserting, setIsUpserting] = useState(false)
-  const upsert = useMutation(api.functions.upsertUser)
+
+  // Only create mutation if function exists
+  const upsert = api.functions.upsertUser
+    ? useMutation(api.functions.upsertUser)
+    : null
 
   const upsertUser = useCallback(
     async (userData: {
@@ -184,7 +180,7 @@ export function useUpsertUser() {
       image?: string
       role: string
     }) => {
-      if (!api.functions.upsertUser) {
+      if (!api.functions.upsertUser || !upsert) {
         console.warn("Convex upsertUser not configured")
         return { success: false, userId: null }
       }
@@ -215,15 +211,12 @@ export function useUpsertUser() {
  * Hook for fetching market data for a suburb
  */
 export function useMarketData(suburb: string, month?: string, year?: number) {
-  const result = useQuery(
-    api.functions.getMarketData,
-    api.functions.getMarketData ? { suburb, month, year } : undefined
-  )
-
+  // Check BEFORE calling useQuery
   if (!api.functions.getMarketData) {
     return { data: null, isLoading: false, error: null }
   }
 
+  const result = useQuery(api.functions.getMarketData, { suburb, month, year })
   return result
 }
 
@@ -231,15 +224,12 @@ export function useMarketData(suburb: string, month?: string, year?: number) {
  * Hook for fetching top performing suburbs
  */
 export function useTopSuburbs(state?: string, limit = 10) {
-  const result = useQuery(
-    api.functions.getTopSuburbs,
-    api.functions.getTopSuburbs ? { state, limit } : undefined
-  )
-
+  // Check BEFORE calling useQuery
   if (!api.functions.getTopSuburbs) {
     return { data: [], isLoading: false, error: null }
   }
 
+  const result = useQuery(api.functions.getTopSuburbs, { state, limit })
   return result
 }
 
@@ -249,15 +239,12 @@ export function useTopSuburbs(state?: string, limit = 10) {
  * Hook for fetching user insights
  */
 export function useInsights(userId: Id<"users">, limit = 10) {
-  const result = useQuery(
-    api.functions.getInsights,
-    api.functions.getInsights ? { userId, limit } : undefined
-  )
-
+  // Check BEFORE calling useQuery
   if (!api.functions.getInsights) {
     return { data: [], isLoading: false, error: null }
   }
 
+  const result = useQuery(api.functions.getInsights, { userId, limit })
   return result
 }
 
@@ -266,11 +253,15 @@ export function useInsights(userId: Id<"users">, limit = 10) {
  */
 export function useMarkInsightRead() {
   const [isMarking, setIsMarking] = useState(false)
-  const markRead = useMutation(api.functions.markInsightRead)
+
+  // Only create mutation if function exists
+  const markRead = api.functions.markInsightRead
+    ? useMutation(api.functions.markInsightRead)
+    : null
 
   const markAsRead = useCallback(
     async (insightId: Id<"insights">) => {
-      if (!api.functions.markInsightRead) {
+      if (!api.functions.markInsightRead || !markRead) {
         console.warn("Convex markInsightRead not configured")
         return { success: false }
       }
@@ -302,11 +293,15 @@ export function useMarkInsightRead() {
  */
 export function useSubmitEnquiry() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const submit = useMutation(api.functions.submitEnquiry)
+
+  // Only create mutation if function exists
+  const submit = api.functions.submitEnquiry
+    ? useMutation(api.functions.submitEnquiry)
+    : null
 
   const submitEnquiry = useCallback(
     async (data: EnquiryFormData) => {
-      if (!api.functions.submitEnquiry) {
+      if (!api.functions.submitEnquiry || !submit) {
         console.warn("Convex submitEnquiry not configured")
         // Simulate submission for UI testing
         await new Promise(resolve => setTimeout(resolve, 1000))
@@ -339,7 +334,10 @@ export function useSubmitEnquiry() {
  * Hook for tracking analytics events
  */
 export function useTrackEvent() {
-  const track = useMutation(api.functions.trackEvent)
+  // Only create mutation if function exists
+  const track = api.functions.trackEvent
+    ? useMutation(api.functions.trackEvent)
+    : null
 
   const trackEvent = useCallback(
     async (eventData: {
@@ -351,7 +349,7 @@ export function useTrackEvent() {
       page: string
       referrer?: string
     }) => {
-      if (!api.functions.trackEvent) {
+      if (!api.functions.trackEvent || !track) {
         console.log("Track event (mock):", eventData)
         return { success: true }
       }
