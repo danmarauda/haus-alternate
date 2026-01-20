@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`dark ${inter.variable} ${spaceGrotesk.variable} ${spaceMono.variable}`}>
       <body className="flex min-h-screen antialiased">
-        <ConvexContextProvider>
+        <ConvexContextProvider showDemoBanner={false}>
           <ShowcaseSidebar />
           <main className="flex-1 overflow-auto">
             {children}
