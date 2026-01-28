@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter, Space_Grotesk, Space_Mono } from "next/font/google"
 import { ConvexContextProvider } from "@/components/providers/ConvexProvider"
 import { ShowcaseSidebar } from "@/components/showcase-sidebar"
+import "./globals.css"
 
 const inter = Inter({
   subsets: ["latin"],
